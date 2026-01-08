@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-popup {
+  animation: fadeInScale 0.2s ease-out forwards;
+}
+
+/* Slick Carousel Arrow Customization */
+.slick-prev, .slick-next {
+  z-index: 10;
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.slick-prev {
+  left: 20px !important;
+}
+
+.slick-next {
+  right: 20px !important;
+}
+
+.slick-prev:before, .slick-next:before {
+  font-size: 40px !important;
+  opacity: 0.75 !important;
+  transition: opacity 0.3s ease;
+}
+
+.slick-prev:hover:before, .slick-next:hover:before {
+  opacity: 1 !important;
+}
