@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 const AdminDashboard = () => {
   const [products, setProducts] = useState([]);
   const [slides, setSlides] = useState([]);
+  const [popularCategories, setPopularCategories] = useState([]);
   const [activeTab, setActiveTab] = useState('manage');
   const [formData, setFormData] = useState({
     name: '',
@@ -12,15 +13,57 @@ const AdminDashboard = () => {
     description: '',
     category: '',
     imageUrl: '',
-    stock: ''
+    stock: '',
+    isTrendy: false,
+    subImages: ['']
   });
   const [slideFormData, setSlideFormData] = useState({
     title: '',
     subtitle: '',
     image: ''
   });
+  const [popularCategoryFormData, setPopularCategoryFormData] = useState({
+    name: '',
+    image: ''
+  });
+  const [homeBannerForm, setHomeBannerForm] = useState({
+    leftImage: '',
+    leftTitle: '',
+    leftSubtitle: '',
+    leftLink: '/products?category=Rings',
+    rightImage: '',
+    rightTitle: '',
+    rightSubtitle: '',
+    rightLink: '/products?category=Bracelets',
+  });
+  const [promoBannerForm, setPromoBannerForm] = useState({
+    panel1Image: '',
+    panel1Title: '',
+    panel1Link: '/products?category=Rings',
+    panel2Image: '',
+    panel2Title: '',
+    panel2Link: '/products?category=Necklaces',
+    panel3Image: '',
+    panel3Title: '',
+    panel3Link: '/products?category=Bracelets',
+  });
+  const [notificationForm, setNotificationForm] = useState({
+    title: '',
+    message: '',
+    url: '',
+    icon: ''
+  });
   const [editingProduct, setEditingProduct] = useState(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState(null);
+
+  const categories = [
+    'Rings',
+    'Necklaces',
+    'Earrings',
+    'Bracelets',
+    'Charm & Dangles',
+    'Gift Ideas'
+  ];
 
   const fetchProducts = async () => {
     try {
@@ -40,13 +83,66 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchPopularCategories = async () => {
+    try {
+      const { data } = await axios.get('/api/popular-categories');
+      setPopularCategories(data);
+    } catch (error) {
+      console.error('Error fetching popular categories');
+    }
+  };
+  const fetchHomeBanner = async () => {
+    try {
+      const { data } = await axios.get('/api/home-banner');
+      if (data) {
+        setHomeBannerForm({
+          leftImage: data.leftImage,
+          leftTitle: data.leftTitle,
+          leftSubtitle: data.leftSubtitle,
+          leftLink: data.leftLink,
+          rightImage: data.rightImage,
+          rightTitle: data.rightTitle,
+          rightSubtitle: data.rightSubtitle,
+          rightLink: data.rightLink,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching home banner');
+    }
+  };
+
+  const fetchPromoBanner = async () => {
+    try {
+      const { data } = await axios.get('/api/promo-banner');
+      if (data) {
+        setPromoBannerForm({
+          panel1Image: data.panel1Image,
+          panel1Title: data.panel1Title,
+          panel1Link: data.panel1Link,
+          panel2Image: data.panel2Image,
+          panel2Title: data.panel2Title,
+          panel2Link: data.panel2Link,
+          panel3Image: data.panel3Image,
+          panel3Title: data.panel3Title,
+          panel3Link: data.panel3Link,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching promo banner');
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
     fetchSlides();
+    fetchPopularCategories();
+    fetchHomeBanner();
+    fetchPromoBanner();
   }, []);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    setFormData({ ...formData, [e.target.name]: value });
   };
 
   const handleSubmit = async (e) => {
@@ -64,7 +160,9 @@ const AdminDashboard = () => {
         description: '',
         category: '',
         imageUrl: '',
-        stock: ''
+        stock: '',
+        isTrendy: false,
+        subImages: ['']
       });
       fetchProducts();
     } catch (error) {
@@ -124,8 +222,76 @@ const AdminDashboard = () => {
     }
   };
 
+  const handlePopularCategoryChange = (e) => {
+    setPopularCategoryFormData({ ...popularCategoryFormData, [e.target.name]: e.target.value });
+  };
+
+  const handlePopularCategorySubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(
+        '/api/popular-categories', 
+        { ...popularCategoryFormData, name: popularCategoryFormData.name.trim() }, 
+        { withCredentials: true }
+      );
+      toast.success('Category created successfully');
+      setPopularCategoryFormData({
+        name: '',
+        image: ''
+      });
+      fetchPopularCategories();
+    } catch (error) {
+      toast.error('Error creating category');
+    }
+  };
+
+  const handlePopularCategoryDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this category?')) {
+      try {
+        await axios.delete(`/api/popular-categories/${id}`, { withCredentials: true });
+        toast.success('Category deleted successfully');
+        fetchPopularCategories();
+      } catch (error) {
+        toast.error('Error deleting category');
+      }
+    }
+  };
+
   const handleEditClick = (product) => {
-    setEditingProduct(product);
+    setEditingProduct({
+      ...product,
+      subImages: product.subImages && product.subImages.length > 0 ? product.subImages : ['']
+    });
+  };
+
+  const handleSubImageChange = (index, value, isEditing = false) => {
+    if (isEditing) {
+      const newSubImages = [...editingProduct.subImages];
+      newSubImages[index] = value;
+      setEditingProduct({ ...editingProduct, subImages: newSubImages });
+    } else {
+      const newSubImages = [...formData.subImages];
+      newSubImages[index] = value;
+      setFormData({ ...formData, subImages: newSubImages });
+    }
+  };
+
+  const addSubImageField = (isEditing = false) => {
+    if (isEditing) {
+      setEditingProduct({ ...editingProduct, subImages: [...editingProduct.subImages, ''] });
+    } else {
+      setFormData({ ...formData, subImages: [...formData.subImages, ''] });
+    }
+  };
+
+  const removeSubImageField = (index, isEditing = false) => {
+    if (isEditing) {
+      const newSubImages = editingProduct.subImages.filter((_, i) => i !== index);
+      setEditingProduct({ ...editingProduct, subImages: newSubImages });
+    } else {
+      const newSubImages = formData.subImages.filter((_, i) => i !== index);
+      setFormData({ ...formData, subImages: newSubImages });
+    }
   };
 
   const handleUpdateProduct = async (e) => {
@@ -141,6 +307,27 @@ const AdminDashboard = () => {
       fetchProducts();
     } catch (error) {
       toast.error('Error updating product');
+    }
+  };
+
+  const handleNotificationSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(
+        '/api/notifications/send',
+        notificationForm,
+        { withCredentials: true }
+      );
+      toast.success('Notification sent successfully!');
+      setNotificationForm({
+        title: '',
+        message: '',
+        url: '',
+        icon: ''
+      });
+    } catch (error) {
+      toast.error('Error sending notification');
+      console.error(error);
     }
   };
 
@@ -169,7 +356,7 @@ const AdminDashboard = () => {
       <div className="flex space-x-4 mb-8">
         <button
           onClick={() => setActiveTab('manage')}
-          className={`px-6 py-2 rounded-lg font-medium transition duration-200 ${
+          className={`px-6 py-2 font-medium transition duration-200 ${
             activeTab === 'manage'
               ? 'bg-indigo-600 text-white shadow-md'
               : 'bg-white text-gray-600 hover:bg-gray-50'
@@ -179,7 +366,7 @@ const AdminDashboard = () => {
         </button>
         <button
           onClick={() => setActiveTab('add')}
-          className={`px-6 py-2 rounded-lg font-medium transition duration-200 ${
+          className={`px-6 py-2 font-medium transition duration-200 ${
             activeTab === 'add'
               ? 'bg-indigo-600 text-white shadow-md'
               : 'bg-white text-gray-600 hover:bg-gray-50'
@@ -189,7 +376,7 @@ const AdminDashboard = () => {
         </button>
         <button
           onClick={() => setActiveTab('slides')}
-          className={`px-6 py-2 rounded-lg font-medium transition duration-200 ${
+          className={`px-6 py-2 font-medium transition duration-200 ${
             activeTab === 'slides'
               ? 'bg-indigo-600 text-white shadow-md'
               : 'bg-white text-gray-600 hover:bg-gray-50'
@@ -197,11 +384,191 @@ const AdminDashboard = () => {
         >
           Manage Slides
         </button>
+        <button
+          onClick={() => setActiveTab('categories')}
+          className={`px-6 py-2 font-medium transition duration-200 ${
+            activeTab === 'categories'
+              ? 'bg-indigo-600 text-white shadow-md'
+              : 'bg-white text-gray-600 hover:bg-gray-50'
+          }`}
+        >
+          Popular Categories
+        </button>
+        <button
+          onClick={() => setActiveTab('banner')}
+          className={`px-6 py-2 font-medium transition duration-200 ${
+            activeTab === 'banner'
+              ? 'bg-indigo-600 text-white shadow-md'
+              : 'bg-white text-gray-600 hover:bg-gray-50'
+          }`}
+        >
+          Home Banner
+        </button>
+        <button
+          onClick={() => setActiveTab('promo-banner')}
+          className={`px-6 py-2 font-medium transition duration-200 ${
+            activeTab === 'promo-banner'
+              ? 'bg-indigo-600 text-white shadow-md'
+              : 'bg-white text-gray-600 hover:bg-gray-50'
+          }`}
+        >
+          Promo Banner
+        </button>
+        <button
+          onClick={() => setActiveTab('notifications')}
+          className={`px-6 py-2 font-medium transition duration-200 ${
+            activeTab === 'notifications'
+              ? 'bg-indigo-600 text-white shadow-md'
+              : 'bg-white text-gray-600 hover:bg-gray-50'
+          }`}
+        >
+          Notifications
+        </button>
       </div>
       
+      {activeTab === 'notifications' && (
+        <div className="bg-white shadow-md p-6 mb-8">
+          <h2 className="text-xl font-semibold mb-6">Send Push Notification</h2>
+          <form onSubmit={handleNotificationSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="md:col-span-2">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Notification Title
+              </label>
+              <input
+                type="text"
+                value={notificationForm.title}
+                onChange={(e) => setNotificationForm({ ...notificationForm, title: e.target.value })}
+                className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                placeholder="e.g. Flash Sale Alert!"
+                required
+              />
+            </div>
+            
+            <div className="md:col-span-2">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Message Body
+              </label>
+              <textarea
+                value={notificationForm.message}
+                onChange={(e) => setNotificationForm({ ...notificationForm, message: e.target.value })}
+                className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                placeholder="e.g. Get 50% off on all rings this weekend."
+                rows="3"
+                required
+              ></textarea>
+            </div>
+            
+            <div>
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Target URL (Optional)
+              </label>
+              <input
+                type="text"
+                value={notificationForm.url}
+                onChange={(e) => setNotificationForm({ ...notificationForm, url: e.target.value })}
+                className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                placeholder="e.g. /products?category=Rings"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Icon URL (Optional)
+              </label>
+              <input
+                type="text"
+                value={notificationForm.icon}
+                onChange={(e) => setNotificationForm({ ...notificationForm, icon: e.target.value })}
+                className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                placeholder="https://example.com/icon.png"
+              />
+            </div>
+            
+            <div className="md:col-span-2">
+              <button
+                type="submit"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline w-full flex items-center justify-center"
+              >
+                <i className="fas fa-paper-plane mr-2"></i> Send Notification
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {activeTab === 'categories' && (
+        <div className="space-y-8">
+          <div className="bg-white shadow-md p-6">
+            <h2 className="text-xl font-semibold mb-6">Add New Popular Category</h2>
+            <form onSubmit={handlePopularCategorySubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Category Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={popularCategoryFormData.name}
+                  onChange={handlePopularCategoryChange}
+                  className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Image URL
+                </label>
+                <input
+                  type="text"
+                  name="image"
+                  value={popularCategoryFormData.image}
+                  onChange={handlePopularCategoryChange}
+                  className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  required
+                />
+              </div>
+              <div className="md:col-span-2">
+                <button
+                  type="submit"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 focus:outline-none focus:shadow-outline w-full"
+                >
+                  Add Category
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div className="bg-white shadow-md p-6">
+            <h2 className="text-xl font-semibold mb-6">Current Popular Categories</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+              {popularCategories.map((category) => (
+                <div key={category._id} className="flex flex-col items-center relative group">
+                  <div className="w-32 h-32 rounded-full overflow-hidden mb-2 border border-gray-100 shadow-sm">
+                    <img 
+                      src={category.image} 
+                      alt={category.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <span className="text-sm font-bold text-gray-800">{category.name}</span>
+                  <button
+                    onClick={() => handlePopularCategoryDelete(category._id)}
+                    className="absolute top-0 right-0 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {activeTab === 'slides' && (
         <div className="space-y-8">
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white shadow-md p-6">
             <h2 className="text-xl font-semibold mb-6">Add New Slide</h2>
             <form onSubmit={handleSlideSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
@@ -213,7 +580,7 @@ const AdminDashboard = () => {
                   name="image"
                   value={slideFormData.image}
                   onChange={handleSlideChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   required
                 />
               </div>
@@ -226,7 +593,7 @@ const AdminDashboard = () => {
                   name="title"
                   value={slideFormData.title}
                   onChange={handleSlideChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   required
                 />
               </div>
@@ -239,14 +606,14 @@ const AdminDashboard = () => {
                   name="subtitle"
                   value={slideFormData.subtitle}
                   onChange={handleSlideChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   required
                 />
               </div>
               <div className="md:col-span-2">
                 <button
                   type="submit"
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 focus:outline-none focus:shadow-outline w-full"
                 >
                   Add Slide
                 </button>
@@ -254,11 +621,11 @@ const AdminDashboard = () => {
             </form>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white shadow-md p-6">
             <h2 className="text-xl font-semibold mb-6">Current Slides</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {slides.map((slide) => (
-                <div key={slide._id} className="border rounded-lg overflow-hidden shadow-sm relative group">
+                <div key={slide._id} className="border overflow-hidden shadow-sm relative group">
                   <img src={slide.image} alt={slide.title} className="w-full h-48 object-cover" />
                   <div className="p-4">
                     <h3 className="font-bold text-lg">{slide.title}</h3>
@@ -266,7 +633,7 @@ const AdminDashboard = () => {
                   </div>
                   <button
                     onClick={() => handleSlideDelete(slide._id)}
-                    className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-2 right-2 bg-red-600 text-white p-2 opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
@@ -279,8 +646,270 @@ const AdminDashboard = () => {
         </div>
       )}
 
+      {activeTab === 'banner' && (
+        <div className="space-y-8">
+          <div className="bg-white shadow-md p-6">
+            <h2 className="text-xl font-semibold mb-6">Edit Home Banner</h2>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                try {
+                  await axios.put('/api/home-banner', homeBannerForm, { withCredentials: true });
+                  toast.success('Home banner updated');
+                } catch (error) {
+                  toast.error('Error updating banner');
+                }
+              }}
+              className="grid grid-cols-1 md:grid-cols-2 gap-8"
+            >
+              <div>
+                <h3 className="font-semibold mb-4">Left Panel</h3>
+                <label className="block text-gray-700 text-sm mb-2">Image URL</label>
+                <input
+                  type="text"
+                  value={homeBannerForm.leftImage}
+                  onChange={(e) => setHomeBannerForm({ ...homeBannerForm, leftImage: e.target.value })}
+                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                  required
+                />
+                <label className="block text-gray-700 text-sm mb-2 mt-4">Title</label>
+                <input
+                  type="text"
+                  value={homeBannerForm.leftTitle}
+                  onChange={(e) => setHomeBannerForm({ ...homeBannerForm, leftTitle: e.target.value })}
+                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                  required
+                />
+                <label className="block text-gray-700 text-sm mb-2 mt-4">Subtitle</label>
+                <input
+                  type="text"
+                  value={homeBannerForm.leftSubtitle}
+                  onChange={(e) => setHomeBannerForm({ ...homeBannerForm, leftSubtitle: e.target.value })}
+                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                  required
+                />
+                <label className="block text-gray-700 text-sm mb-2 mt-4">Link</label>
+                <input
+                  type="text"
+                  value={homeBannerForm.leftLink}
+                  onChange={(e) => setHomeBannerForm({ ...homeBannerForm, leftLink: e.target.value })}
+                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                  required
+                />
+              </div>
+              <div>
+                <h3 className="font-semibold mb-4">Right Panel</h3>
+                <label className="block text-gray-700 text-sm mb-2">Image URL</label>
+                <input
+                  type="text"
+                  value={homeBannerForm.rightImage}
+                  onChange={(e) => setHomeBannerForm({ ...homeBannerForm, rightImage: e.target.value })}
+                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                  required
+                />
+                <label className="block text-gray-700 text-sm mb-2 mt-4">Title</label>
+                <input
+                  type="text"
+                  value={homeBannerForm.rightTitle}
+                  onChange={(e) => setHomeBannerForm({ ...homeBannerForm, rightTitle: e.target.value })}
+                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                  required
+                />
+                <label className="block text-gray-700 text-sm mb-2 mt-4">Subtitle</label>
+                <input
+                  type="text"
+                  value={homeBannerForm.rightSubtitle}
+                  onChange={(e) => setHomeBannerForm({ ...homeBannerForm, rightSubtitle: e.target.value })}
+                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                  required
+                />
+                <label className="block text-gray-700 text-sm mb-2 mt-4">Link</label>
+                <input
+                  type="text"
+                  value={homeBannerForm.rightLink}
+                  onChange={(e) => setHomeBannerForm({ ...homeBannerForm, rightLink: e.target.value })}
+                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                  required
+                />
+              </div>
+              <div className="md:col-span-2">
+                <button
+                  type="submit"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 focus:outline-none focus:shadow-outline w-full"
+                >
+                  Save Banner
+                </button>
+              </div>
+            </form>
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="relative h-48 overflow-hidden border">
+                {homeBannerForm.leftImage && (
+                  <img src={homeBannerForm.leftImage} alt="Left preview" className="absolute inset-0 w-full h-full object-cover" />
+                )}
+                <div className="absolute bottom-4 left-4">
+                  <div className="font-semibold">{homeBannerForm.leftTitle}</div>
+                  <div className="text-sm text-gray-700">{homeBannerForm.leftSubtitle}</div>
+                </div>
+              </div>
+              <div className="relative h-48 overflow-hidden border">
+                {homeBannerForm.rightImage && (
+                  <img src={homeBannerForm.rightImage} alt="Right preview" className="absolute inset-0 w-full h-full object-cover" />
+                )}
+                <div className="absolute bottom-4 right-4 text-right">
+                  <div className="font-semibold">{homeBannerForm.rightTitle}</div>
+                  <div className="text-sm text-gray-700">{homeBannerForm.rightSubtitle}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'promo-banner' && (
+        <div className="space-y-8">
+          <div className="bg-white shadow-md p-6">
+            <h2 className="text-xl font-semibold mb-6">Edit Promo Banner (3 Panels)</h2>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                try {
+                  await axios.put('/api/promo-banner', promoBannerForm, { withCredentials: true });
+                  toast.success('Promo banner updated');
+                } catch (error) {
+                  toast.error('Error updating promo banner');
+                }
+              }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-8"
+            >
+              {/* Panel 1 */}
+              <div>
+                <h3 className="font-semibold mb-4">Panel 1 (Left)</h3>
+                <label className="block text-gray-700 text-sm mb-2">Image URL</label>
+                <input
+                  type="text"
+                  value={promoBannerForm.panel1Image}
+                  onChange={(e) => setPromoBannerForm({ ...promoBannerForm, panel1Image: e.target.value })}
+                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                  required
+                />
+                <label className="block text-gray-700 text-sm mb-2 mt-4">Title</label>
+                <input
+                  type="text"
+                  value={promoBannerForm.panel1Title}
+                  onChange={(e) => setPromoBannerForm({ ...promoBannerForm, panel1Title: e.target.value })}
+                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                  required
+                />
+                <label className="block text-gray-700 text-sm mb-2 mt-4">Link</label>
+                <input
+                  type="text"
+                  value={promoBannerForm.panel1Link}
+                  onChange={(e) => setPromoBannerForm({ ...promoBannerForm, panel1Link: e.target.value })}
+                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                  required
+                />
+              </div>
+
+              {/* Panel 2 */}
+              <div>
+                <h3 className="font-semibold mb-4">Panel 2 (Center)</h3>
+                <label className="block text-gray-700 text-sm mb-2">Image URL</label>
+                <input
+                  type="text"
+                  value={promoBannerForm.panel2Image}
+                  onChange={(e) => setPromoBannerForm({ ...promoBannerForm, panel2Image: e.target.value })}
+                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                  required
+                />
+                <label className="block text-gray-700 text-sm mb-2 mt-4">Title</label>
+                <input
+                  type="text"
+                  value={promoBannerForm.panel2Title}
+                  onChange={(e) => setPromoBannerForm({ ...promoBannerForm, panel2Title: e.target.value })}
+                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                  required
+                />
+                <label className="block text-gray-700 text-sm mb-2 mt-4">Link</label>
+                <input
+                  type="text"
+                  value={promoBannerForm.panel2Link}
+                  onChange={(e) => setPromoBannerForm({ ...promoBannerForm, panel2Link: e.target.value })}
+                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                  required
+                />
+              </div>
+
+              {/* Panel 3 */}
+              <div>
+                <h3 className="font-semibold mb-4">Panel 3 (Right)</h3>
+                <label className="block text-gray-700 text-sm mb-2">Image URL</label>
+                <input
+                  type="text"
+                  value={promoBannerForm.panel3Image}
+                  onChange={(e) => setPromoBannerForm({ ...promoBannerForm, panel3Image: e.target.value })}
+                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                  required
+                />
+                <label className="block text-gray-700 text-sm mb-2 mt-4">Title</label>
+                <input
+                  type="text"
+                  value={promoBannerForm.panel3Title}
+                  onChange={(e) => setPromoBannerForm({ ...promoBannerForm, panel3Title: e.target.value })}
+                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                  required
+                />
+                <label className="block text-gray-700 text-sm mb-2 mt-4">Link</label>
+                <input
+                  type="text"
+                  value={promoBannerForm.panel3Link}
+                  onChange={(e) => setPromoBannerForm({ ...promoBannerForm, panel3Link: e.target.value })}
+                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+                  required
+                />
+              </div>
+
+              <div className="md:col-span-3">
+                <button
+                  type="submit"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 focus:outline-none focus:shadow-outline w-full"
+                >
+                  Save Promo Banner
+                </button>
+              </div>
+            </form>
+
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="relative h-48 overflow-hidden border">
+                {promoBannerForm.panel1Image && (
+                  <img src={promoBannerForm.panel1Image} alt="Panel 1 preview" className="absolute inset-0 w-full h-full object-cover" />
+                )}
+                <div className="absolute bottom-4 left-4">
+                  <div className="font-semibold text-white">{promoBannerForm.panel1Title}</div>
+                </div>
+              </div>
+              <div className="relative h-48 overflow-hidden border">
+                {promoBannerForm.panel2Image && (
+                  <img src={promoBannerForm.panel2Image} alt="Panel 2 preview" className="absolute inset-0 w-full h-full object-cover" />
+                )}
+                <div className="absolute bottom-4 left-0 right-0 text-center">
+                  <div className="font-semibold text-gray-900">{promoBannerForm.panel2Title}</div>
+                </div>
+              </div>
+              <div className="relative h-48 overflow-hidden border">
+                {promoBannerForm.panel3Image && (
+                  <img src={promoBannerForm.panel3Image} alt="Panel 3 preview" className="absolute inset-0 w-full h-full object-cover" />
+                )}
+                <div className="absolute bottom-4 right-4 text-right">
+                  <div className="font-semibold text-gray-900">{promoBannerForm.panel3Title}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {activeTab === 'add' && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="bg-white shadow-md p-6 mb-8">
           <h2 className="text-xl font-semibold mb-6">Add New Product</h2>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
@@ -290,7 +919,7 @@ const AdminDashboard = () => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full border rounded-md px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+              className="w-full border px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
               required
             />
           </div>
@@ -302,7 +931,7 @@ const AdminDashboard = () => {
               name="price"
               value={formData.price}
               onChange={handleChange}
-              className="w-full border rounded-md px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+              className="w-full border px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
               required
             />
           </div>
@@ -313,7 +942,7 @@ const AdminDashboard = () => {
               name="description"
               value={formData.description}
               onChange={handleChange}
-              className="w-full border rounded-md px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+              className="w-full border px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
               rows="4"
               required
             ></textarea>
@@ -321,14 +950,20 @@ const AdminDashboard = () => {
           
           <div>
             <label className="block text-gray-700 mb-2">Category</label>
-            <input
-              type="text"
+            <select
               name="category"
               value={formData.category}
               onChange={handleChange}
-              className="w-full border rounded-md px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+              className="w-full border px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
               required
-            />
+            >
+              <option value="">Select a category</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
           </div>
           
           <div>
@@ -338,7 +973,7 @@ const AdminDashboard = () => {
               name="stock"
               value={formData.stock}
               onChange={handleChange}
-              className="w-full border rounded-md px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+              className="w-full border px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
               required
             />
           </div>
@@ -350,15 +985,57 @@ const AdminDashboard = () => {
               name="imageUrl"
               value={formData.imageUrl}
               onChange={handleChange}
-              className="w-full border rounded-md px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+              className="w-full border px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
               required
             />
           </div>
           
           <div className="md:col-span-2">
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                name="isTrendy"
+                checked={formData.isTrendy}
+                onChange={handleChange}
+                className="form-checkbox h-5 w-5 text-indigo-600 focus:ring-indigo-600"
+              />
+              <span className="text-gray-700">Add to Trendy Collection</span>
+            </label>
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="block text-gray-700 mb-2">Sub Images</label>
+            {formData.subImages.map((url, index) => (
+              <div key={index} className="flex gap-2 mb-2">
+                <input
+                  type="text"
+                  value={url}
+                  onChange={(e) => handleSubImageChange(index, e.target.value)}
+                  className="w-full border px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                  placeholder="Sub Image URL"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeSubImageField(index)}
+                  className="bg-red-500 text-white px-3 py-2 hover:bg-red-600"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => addSubImageField()}
+              className="mt-2 bg-gray-500 text-white px-4 py-2 hover:bg-gray-600"
+            >
+              Add Sub Image
+            </button>
+          </div>
+          
+          <div className="md:col-span-2">
             <button
               type="submit"
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition duration-300"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 transition duration-300"
             >
               Add Product
             </button>
@@ -368,12 +1045,13 @@ const AdminDashboard = () => {
       )}
 
       {activeTab === 'manage' && (
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white shadow-md p-6">
         <h2 className="text-xl font-semibold mb-6">Manage Products</h2>
         <div className="overflow-x-auto">
           <table className="min-w-full table-auto">
             <thead>
               <tr className="bg-gray-100">
+                <th className="px-6 py-3 text-left">Sr.no</th>
                 <th className="px-6 py-3 text-left">Product</th>
                 <th className="px-6 py-3 text-left">Price</th>
                 <th className="px-6 py-3 text-left">Category</th>
@@ -382,14 +1060,15 @@ const AdminDashboard = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {products.map((product) => (
+              {products.map((product, index) => (
                 <tr key={product._id}>
+                  <td className="px-6 py-4">{index + 1}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center">
                       <img
                         src={product.imageUrl}
                         alt={product.name}
-                        className="h-10 w-10 rounded-full object-cover mr-3"
+                        className="h-10 w-10 object-cover mr-3"
                       />
                       <span className="font-medium">{product.name}</span>
                     </div>
@@ -400,13 +1079,13 @@ const AdminDashboard = () => {
                   <td className="px-6 py-4">
                     <button
                       onClick={() => handleEditClick(product)}
-                      className="text-indigo-600 hover:text-indigo-900 bg-indigo-100 hover:bg-indigo-200 px-3 py-1 rounded-md transition duration-300 mr-2"
+                      className="text-indigo-600 hover:text-indigo-900 bg-indigo-100 hover:bg-indigo-200 px-3 py-1 transition duration-300 mr-2"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleDelete(product._id)}
-                      className="text-red-600 hover:text-red-900 bg-red-100 hover:bg-red-200 px-3 py-1 rounded-md transition duration-300"
+                      className="text-red-600 hover:text-red-900 bg-red-100 hover:bg-red-200 px-3 py-1 transition duration-300"
                     >
                       Delete
                     </button>
@@ -425,7 +1104,7 @@ const AdminDashboard = () => {
       {/* Edit Product Modal */}
       {editingProduct && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 overflow-y-auto max-h-[90vh] animate-scale-in">
+          <div className="bg-white shadow-xl max-w-2xl w-full p-6 overflow-y-auto max-h-[90vh] animate-scale-in">
             <h2 className="text-2xl font-bold mb-6">Edit Product</h2>
             <form onSubmit={handleUpdateProduct} className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -434,7 +1113,7 @@ const AdminDashboard = () => {
                   type="text"
                   value={editingProduct.name}
                   onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
-                  className="w-full border rounded-md px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                  className="w-full border px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
                   required
                 />
               </div>
@@ -445,7 +1124,7 @@ const AdminDashboard = () => {
                   type="number"
                   value={editingProduct.price}
                   onChange={(e) => setEditingProduct({ ...editingProduct, price: e.target.value })}
-                  className="w-full border rounded-md px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                  className="w-full border px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
                   required
                 />
               </div>
@@ -455,7 +1134,7 @@ const AdminDashboard = () => {
                 <textarea
                   value={editingProduct.description}
                   onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
-                  className="w-full border rounded-md px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                  className="w-full border px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
                   rows="4"
                   required
                 ></textarea>
@@ -463,13 +1142,19 @@ const AdminDashboard = () => {
               
               <div>
                 <label className="block text-gray-700 mb-2">Category</label>
-                <input
-                  type="text"
+                <select
                   value={editingProduct.category}
                   onChange={(e) => setEditingProduct({ ...editingProduct, category: e.target.value })}
-                  className="w-full border rounded-md px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                  className="w-full border px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
                   required
-                />
+                >
+                  <option value="">Select a category</option>
+                  {categories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
               </div>
               
               <div>
@@ -478,7 +1163,7 @@ const AdminDashboard = () => {
                   type="number"
                   value={editingProduct.stock}
                   onChange={(e) => setEditingProduct({ ...editingProduct, stock: e.target.value })}
-                  className="w-full border rounded-md px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                  className="w-full border px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
                   required
                 />
               </div>
@@ -489,22 +1174,63 @@ const AdminDashboard = () => {
                   type="text"
                   value={editingProduct.imageUrl}
                   onChange={(e) => setEditingProduct({ ...editingProduct, imageUrl: e.target.value })}
-                  className="w-full border rounded-md px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                  className="w-full border px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
                   required
                 />
               </div>
               
+              <div className="md:col-span-2">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editingProduct.isTrendy || false}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, isTrendy: e.target.checked })}
+                    className="form-checkbox h-5 w-5 text-indigo-600 focus:ring-indigo-600"
+                  />
+                  <span className="text-gray-700">Trendy Collection</span>
+                </label>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-gray-700 mb-2">Sub Images</label>
+                {editingProduct.subImages && editingProduct.subImages.map((url, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={url}
+                      onChange={(e) => handleSubImageChange(index, e.target.value, true)}
+                      className="w-full border px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                      placeholder="Sub Image URL"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeSubImageField(index, true)}
+                      className="bg-red-500 text-white px-3 py-2 hover:bg-red-600"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => addSubImageField(true)}
+                  className="mt-2 bg-gray-500 text-white px-4 py-2 hover:bg-gray-600"
+                >
+                  Add Sub Image
+                </button>
+              </div>
+
               <div className="md:col-span-2 flex space-x-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition duration-300 transform hover:scale-[1.02]"
+                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 transition duration-300 transform hover:scale-[1.02]"
                 >
                   Update Product
                 </button>
                 <button
                   type="button"
                   onClick={() => setEditingProduct(null)}
-                  className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 rounded-lg transition duration-300 transform hover:scale-[1.02]"
+                  className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 transition duration-300 transform hover:scale-[1.02]"
                 >
                   Cancel
                 </button>
@@ -517,19 +1243,19 @@ const AdminDashboard = () => {
       {/* Delete Confirmation Modal */}
       {deleteConfirmation && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 animate-scale-in">
+          <div className="bg-white shadow-xl max-w-md w-full p-6 animate-scale-in">
             <h2 className="text-2xl font-bold mb-4 text-gray-800">Confirm Delete</h2>
             <p className="text-gray-600 mb-6">Are you sure you want to delete this product? This action cannot be undone.</p>
             <div className="flex space-x-4">
               <button
                 onClick={confirmDelete}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-lg transition duration-300 transform hover:scale-[1.02]"
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 transition duration-300 transform hover:scale-[1.02]"
               >
                 Delete
               </button>
               <button
                 onClick={() => setDeleteConfirmation(null)}
-                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 rounded-lg transition duration-300 transform hover:scale-[1.02]"
+                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 transition duration-300 transform hover:scale-[1.02]"
               >
                 Cancel
               </button>

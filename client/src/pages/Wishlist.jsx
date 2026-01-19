@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { FaTrash } from 'react-icons/fa';
 
 const Wishlist = () => {
   const [wishlistItems, setWishlistItems] = useState([]);
@@ -47,7 +46,7 @@ const Wishlist = () => {
       <h2 className="text-3xl font-bold mb-8">My Wishlist</h2>
       
       {wishlistItems.length === 0 ? (
-        <div className="text-center py-10 bg-white rounded-lg shadow">
+        <div className="text-center py-10 bg-white shadow">
           <p className="text-xl text-gray-600 mb-4">Your wishlist is empty</p>
           <Link to="/products" className="text-indigo-600 hover:text-indigo-800 font-semibold">
             Browse Products
@@ -56,12 +55,12 @@ const Wishlist = () => {
       ) : (
         <div className="grid gap-6">
           {wishlistItems.map((item) => (
-            <div key={item._id} className="bg-white rounded-lg shadow p-4 flex items-center justify-between">
+            <div key={item._id} className="bg-white shadow p-4 flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <img 
                   src={item.imageUrl} 
                   alt={item.name} 
-                  className="w-24 h-24 object-cover rounded-md"
+                  className="w-24 h-24 object-cover"
                 />
                 <div>
                   <Link to={`/products/${item._id}`} className="text-xl font-semibold hover:text-indigo-600">
@@ -73,9 +72,9 @@ const Wishlist = () => {
               
               <button 
                 onClick={() => removeFromWishlist(item._id)}
-                className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition"
+                className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 transition"
               >
-                <FaTrash />
+                <i className="fas fa-trash"></i>
               </button>
             </div>
           ))}

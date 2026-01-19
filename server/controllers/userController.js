@@ -1,22 +1,20 @@
 const User = require('../models/User');
-const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const { OAuth2Client } = require('google-auth-library');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-const generateToken = (res, userId) => {
-  const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
-    expiresIn: '30d',
+const setSessionUserId = (req, userId) =>
+  new Promise((resolve, reject) => {
+    req.session.regenerate((regenerateError) => {
+      if (regenerateError) return reject(regenerateError);
+      req.session.userId = userId.toString();
+      req.session.save((saveError) => {
+        if (saveError) return reject(saveError);
+        resolve();
+      });
+    });
   });
-
-  res.cookie('jwt', token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV !== 'development', // Use secure cookies in production
-    sameSite: 'strict', // Prevent CSRF attacks
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-  });
-};
 
 // @desc    Register a new user
 // @route   POST /api/users
@@ -40,7 +38,7 @@ const registerUser = async (req, res) => {
     });
 
     if (user) {
-      generateToken(res, user._id);
+      await setSessionUserId(req, user);
       res.status(201).json({
         _id: user._id,
         name: user.name,
@@ -67,7 +65,7 @@ const authUser = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user && (await user.matchPassword(password))) {
-      generateToken(res, user._id);
+      await setSessionUserId(req, user._id);
       res.json({
         _id: user._id,
         name: user.name,
@@ -100,7 +98,7 @@ const googleLogin = async (req, res) => {
     let user = await User.findOne({ email });
 
     if (user) {
-      generateToken(res, user._id);
+      await setSessionUserId(req, user._id);
       res.json({
         _id: user._id,
         name: user.name,
@@ -119,7 +117,7 @@ const googleLogin = async (req, res) => {
         password: randomPassword,
       });
 
-      generateToken(res, user._id);
+      await setSessionUserId(req, user);
       res.status(201).json({
         _id: user._id,
         name: user.name,
@@ -138,11 +136,10 @@ const googleLogin = async (req, res) => {
 // @route   POST /api/users/logout
 // @access  Public
 const logoutUser = (req, res) => {
-  res.cookie('jwt', '', {
-    httpOnly: true,
-    expires: new Date(0),
+  req.session.destroy(() => {
+    res.clearCookie('sid');
+    res.status(200).json({ message: 'Logged out successfully' });
   });
-  res.status(200).json({ message: 'Logged out successfully' });
 };
 
 // @desc    Get user profile

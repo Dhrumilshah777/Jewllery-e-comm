@@ -2,6 +2,7 @@ import { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 
 const AuthContext = createContext();
+axios.defaults.withCredentials = true;
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -26,7 +27,7 @@ export const AuthProvider = ({ children }) => {
       const { data } = await axios.post(
         '/api/users/auth',
         { email, password },
-        config
+        { ...config, withCredentials: true }
       );
 
       setUser(data);
@@ -53,7 +54,7 @@ export const AuthProvider = ({ children }) => {
       const { data } = await axios.post(
         '/api/users',
         { name, email, password, phone },
-        config
+        { ...config, withCredentials: true }
       );
 
       setUser(data);
@@ -80,7 +81,7 @@ export const AuthProvider = ({ children }) => {
       const { data } = await axios.post(
         '/api/users/google',
         { token },
-        config
+        { ...config, withCredentials: true }
       );
 
       setUser(data);
@@ -98,7 +99,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.post('/api/users/logout');
+      await axios.post('/api/users/logout', undefined, { withCredentials: true });
     } catch (error) {
       console.error(error);
     } finally {
