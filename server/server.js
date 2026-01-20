@@ -23,7 +23,7 @@ const notificationRoutes = require('./routes/notificationRoutes');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'https://jewllery-e-comm.vercel.app', process.env.FRONTEND_URL],
   credentials: true
 }));
 app.use(cookieParser());
@@ -41,7 +41,7 @@ app.use(session({
   cookie: {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     maxAge: 30 * 24 * 60 * 60 * 1000,
   },
 }));
