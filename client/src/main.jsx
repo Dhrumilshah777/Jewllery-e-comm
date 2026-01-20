@@ -8,6 +8,18 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
+import axios from 'axios';
+
+// Set base URL for axios based on environment
+if (import.meta.env.PROD) {
+  axios.defaults.baseURL = 'https://jewllery-e-comm-1.onrender.com';
+}
+// For local development, we rely on the proxy in vite.config.js, so no baseURL needed
+// or it can be set to empty string or localhost if proxy is not used.
+// But since we use proxy in dev, let's just set it for PROD.
+
+axios.defaults.withCredentials = true;
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
