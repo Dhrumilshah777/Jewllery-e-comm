@@ -35,7 +35,7 @@ export async function subscribeUserToPush() {
       console.log('User Subscribed:', subscription);
 
       // Send subscription to server
-      await fetch('http://localhost:5001/api/notifications/subscribe', {
+      await fetch('/api/notifications/subscribe', {
         method: 'POST',
         body: JSON.stringify(subscription),
         headers: {
