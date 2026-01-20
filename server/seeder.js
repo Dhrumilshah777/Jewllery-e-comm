@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const Slide = require('./models/Slide');
+const User = require('./models/User');
+const Product = require('./models/Product');
+const users = require('./data/users');
+const products = require('./data/products');
 
 dotenv.config();
 
@@ -25,9 +29,25 @@ const slides = [
 mongoose.connect(process.env.MONGO_URI)
   .then(async () => {
     console.log('MongoDB Connected');
+    
+    // Clear existing data
     await Slide.deleteMany({});
+    await User.deleteMany({});
+    await Product.deleteMany({});
+
+    // Import new data
     await Slide.insertMany(slides);
     console.log('Slides Imported');
+
+    await Product.insertMany(products);
+    console.log('Products Imported');
+
+    // Use create for users to trigger pre-save hook for password hashing
+    for (const user of users) {
+      await User.create(user);
+    }
+    console.log('Users Imported');
+
     process.exit();
   })
   .catch((err) => {
