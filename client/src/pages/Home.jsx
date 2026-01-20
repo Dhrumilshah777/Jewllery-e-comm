@@ -238,42 +238,66 @@ const Home = () => {
     };
   };
 
-  if (slides.length === 0) {
-    return (
-      <div className="flex justify-center items-center h-[500px]">
-        <div className="animate-spin h-12 w-12 border-b-2 border-indigo-600"></div>
-      </div>
-    );
-  }
+  // Removed blocking loading state to ensure content always renders
+  // if (slides.length === 0 && promoBanner === null && homeBanner === null) {
+  //   return (
+  //     <div className="flex justify-center items-center h-[500px]">
+  //       <div className="animate-spin h-12 w-12 border-b-2 border-indigo-600"></div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="space-y-12">
       {/* Hero Carousel Section */}
       <section className="overflow-hidden shadow-2xl">
-        <Slider {...settings}>
-          {slides.map((slide) => (
-            <div key={slide._id} className="relative h-[450px] md:h-[550px]">
-              <div 
-                className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url(${slide.image})` }}
-              >
-                <div className="absolute inset-0 bg-black opacity-40"></div>
-              </div>
-              <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-4 space-y-6">
-                <h1 className="text-5xl font-bold tracking-tight">{slide.title}</h1>
-                <p className="text-xl max-w-2xl mx-auto">
-                  {slide.subtitle}
-                </p>
-                <Link 
-                  to="/products" 
-                  className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 transition duration-300"
+        {slides.length > 0 ? (
+          <Slider {...settings}>
+            {slides.map((slide) => (
+              <div key={slide._id} className="relative h-[450px] md:h-[550px]">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{ backgroundImage: `url(${slide.image})` }}
                 >
-                  Shop Collection
-                </Link>
+                  <div className="absolute inset-0 bg-black opacity-40"></div>
+                </div>
+                <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-4 space-y-6">
+                  <h1 className="text-5xl font-bold tracking-tight">{slide.title}</h1>
+                  <p className="text-xl max-w-2xl mx-auto">
+                    {slide.subtitle}
+                  </p>
+                  <Link 
+                    to="/products" 
+                    className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 transition duration-300"
+                  >
+                    Shop Collection
+                  </Link>
+                </div>
               </div>
+            ))}
+          </Slider>
+        ) : (
+          <div className="relative h-[450px] md:h-[550px]">
+            <div 
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=1600&auto=format&fit=crop)` }}
+            >
+              <div className="absolute inset-0 bg-black opacity-40"></div>
             </div>
-          ))}
-        </Slider>
+            <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-4 space-y-6">
+              <h1 className="text-5xl font-bold tracking-tight">Exquisite Jewelry</h1>
+              <p className="text-xl max-w-2xl mx-auto">
+                Discover our new collection
+              </p>
+              <Link 
+                to="/products" 
+                className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 transition duration-300"
+              >
+                Shop Collection
+              </Link>
+            </div>
+          </div>
+        )}
       </section>
 
       <section className="px-4 md:px-12 max-w-7xl mx-auto">
