@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import Spinner from '../components/Spinner';
 
 const Wishlist = () => {
   const [wishlistItems, setWishlistItems] = useState([]);
@@ -38,7 +39,7 @@ const Wishlist = () => {
   };
 
   if (loading) {
-    return <div className="text-center mt-10">Loading wishlist...</div>;
+    return <Spinner />;
   }
 
   return (

@@ -74,13 +74,19 @@ const Home = () => {
       }
     };
 
-    fetchSlides();
-    fetchTrendyProducts();
-    fetchPopularCategories();
-    fetchWishlist();
-    fetchHomeBanner();
-    fetchPromoBanner();
+    Promise.all([
+      fetchSlides(),
+      fetchTrendyProducts(),
+      fetchPopularCategories(),
+      fetchWishlist(),
+      fetchHomeBanner(),
+      fetchPromoBanner()
+    ]).finally(() => setLoading(false));
   }, [user]);
+
+  if (loading) {
+    return <Spinner />;
+  }
 
   const toggleWishlist = async (e, productId) => {
     e.preventDefault();

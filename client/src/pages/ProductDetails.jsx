@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import Spinner from '../components/Spinner';
 
 const ProductDetails = () => {
   const [product, setProduct] = useState(null);
@@ -48,7 +49,7 @@ const ProductDetails = () => {
   };
 
   if (loading) {
-    return <div className="text-center mt-10">Loading...</div>;
+    return <Spinner />;
   }
 
   if (!product) {

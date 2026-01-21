@@ -2,7 +2,10 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
+import Spinner from '../components/Spinner';
+
 const AdminDashboard = () => {
+  const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
   const [slides, setSlides] = useState([]);
   const [popularCategories, setPopularCategories] = useState([]);
