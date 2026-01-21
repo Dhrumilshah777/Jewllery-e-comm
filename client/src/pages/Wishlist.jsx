@@ -8,20 +8,20 @@ const Wishlist = () => {
   const [wishlistItems, setWishlistItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchWishlist = async () => {
-    try {
-      const { data } = await axios.get('/api/users/profile', {
-        withCredentials: true
-      });
-      setWishlistItems(data.wishlist || []);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching wishlist:', error);
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchWishlist = async () => {
+      try {
+        const { data } = await axios.get('/api/users/profile', {
+          withCredentials: true
+        });
+        setWishlistItems(data.wishlist || []);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching wishlist:', error);
+        setLoading(false);
+      }
+    };
+
     fetchWishlist();
   }, []);
 
@@ -31,9 +31,9 @@ const Wishlist = () => {
         withCredentials: true
       });
       toast.success('Removed from wishlist');
-      // Refresh list
-      setWishlistItems(wishlistItems.filter(item => item._id !== productId));
+      setWishlistItems((prev) => prev.filter(item => item._id !== productId));
     } catch (error) {
+      console.error(error);
       toast.error('Error removing from wishlist');
     }
   };

@@ -9,7 +9,6 @@ const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [wishlist, setWishlist] = useState(new Set());
-  const [sortBy, setSortBy] = useState('alpha-asc');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [filterInStock, setFilterInStock] = useState(false);
@@ -127,8 +126,6 @@ const Products = () => {
     }
     navigate(`/products?${params.toString()}`);
   };
-
-  const sortedProducts = products;
 
   const availabilityFiltered = (() => {
     if (filterInStock && filterOutOfStock) return products;
