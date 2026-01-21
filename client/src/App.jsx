@@ -10,6 +10,7 @@ import ProductDetails from './pages/ProductDetails';
 import Wishlist from './pages/Wishlist';
 import AdminDashboard from './pages/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import NotificationModal from './components/NotificationModal';
 
 function App() {
   const location = useLocation();
@@ -40,6 +41,7 @@ function App() {
           } />
         </Routes>
       </div>
+      <NotificationModal />
       <ToastContainer position="bottom-right" />
     </div>
   );
