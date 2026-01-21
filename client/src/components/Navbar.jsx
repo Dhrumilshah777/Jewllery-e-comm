@@ -230,14 +230,6 @@ const Navbar = () => {
              {isDesktopSearchOpen ? <i className="fas fa-times text-xl"></i> : <i className="fas fa-search text-xl"></i>}
            </button>
 
-           <button
-             onClick={handleSubscribe}
-             className="text-gray-600 hover:text-indigo-600 transition-colors focus:outline-none"
-             title="Enable Notifications"
-           >
-             <i className="fas fa-bell text-xl"></i>
-           </button>
-
           {user ? (
             <>
               {user.role === 'admin' && (
