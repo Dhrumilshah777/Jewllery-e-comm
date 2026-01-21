@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
 
 const Home = () => {
@@ -14,8 +15,20 @@ const Home = () => {
   const [homeBanner, setHomeBanner] = useState(null);
   const [promoBanner, setPromoBanner] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const onResize = () => setViewportWidth(window.innerWidth);
+    window.addEventListener('resize', onResize);
+    // React-slick sometimes needs a resize after data loads
+    const timer = setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', onResize);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchSlides = async () => {
@@ -152,18 +165,6 @@ const Home = () => {
   const closeModal = () => {
     setSelectedProduct(null);
   };
-
-  const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
-  useEffect(() => {
-    const onResize = () => setViewportWidth(window.innerWidth);
-    window.addEventListener('resize', onResize);
-    // React-slick sometimes needs a resize after data loads
-    const timer = setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('resize', onResize);
-    };
-  }, []);
 
   const settings = {
     dots: true,
