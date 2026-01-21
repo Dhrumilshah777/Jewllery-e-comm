@@ -45,11 +45,28 @@ const NotificationModal = () => {
     setShow(false);
   };
 
-  if (!show) return null;
+  // We keep the component rendered but invisible to allow for transitions
+  // If user is not logged in or other conditions not met, we can return null to avoid DOM pollution,
+  // but since the useEffect controls 'show' based on those conditions, checking 'show' for visibility is enough.
+  // However, to strictly follow the logic "if !user return", we should probably keep returning null if user is not there,
+  // OR rely on 'show' never becoming true.
+  // But wait, the previous code had `if (!show) return null`.
+  // If I remove it, the component renders immediately (invisible).
+  
+  // To prevent rendering if checks fail (like !user), we can add a state 'shouldRender' or just rely on 'show' staying false.
+  // But if 'show' is false, it's just invisible. That's fine.
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 text-center transform transition-all scale-100">
+    <div 
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4 transition-all duration-500 ease-in-out ${
+        show ? 'opacity-100 visible' : 'opacity-0 invisible'
+      }`}
+    >
+      <div 
+        className={`bg-white rounded-2xl shadow-xl max-w-md w-full p-6 text-center transform transition-all duration-500 ease-out ${
+          show ? 'scale-100 translate-y-0' : 'scale-95 translate-y-8'
+        }`}
+      >
         <div className="mb-4">
            {/* Bell Icon in a circle */}
            <div className="mx-auto w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
