@@ -240,12 +240,9 @@ const Navbar = () => {
               <Link to="/wishlist" className="text-gray-600 hover:text-indigo-600 transition-colors">
                 <i className="fas fa-heart text-xl"></i>
               </Link>
-              <button
-                onClick={handleLogoutClick}
-                className="text-gray-600 hover:text-indigo-600 transition-colors"
-              >
+              <Link to="/profile" className="text-gray-600 hover:text-indigo-600 transition-colors">
                 <i className="fas fa-user text-xl"></i>
-              </button>
+              </Link>
             </>
           ) : (
             <Link to="/login" className="text-gray-600 hover:text-indigo-600 transition-colors">
@@ -351,6 +348,13 @@ const Navbar = () => {
                 </Link>
               )}
               <Link 
+                to="/profile" 
+                className="text-gray-600 hover:text-indigo-600 font-medium flex items-center"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <i className="fas fa-user-circle mr-2"></i> Profile
+              </Link>
+              <Link 
                 to="/wishlist" 
                 className="text-gray-600 hover:text-indigo-600 font-medium flex items-center"
                 onClick={() => setIsMenuOpen(false)}
@@ -423,7 +427,7 @@ const Navbar = () => {
             <i className="fas fa-heart"></i>
             <span className="mt-1">Wishlist</span>
           </Link>
-          <Link to={user ? '/wishlist' : '/login'} className="flex flex-col items-center py-3 text-gray-700 hover:text-indigo-600">
+          <Link to={user ? '/profile' : '/login'} className="flex flex-col items-center py-3 text-gray-700 hover:text-indigo-600">
             <i className="fas fa-user"></i>
             <span className="mt-1">Account</span>
           </Link>
