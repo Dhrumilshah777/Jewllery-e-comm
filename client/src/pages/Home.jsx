@@ -5,19 +5,79 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
+import { useQuery } from '@tanstack/react-query';
 
 const Home = () => {
-  const [slides, setSlides] = useState([]);
-  const [trendyCollection, setTrendyCollection] = useState([]);
-  const [popularCategories, setPopularCategories] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [wishlist, setWishlist] = useState(new Set());
-  const [homeBanner, setHomeBanner] = useState(null);
-  const [promoBanner, setPromoBanner] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  // Query functions
+  const fetchSlides = async () => {
+    const { data } = await axios.get('/api/slides');
+    return data;
+  };
+
+  const fetchTrendyProducts = async () => {
+    const { data } = await axios.get('/api/products?isTrendy=true');
+    return data;
+  };
+
+  const fetchPopularCategories = async () => {
+    const { data } = await axios.get('/api/popular-categories');
+    return data;
+  };
+
+  const fetchHomeBanner = async () => {
+    const { data } = await axios.get('/api/home-banner');
+    return data;
+  };
+
+  const fetchPromoBanner = async () => {
+    const { data } = await axios.get('/api/promo-banner');
+    return data;
+  };
+
+  const fetchWishlist = async () => {
+    if (!user) return new Set();
+    const { data } = await axios.get('/api/users/profile', { withCredentials: true });
+    return new Set(data.wishlist.filter(item => item !== null).map(item => item._id));
+  };
+
+  // Queries
+  const { data: slides = [], isLoading: slidesLoading } = useQuery({
+    queryKey: ['slides'],
+    queryFn: fetchSlides
+  });
+
+  const { data: trendyCollection = [], isLoading: trendyLoading } = useQuery({
+    queryKey: ['trendyProducts'],
+    queryFn: fetchTrendyProducts
+  });
+
+  const { data: popularCategories = [], isLoading: categoriesLoading } = useQuery({
+    queryKey: ['popularCategories'],
+    queryFn: fetchPopularCategories
+  });
+
+  const { data: homeBanner, isLoading: homeBannerLoading } = useQuery({
+    queryKey: ['homeBanner'],
+    queryFn: fetchHomeBanner
+  });
+
+  const { data: promoBanner, isLoading: promoBannerLoading } = useQuery({
+    queryKey: ['promoBanner'],
+    queryFn: fetchPromoBanner
+  });
+
+  const { data: wishlist = new Set(), refetch: refetchWishlist } = useQuery({
+    queryKey: ['wishlist', user?._id],
+    queryFn: fetchWishlist,
+    enabled: !!user // Only run if user exists
+  });
+
+  const loading = slidesLoading || trendyLoading || categoriesLoading || homeBannerLoading || promoBannerLoading;
 
   useEffect(() => {
     const onResize = () => setViewportWidth(window.innerWidth);
@@ -30,73 +90,13 @@ const Home = () => {
     };
   }, []);
 
+  // Update wishlist when user changes
   useEffect(() => {
-    const fetchSlides = async () => {
-      try {
-        const { data } = await axios.get('/api/slides');
-        setSlides(data);
-      } catch (error) {
-        console.error('Error fetching slides:', error);
-      }
-    };
+    if (user) {
+      refetchWishlist();
+    }
+  }, [user, refetchWishlist]);
 
-    const fetchTrendyProducts = async () => {
-      try {
-        const { data } = await axios.get('/api/products?isTrendy=true');
-        setTrendyCollection(data);
-      } catch (error) {
-        console.error('Error fetching trendy products:', error);
-      }
-    };
-
-    const fetchPopularCategories = async () => {
-      try {
-        const { data } = await axios.get('/api/popular-categories');
-        setPopularCategories(data);
-      } catch (error) {
-        console.error('Error fetching popular categories:', error);
-      }
-    };
-
-    const fetchHomeBanner = async () => {
-      try {
-        const { data } = await axios.get('/api/home-banner');
-        setHomeBanner(data);
-      } catch (error) {
-        console.error('Error fetching home banner:', error);
-      }
-    };
-
-    const fetchPromoBanner = async () => {
-      try {
-        const { data } = await axios.get('/api/promo-banner');
-        setPromoBanner(data);
-      } catch (error) {
-        console.error('Error fetching promo banner:', error);
-      }
-    };
-
-    const fetchWishlist = async () => {
-      if (user) {
-        try {
-          const { data } = await axios.get('/api/users/profile', { withCredentials: true });
-          const wishlistIds = new Set(data.wishlist.filter(item => item !== null).map(item => item._id));
-          setWishlist(wishlistIds);
-        } catch (error) {
-          console.error('Error fetching wishlist:', error);
-        }
-      }
-    };
-
-    Promise.all([
-      fetchSlides(),
-      fetchTrendyProducts(),
-      fetchPopularCategories(),
-      fetchWishlist(),
-      fetchHomeBanner(),
-      fetchPromoBanner()
-    ]).finally(() => setLoading(false));
-  }, [user]);
 
   if (loading) {
     return <Spinner />;
