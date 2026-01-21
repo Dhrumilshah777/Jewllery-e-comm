@@ -280,7 +280,9 @@ const Navbar = () => {
           {/* Suggestions in Drawer */}
           {showSuggestions && suggestions.length > 0 && (
             <div className="max-w-3xl mx-auto mt-6">
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Suggestions</h3>
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                {searchQuery ? 'Suggestions' : 'Trending Now'}
+              </h3>
               <ul className="grid grid-cols-1 gap-2">
                 {suggestions.map((product) => (
                   <li

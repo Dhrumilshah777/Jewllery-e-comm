@@ -98,16 +98,10 @@ const ProductDetails = () => {
           
           <div className="flex space-x-4">
             <button 
-              className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 transition duration-300"
-              disabled={product.stock === 0}
-            >
-              Add to Cart
-            </button>
-            <button 
               onClick={addToWishlist}
-              className="flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 px-6 transition duration-300"
+              className="flex-1 items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 px-6 transition duration-300"
             >
-              <i className="fas fa-heart mr-2"></i> Wishlist
+              <i className="fas fa-heart mr-2"></i> Add to Wishlist
             </button>
           </div>
         </div>
