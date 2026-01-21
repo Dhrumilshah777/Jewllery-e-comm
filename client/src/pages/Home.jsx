@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { toast } from 'react-toastify';
+import Spinner from '../components/Spinner';
 
 const Home = () => {
   const [slides, setSlides] = useState([]);
@@ -13,6 +13,7 @@ const Home = () => {
   const [wishlist, setWishlist] = useState(new Set());
   const [homeBanner, setHomeBanner] = useState(null);
   const [promoBanner, setPromoBanner] = useState(null);
+  const [loading, setLoading] = useState(true);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
