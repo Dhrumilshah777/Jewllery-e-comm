@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
 import { subscribeUserToPush } from '../utils/pushNotifications';
 import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
 
 const NotificationModal = () => {
   const [show, setShow] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
+    // Only run if user is logged in
+    if (!user) return;
+
     // Check if browser supports notifications
     if (!('Notification' in window)) return;
 
@@ -15,12 +20,13 @@ const NotificationModal = () => {
     // Check if user already skipped in this session
     if (sessionStorage.getItem('notificationSkipped')) return;
 
+    // Show after a short delay to be less intrusive
     const timer = setTimeout(() => {
       setShow(true);
-    }, 5000);
+    }, 2000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [user]);
 
   const handleAllow = async () => {
     try {
