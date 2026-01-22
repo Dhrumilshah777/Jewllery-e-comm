@@ -216,8 +216,8 @@ const Navbar = () => {
       <div className="hidden min-[1025px]:flex container mx-auto px-4 py-4 items-center justify-between relative">
         {/* Left: Logo */}
         <div className="flex-shrink-0">
-          <Link to="/" className="text-2xl font-bold text-indigo-600 tracking-wide">
-            LuxeGems
+          <Link to="/" className="flex items-center">
+            <img src="/ao-logo.png" alt="LuxeGems" className="h-12 w-auto" />
           </Link>
         </div>
 
