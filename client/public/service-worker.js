@@ -1,4 +1,31 @@
-// Service Worker for Web Push Notifications
+// Service Worker for Web Push Notifications and Offline Caching
+
+const CACHE_NAME = 'luxegems-v1';
+const urlsToCache = [
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/ao-logo.png'
+];
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => {
+        return cache.addAll(urlsToCache);
+      })
+  );
+});
+
+self.addEventListener('fetch', (event) => {
+  // Simple network-first strategy
+  event.respondWith(
+    fetch(event.request)
+      .catch(() => {
+        return caches.match(event.request);
+      })
+  );
+});
 
 self.addEventListener('push', function(event) {
   if (event.data) {
