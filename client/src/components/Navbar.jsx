@@ -44,6 +44,11 @@ const Navbar = () => {
 
   useEffect(() => {
     const fetchSuggestions = async () => {
+      if (!isDesktopSearchOpen && !isMobileSearchOpen) {
+        setShowSuggestions(false);
+        return;
+      }
+
       if (searchQuery.trim().length > 0) {
         try {
           const { data } = await axios.get(`/api/products?keyword=${searchQuery}`);
@@ -53,8 +58,13 @@ const Navbar = () => {
           console.error('Error fetching suggestions:', error);
         }
       } else {
-        setSuggestions([]);
-        setShowSuggestions(false);
+        try {
+          const { data } = await axios.get('/api/products?isTrendy=true');
+          setSuggestions(data.slice(0, 5));
+          setShowSuggestions(true);
+        } catch (error) {
+          console.error('Error fetching default suggestions:', error);
+        }
       }
     };
 
@@ -63,7 +73,7 @@ const Navbar = () => {
     }, 300); // Debounce
 
     return () => clearTimeout(timeoutId);
-  }, [searchQuery]);
+  }, [searchQuery, isDesktopSearchOpen, isMobileSearchOpen]);
 
   useEffect(() => {
     if (isMobileSearchOpen && mobileSearchInputRef.current) {
@@ -156,6 +166,9 @@ const Navbar = () => {
             </form>
             {showSuggestions && (
               <div className="mt-2 bg-white rounded-none shadow-xl border border-gray-100 max-h-64 overflow-y-auto">
+                <h3 className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50 sticky top-0">
+                  {searchQuery ? 'Suggestions' : 'Trending Now'}
+                </h3>
                 {suggestions.length > 0 ? (
                   <ul>
                     {suggestions.map((product) => (
