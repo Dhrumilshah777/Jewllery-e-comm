@@ -39,6 +39,11 @@ const Home = () => {
     return data;
   };
 
+  const fetchLatestProducts = async () => {
+    const { data } = await axios.get('/api/products?isLatestBeauty=true&sort=latest&limit=4');
+    return data;
+  };
+
   const fetchWishlist = async () => {
     if (!user) return new Set();
     const { data } = await axios.get('/api/users/profile', { withCredentials: true });
@@ -66,9 +71,9 @@ const Home = () => {
     queryFn: fetchHomeBanner
   });
 
-  const { data: promoBanner, isLoading: promoBannerLoading } = useQuery({
-    queryKey: ['promoBanner'],
-    queryFn: fetchPromoBanner
+  const { data: latestProducts = [], isLoading: latestLoading } = useQuery({
+    queryKey: ['latestProducts'],
+    queryFn: fetchLatestProducts
   });
 
   const { data: wishlist = new Set(), refetch: refetchWishlist } = useQuery({
@@ -77,7 +82,7 @@ const Home = () => {
     enabled: !!user // Only run if user exists
   });
 
-  const loading = slidesLoading || trendyLoading || categoriesLoading || homeBannerLoading || promoBannerLoading;
+  const loading = slidesLoading || trendyLoading || categoriesLoading || homeBannerLoading || promoBannerLoading || latestLoading;
 
   useEffect(() => {
     const onResize = () => setViewportWidth(window.innerWidth);
@@ -306,6 +311,64 @@ const Home = () => {
             </div>
           </div>
         )}
+      </section>
+
+      {/* Latest Beauty Section */}
+      <section className="py-16 px-4 max-w-7xl mx-auto">
+        <h2 className="text-3xl font-normal text-center mb-12 uppercase tracking-widest font-sans">Latest Beauty</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {latestProducts.map((product) => (
+            <div key={product._id} className="group">
+              {/* Image Container */}
+              <div className="relative overflow-hidden aspect-[4/5] bg-gray-100 mb-4">
+                <Link to={`/products/${product._id}`}>
+                  <img 
+                    src={product.imageUrl} 
+                    alt={product.name}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                </Link>
+                {/* Hover Icons */}
+                <div className="absolute bottom-4 right-4 flex flex-col gap-2 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                   {/* Quick View */}
+                   <button
+                     onClick={(e) => openModal(e, product)}
+                     className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-black hover:text-white transition-colors"
+                     title="Quick View"
+                   >
+                     <i className="far fa-eye"></i>
+                   </button>
+                   {/* Wishlist */}
+                   <button
+                      onClick={(e) => toggleWishlist(e, product._id)}
+                      className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-black hover:text-white transition-colors"
+                      title={wishlist.has(product._id) ? "Remove from Wishlist" : "Add to Wishlist"}
+                   >
+                      {wishlist.has(product._id) ? <i className="fas fa-heart text-red-500"></i> : <i className="far fa-heart"></i>}
+                   </button>
+                </div>
+              </div>
+              
+              {/* Product Info */}
+              <div className="space-y-1">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900">
+                  <Link to={`/products/${product._id}`}>{product.name}</Link>
+                </h3>
+                <div className="text-xs text-gray-500">
+                  Accessories / {product.category}
+                </div>
+                <div className="text-sm font-medium text-gray-900 mt-1">
+                  ${product.price.toFixed(2)}
+                </div>
+                {/* Color Dots (Mockup) */}
+                <div className="flex gap-1 mt-2">
+                   <span className="w-3 h-3 rounded-full bg-[#E5D0B1]"></span>
+                   <span className="w-3 h-3 rounded-full bg-[#D4AF37]"></span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
 
 

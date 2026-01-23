@@ -32,6 +32,10 @@ const productSchema = new mongoose.Schema({
   isTrendy: {
     type: Boolean,
     default: false
+  },
+  isLatestBeauty: {
+    type: Boolean,
+    default: false
   }
 }, { timestamps: true });
 

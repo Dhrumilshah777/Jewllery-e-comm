@@ -1182,7 +1182,7 @@ const AdminDashboard = () => {
                 />
               </div>
               
-              <div className="md:col-span-2">
+              <div className="md:col-span-2 flex space-x-6">
                 <label className="flex items-center space-x-2 cursor-pointer">
                   <input
                     type="checkbox"
@@ -1191,6 +1191,15 @@ const AdminDashboard = () => {
                     className="form-checkbox h-5 w-5 text-indigo-600 focus:ring-indigo-600"
                   />
                   <span className="text-gray-700">Trendy Collection</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editingProduct.isLatestBeauty || false}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, isLatestBeauty: e.target.checked })}
+                    className="form-checkbox h-5 w-5 text-indigo-600 focus:ring-indigo-600"
+                  />
+                  <span className="text-gray-700">Latest Beauty</span>
                 </label>
               </div>
 

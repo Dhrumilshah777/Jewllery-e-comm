@@ -26,7 +26,17 @@ const getProducts = async (req, res) => {
         } 
       : {};
 
-    const products = await Product.find({ ...keyword, ...isTrendy, ...category });
+    let query = Product.find({ ...keyword, ...isTrendy, ...category });
+
+    if (req.query.sort === 'latest') {
+      query = query.sort({ createdAt: -1 });
+    }
+
+    if (req.query.limit) {
+      query = query.limit(Number(req.query.limit));
+    }
+
+    const products = await query;
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
@@ -93,7 +103,7 @@ const createProduct = async (req, res) => {
 // @route   PUT /api/products/:id
 // @access  Private/Admin
 const updateProduct = async (req, res) => {
-  const { name, price, description, imageUrl, category, stock, isTrendy, subImages } = req.body;
+  const { name, price, description, imageUrl, category, stock, isTrendy, isLatestBeauty, subImages } = req.body;
 
   const product = await Product.findById(req.params.id);
 
@@ -105,6 +115,7 @@ const updateProduct = async (req, res) => {
     product.category = category || product.category;
     product.stock = stock || product.stock;
     product.isTrendy = isTrendy !== undefined ? isTrendy : product.isTrendy;
+    product.isLatestBeauty = isLatestBeauty !== undefined ? isLatestBeauty : product.isLatestBeauty;
     product.subImages = subImages || product.subImages;
 
     const updatedProduct = await product.save();
