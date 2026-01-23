@@ -206,8 +206,8 @@ const Navbar = () => {
         >
           {isMenuOpen ? <i className="fas fa-times text-2xl"></i> : <i className="fas fa-bars text-2xl"></i>}
         </button>
-        <Link to="/" className="absolute left-1/2 -translate-x-1/2 text-xl font-bold text-indigo-600">
-          LuxeGems
+        <Link to="/" className="absolute left-1/2 -translate-x-1/2">
+          <img src="/ao-logo.png" alt="LuxeGems" className="h-10 w-auto" />
         </Link>
         <div className="w-6" />
       </div>
