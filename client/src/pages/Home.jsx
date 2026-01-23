@@ -34,11 +34,6 @@ const Home = () => {
     return data;
   };
 
-  const fetchPromoBanner = async () => {
-    const { data } = await axios.get('/api/promo-banner');
-    return data;
-  };
-
   const fetchLatestProducts = async () => {
     const { data } = await axios.get('/api/products?isLatestBeauty=true&sort=latest&limit=4');
     return data;
