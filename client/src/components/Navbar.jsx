@@ -217,7 +217,7 @@ const Navbar = () => {
         {/* Left: Logo */}
         <div className="flex-shrink-0">
           <Link to="/" className="flex items-center">
-            <img src="/ao-logo.png" alt="LuxeGems" className="h-12 w-auto" />
+            <img src="/ao-logo.png" alt="AO Jewelry" className="h-12 w-auto" />
           </Link>
         </div>
 
