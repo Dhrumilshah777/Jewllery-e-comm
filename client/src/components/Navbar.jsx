@@ -74,7 +74,7 @@ const Navbar = () => {
           </div>
 
           {/* Mobile menu button */}
-          <div className="flex items-center md:hidden">
+          <div className="flex items-center md:hidden z-50 relative">
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-indigo-600 focus:outline-none"
@@ -85,27 +85,84 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <Link to="/" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50">Home</Link>
-            <Link to="/products" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50">Shop</Link>
-            <Link to="/wishlist" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50">Wishlist</Link>
+      {/* Mobile Menu Sidebar Overlay */}
+      <div 
+        className={`fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300 md:hidden ${
+          isOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+        }`}
+        onClick={() => setIsOpen(false)}
+      ></div>
+
+      {/* Mobile Menu Sidebar */}
+      <div 
+        className={`fixed top-0 right-0 h-full w-64 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
+          isOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div className="flex flex-col h-full pt-20 px-6 pb-6 overflow-y-auto">
+          <div className="space-y-6">
+            <Link 
+              to="/" 
+              onClick={() => setIsOpen(false)}
+              className="block text-lg font-medium text-gray-800 hover:text-indigo-600 border-b border-gray-100 pb-2"
+            >
+              Home
+            </Link>
+            <Link 
+              to="/products" 
+              onClick={() => setIsOpen(false)}
+              className="block text-lg font-medium text-gray-800 hover:text-indigo-600 border-b border-gray-100 pb-2"
+            >
+              Shop
+            </Link>
+            <Link 
+              to="/wishlist" 
+              onClick={() => setIsOpen(false)}
+              className="block text-lg font-medium text-gray-800 hover:text-indigo-600 border-b border-gray-100 pb-2"
+            >
+              Wishlist
+            </Link>
+            
             {user ? (
               <>
-                <Link to="/profile" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50">Profile</Link>
+                <Link 
+                  to="/profile" 
+                  onClick={() => setIsOpen(false)}
+                  className="block text-lg font-medium text-gray-800 hover:text-indigo-600 border-b border-gray-100 pb-2"
+                >
+                  Profile
+                </Link>
                 {user.isAdmin && (
-                  <Link to="/admin" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50">Admin Dashboard</Link>
+                  <Link 
+                    to="/admin" 
+                    onClick={() => setIsOpen(false)}
+                    className="block text-lg font-medium text-gray-800 hover:text-indigo-600 border-b border-gray-100 pb-2"
+                  >
+                    Admin Dashboard
+                  </Link>
                 )}
-                <button onClick={logout} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50">Logout</button>
+                <button 
+                  onClick={() => {
+                    logout();
+                    setIsOpen(false);
+                  }}
+                  className="block w-full text-left text-lg font-medium text-red-600 hover:text-red-700 pt-2"
+                >
+                  Logout
+                </button>
               </>
             ) : (
-              <Link to="/login" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50">Login</Link>
+              <Link 
+                to="/login" 
+                onClick={() => setIsOpen(false)}
+                className="block text-lg font-medium text-gray-800 hover:text-indigo-600 pt-2"
+              >
+                Login
+              </Link>
             )}
           </div>
         </div>
-      )}
+      </div>
     </nav>
   );
 };
