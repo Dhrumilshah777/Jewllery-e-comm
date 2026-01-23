@@ -813,7 +813,7 @@ const AdminDashboard = () => {
             />
           </div>
           
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 flex flex-col space-y-3">
             <label className="flex items-center space-x-2 cursor-pointer">
               <input
                 type="checkbox"
@@ -823,6 +823,16 @@ const AdminDashboard = () => {
                 className="form-checkbox h-5 w-5 text-indigo-600 focus:ring-indigo-600"
               />
               <span className="text-gray-700">Add to Trendy Collection</span>
+            </label>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                name="isLatestBeauty"
+                checked={formData.isLatestBeauty}
+                onChange={handleChange}
+                className="form-checkbox h-5 w-5 text-indigo-600 focus:ring-indigo-600"
+              />
+              <span className="text-gray-700">Add to Latest Beauty</span>
             </label>
           </div>
 

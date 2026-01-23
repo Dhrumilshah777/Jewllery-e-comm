@@ -64,7 +64,7 @@ const getProductById = async (req, res) => {
 // @route   POST /api/products
 // @access  Private/Admin
 const createProduct = async (req, res) => {
-  const { name, price, description, imageUrl, category, stock, isTrendy, subImages } = req.body;
+  const { name, price, description, imageUrl, category, stock, isTrendy, isLatestBeauty, subImages } = req.body;
 
   try {
     const product = new Product({
@@ -75,6 +75,7 @@ const createProduct = async (req, res) => {
       category,
       stock,
       isTrendy,
+      isLatestBeauty,
       subImages
     });
 
