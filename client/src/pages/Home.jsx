@@ -194,6 +194,23 @@ const Home = () => {
     dotsClass: "slick-dots"
   };
 
+  const latestBeautySettings = {
+    dots: true,
+    infinite: Math.min(latestProducts.length, 4) > slidesForWidth(viewportWidth),
+    speed: 500,
+    slidesToShow: slidesForWidth(viewportWidth),
+    slidesToScroll: 1,
+    autoplay: latestProducts.length > 1,
+    autoplaySpeed: 3000,
+    arrows: false,
+    appendDots: dots => (
+      <ul style={{ bottom: "-85px" }}>
+        {dots}
+      </ul>
+    ),
+    dotsClass: "slick-dots"
+  };
+
   function slidesForWidth(w) {
     if (w < 640) return 2;
     if (w < 768) return 2;
