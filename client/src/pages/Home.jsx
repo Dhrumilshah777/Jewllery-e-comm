@@ -77,7 +77,7 @@ const Home = () => {
     enabled: !!user // Only run if user exists
   });
 
-  const loading = slidesLoading || trendyLoading || categoriesLoading || homeBannerLoading || promoBannerLoading || latestLoading;
+  const loading = slidesLoading || trendyLoading || categoriesLoading || homeBannerLoading || latestLoading;
 
   useEffect(() => {
     const onResize = () => setViewportWidth(window.innerWidth);
@@ -246,14 +246,7 @@ const Home = () => {
     };
   };
 
-  // Removed blocking loading state to ensure content always renders
-  // if (slides.length === 0 && promoBanner === null && homeBanner === null) {
-  //   return (
-  //     <div className="flex justify-center items-center h-[500px]">
-  //       <div className="animate-spin h-12 w-12 border-b-2 border-indigo-600"></div>
-  //     </div>
-  //   );
-  // }
+
 
   return (
     <div className="space-y-12">

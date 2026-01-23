@@ -57,7 +57,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/slides', slideRoutes);
 app.use('/api/popular-categories', popularCategoryRoutes);
 app.use('/api/home-banner', homeBannerRoutes);
-app.use('/api/promo-banner', promoBannerRoutes);
+
 app.use('/api/notifications', notificationRoutes);
 
 app.get('/', (req, res) => {

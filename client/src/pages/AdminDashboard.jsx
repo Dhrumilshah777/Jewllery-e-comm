@@ -39,17 +39,7 @@ const AdminDashboard = () => {
     rightSubtitle: '',
     rightLink: '/products?category=Bracelets',
   });
-  const [promoBannerForm, setPromoBannerForm] = useState({
-    panel1Image: '',
-    panel1Title: '',
-    panel1Link: '/products?category=Rings',
-    panel2Image: '',
-    panel2Title: '',
-    panel2Link: '/products?category=Necklaces',
-    panel3Image: '',
-    panel3Title: '',
-    panel3Link: '/products?category=Bracelets',
-  });
+
   const [notificationForm, setNotificationForm] = useState({
     title: '',
     message: '',
@@ -114,33 +104,13 @@ const AdminDashboard = () => {
     }
   };
 
-  const fetchPromoBanner = async () => {
-    try {
-      const { data } = await axios.get('/api/promo-banner');
-      if (data) {
-        setPromoBannerForm({
-          panel1Image: data.panel1Image,
-          panel1Title: data.panel1Title,
-          panel1Link: data.panel1Link,
-          panel2Image: data.panel2Image,
-          panel2Title: data.panel2Title,
-          panel2Link: data.panel2Link,
-          panel3Image: data.panel3Image,
-          panel3Title: data.panel3Title,
-          panel3Link: data.panel3Link,
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching promo banner');
-    }
-  };
+
 
   useEffect(() => {
     fetchProducts();
     fetchSlides();
     fetchPopularCategories();
     fetchHomeBanner();
-    fetchPromoBanner();
   }, []);
 
   const handleChange = (e) => {
@@ -407,16 +377,7 @@ const AdminDashboard = () => {
         >
           Home Banner
         </button>
-        <button
-          onClick={() => setActiveTab('promo-banner')}
-          className={`px-6 py-2 font-medium transition duration-200 ${
-            activeTab === 'promo-banner'
-              ? 'bg-indigo-600 text-white shadow-md'
-              : 'bg-white text-gray-600 hover:bg-gray-50'
-          }`}
-        >
-          Promo Banner
-        </button>
+
         <button
           onClick={() => setActiveTab('notifications')}
           className={`px-6 py-2 font-medium transition duration-200 ${
@@ -768,148 +729,7 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {activeTab === 'promo-banner' && (
-        <div className="space-y-8">
-          <div className="bg-white shadow-md p-6">
-            <h2 className="text-xl font-semibold mb-6">Edit Promo Banner (3 Panels)</h2>
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault();
-                try {
-                  await axios.put('/api/promo-banner', promoBannerForm, { withCredentials: true });
-                  toast.success('Promo banner updated');
-                } catch (error) {
-                  toast.error('Error updating promo banner');
-                }
-              }}
-              className="grid grid-cols-1 md:grid-cols-3 gap-8"
-            >
-              {/* Panel 1 */}
-              <div>
-                <h3 className="font-semibold mb-4">Panel 1 (Left)</h3>
-                <label className="block text-gray-700 text-sm mb-2">Image URL</label>
-                <input
-                  type="text"
-                  value={promoBannerForm.panel1Image}
-                  onChange={(e) => setPromoBannerForm({ ...promoBannerForm, panel1Image: e.target.value })}
-                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
-                  required
-                />
-                <label className="block text-gray-700 text-sm mb-2 mt-4">Title</label>
-                <input
-                  type="text"
-                  value={promoBannerForm.panel1Title}
-                  onChange={(e) => setPromoBannerForm({ ...promoBannerForm, panel1Title: e.target.value })}
-                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
-                  required
-                />
-                <label className="block text-gray-700 text-sm mb-2 mt-4">Link</label>
-                <input
-                  type="text"
-                  value={promoBannerForm.panel1Link}
-                  onChange={(e) => setPromoBannerForm({ ...promoBannerForm, panel1Link: e.target.value })}
-                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
-                  required
-                />
-              </div>
 
-              {/* Panel 2 */}
-              <div>
-                <h3 className="font-semibold mb-4">Panel 2 (Center)</h3>
-                <label className="block text-gray-700 text-sm mb-2">Image URL</label>
-                <input
-                  type="text"
-                  value={promoBannerForm.panel2Image}
-                  onChange={(e) => setPromoBannerForm({ ...promoBannerForm, panel2Image: e.target.value })}
-                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
-                  required
-                />
-                <label className="block text-gray-700 text-sm mb-2 mt-4">Title</label>
-                <input
-                  type="text"
-                  value={promoBannerForm.panel2Title}
-                  onChange={(e) => setPromoBannerForm({ ...promoBannerForm, panel2Title: e.target.value })}
-                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
-                  required
-                />
-                <label className="block text-gray-700 text-sm mb-2 mt-4">Link</label>
-                <input
-                  type="text"
-                  value={promoBannerForm.panel2Link}
-                  onChange={(e) => setPromoBannerForm({ ...promoBannerForm, panel2Link: e.target.value })}
-                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
-                  required
-                />
-              </div>
-
-              {/* Panel 3 */}
-              <div>
-                <h3 className="font-semibold mb-4">Panel 3 (Right)</h3>
-                <label className="block text-gray-700 text-sm mb-2">Image URL</label>
-                <input
-                  type="text"
-                  value={promoBannerForm.panel3Image}
-                  onChange={(e) => setPromoBannerForm({ ...promoBannerForm, panel3Image: e.target.value })}
-                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
-                  required
-                />
-                <label className="block text-gray-700 text-sm mb-2 mt-4">Title</label>
-                <input
-                  type="text"
-                  value={promoBannerForm.panel3Title}
-                  onChange={(e) => setPromoBannerForm({ ...promoBannerForm, panel3Title: e.target.value })}
-                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
-                  required
-                />
-                <label className="block text-gray-700 text-sm mb-2 mt-4">Link</label>
-                <input
-                  type="text"
-                  value={promoBannerForm.panel3Link}
-                  onChange={(e) => setPromoBannerForm({ ...promoBannerForm, panel3Link: e.target.value })}
-                  className="shadow border w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
-                  required
-                />
-              </div>
-
-              <div className="md:col-span-3">
-                <button
-                  type="submit"
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 focus:outline-none focus:shadow-outline w-full"
-                >
-                  Save Promo Banner
-                </button>
-              </div>
-            </form>
-
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="relative h-48 overflow-hidden border">
-                {promoBannerForm.panel1Image && (
-                  <img src={promoBannerForm.panel1Image} alt="Panel 1 preview" className="absolute inset-0 w-full h-full object-cover" />
-                )}
-                <div className="absolute bottom-4 left-4">
-                  <div className="font-semibold text-white">{promoBannerForm.panel1Title}</div>
-                </div>
-              </div>
-              <div className="relative h-48 overflow-hidden border">
-                {promoBannerForm.panel2Image && (
-                  <img src={promoBannerForm.panel2Image} alt="Panel 2 preview" className="absolute inset-0 w-full h-full object-cover" />
-                )}
-                <div className="absolute bottom-4 left-0 right-0 text-center">
-                  <div className="font-semibold text-gray-900">{promoBannerForm.panel2Title}</div>
-                </div>
-              </div>
-              <div className="relative h-48 overflow-hidden border">
-                {promoBannerForm.panel3Image && (
-                  <img src={promoBannerForm.panel3Image} alt="Panel 3 preview" className="absolute inset-0 w-full h-full object-cover" />
-                )}
-                <div className="absolute bottom-4 right-4 text-right">
-                  <div className="font-semibold text-gray-900">{promoBannerForm.panel3Title}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {activeTab === 'add' && (
         <div className="bg-white shadow-md p-6 mb-8">
