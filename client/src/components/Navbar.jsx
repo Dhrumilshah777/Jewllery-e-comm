@@ -12,6 +12,25 @@ const Navbar = () => {
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const inputRef = useRef(null);
   const navigate = useNavigate();
+  const [wishlist, setWishlist] = useState(new Set());
+
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      if (!user) {
+        setWishlist(new Set());
+        return;
+      }
+      try {
+        const { data } = await axios.get('/api/users/profile');
+        const list = data?.wishlist || [];
+        setWishlist(new Set(list.filter(item => item !== null).map(item => item._id)));
+      } catch (error) {
+        console.error("Failed to fetch wishlist:", error);
+      }
+    };
+
+    fetchWishlist();
+  }, [user]);
 
   useEffect(() => {
     if (showSearch && inputRef.current) {
@@ -59,8 +78,8 @@ const Navbar = () => {
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
       {/* Full Screen Search Overlay */}
-      <div className={`fixed inset-0 bg-white z-[60] transform transition-transform duration-300 ease-in-out ${showSearch ? 'translate-y-0' : '-translate-y-full'}`}>
-        <div className="relative h-full flex flex-col pt-24 px-4">
+      <div className={`fixed inset-0 bg-white z-[60] transform transition-transform duration-500 ease-in-out ${showSearch ? 'translate-y-0' : '-translate-y-full'}`}>
+        <div className={`relative h-full flex flex-col pt-24 px-4 transition-opacity duration-500 ${showSearch ? 'opacity-100 delay-100' : 'opacity-0'}`}>
           <button 
             onClick={() => setShowSearch(false)}
             className="absolute top-6 right-6 p-2 text-gray-500 hover:text-gray-800 transition-colors"
@@ -183,8 +202,13 @@ const Navbar = () => {
              </button>
              
              {/* Wishlist */}
-             <Link to="/wishlist" className="text-gray-500 hover:text-red-500 transition-colors">
+             <Link to="/wishlist" className="relative text-gray-500 hover:text-red-500 transition-colors">
                <i className="far fa-heart text-xl"></i>
+               {wishlist.size > 0 && (
+                 <span className="absolute -top-2 -right-2 bg-black text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
+                   {wishlist.size}
+                 </span>
+               )}
              </Link>
 
              {/* Auth */}
@@ -323,9 +347,11 @@ const Navbar = () => {
           <Link to="/wishlist" className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 group text-gray-500 hover:text-indigo-600 relative">
             <div className="relative">
               <i className="far fa-heart text-xl mb-1 group-hover:text-indigo-600"></i>
-              <div className="absolute -top-2 -right-2 bg-black text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
-                {user?.wishlist?.length || 0}
-              </div>
+              {wishlist.size > 0 && (
+                <div className="absolute -top-2 -right-2 bg-black text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
+                  {wishlist.size}
+                </div>
+              )}
             </div>
             <span className="text-[10px] uppercase tracking-wider group-hover:text-indigo-600">Wishlist</span>
           </Link>
