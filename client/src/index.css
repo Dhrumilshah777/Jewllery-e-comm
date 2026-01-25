@@ -6,6 +6,10 @@ body {
   font-weight: 300;
 }
 
+.font-italiana {
+  font-family: "Italiana", sans-serif;
+}
+
 @keyframes fadeInScale {
   from {
     opacity: 0;
