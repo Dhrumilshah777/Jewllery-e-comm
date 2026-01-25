@@ -41,7 +41,6 @@ body {
   }
   to {
     transform: translateY(0);
-    opacity: 1;
   }
 }
 
@@ -72,6 +71,24 @@ body {
 .hero-delay-100 { animation-delay: 0.3s; }
 .hero-delay-200 { animation-delay: 0.5s; }
 .hero-delay-300 { animation-delay: 0.7s; }
+
+/* Hero Carousel Image Zoom Animation */
+@keyframes zoomIn {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.1);
+  }
+}
+
+.slick-slide .hero-zoom {
+  transform: scale(1);
+}
+
+.slick-active .hero-zoom {
+  animation: zoomIn 6s linear forwards;
+}
 
 /* Slick Carousel Arrow Customization */
 .slick-prev, .slick-next {
