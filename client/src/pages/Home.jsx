@@ -282,7 +282,7 @@ const Home = () => {
                   <div className="absolute inset-0 bg-black opacity-40"></div>
                 </div>
                 <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-4 space-y-6 font-italiana">
-                  <h1 className="text-5xl font-bold tracking-tight hero-animate">{slide.title}</h1>
+                  <h1 className="text-6xl md:text-8xl font-bold tracking-tight hero-animate">{slide.title}</h1>
                   <p className="text-xl max-w-2xl mx-auto hero-animate hero-delay-100">
                     {slide.subtitle}
                   </p>
@@ -305,7 +305,7 @@ const Home = () => {
               <div className="absolute inset-0 bg-black opacity-40"></div>
             </div>
             <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-4 space-y-6">
-              <h1 className="text-5xl font-bold tracking-tight">Exquisite Jewelry</h1>
+              <h1 className="text-6xl md:text-8xl font-bold tracking-tight">Exquisite Jewelry</h1>
               <p className="text-xl max-w-2xl mx-auto">
                 Discover our new collection
               </p>
