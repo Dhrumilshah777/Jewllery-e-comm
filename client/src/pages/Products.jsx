@@ -236,13 +236,13 @@ const Products = () => {
                 )}
                 <button 
                   className={`absolute top-3 right-3 p-2 shadow-sm transition-all duration-200 ${
-                    wishlist.has(product._id) 
+                    isInWishlist(product._id) 
                       ? 'bg-red-50 text-red-500 hover:bg-red-100' 
                       : 'bg-white/80 hover:bg-white text-gray-600 hover:text-red-500'
                   }`}
-                  onClick={(e) => toggleWishlist(e, product._id)}
+                  onClick={(e) => handleToggleWishlist(e, product)}
                 >
-                  {wishlist.has(product._id) ? (
+                  {isInWishlist(product._id) ? (
                     <i className="fas fa-heart text-xl"></i>
                   ) : (
                     <i className="far fa-heart text-xl"></i>

@@ -1,11 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useWishlist } from '../context/WishlistContext';
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { useQuery } from '@tanstack/react-query';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const { wishlistCount } = useWishlist();
   const [isOpen, setIsOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -15,25 +16,6 @@ const Navbar = () => {
   const [loadingSuggestedProducts, setLoadingSuggestedProducts] = useState(false);
   const inputRef = useRef(null);
   const navigate = useNavigate();
-  const [wishlist, setWishlist] = useState(new Set());
-
-  useEffect(() => {
-    const fetchWishlist = async () => {
-      if (!user) {
-        setWishlist(new Set());
-        return;
-      }
-      try {
-        const { data } = await axios.get('/api/users/profile');
-        const list = data?.wishlist || [];
-        setWishlist(new Set(list.filter(item => item !== null).map(item => item._id)));
-      } catch (error) {
-        console.error("Failed to fetch wishlist:", error);
-      }
-    };
-
-    fetchWishlist();
-  }, [user]);
 
   useEffect(() => {
     if (showSearch && inputRef.current) {
@@ -307,7 +289,7 @@ const Navbar = () => {
              <Link to="/wishlist" className="relative text-gray-900 hover:text-gray-600 transition-colors">
                <i className="fa-light fa-heart text-xl"></i>
                <span className="absolute -top-1 -right-2 bg-black text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
-                 {wishlist.size}
+                 {wishlistCount}
                </span>
              </Link>
           </div>
@@ -420,9 +402,9 @@ const Navbar = () => {
           <Link to="/wishlist" className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 group text-gray-500 hover:text-indigo-600 relative">
             <div className="relative">
               <i className="fa-light fa-heart text-xl mb-1 group-hover:text-indigo-600"></i>
-              {wishlist.size > 0 && (
+              {wishlistCount > 0 && (
                 <div className="absolute -top-2 -right-2 bg-black text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
-                  {wishlist.size}
+                  {wishlistCount}
                 </div>
               )}
             </div>

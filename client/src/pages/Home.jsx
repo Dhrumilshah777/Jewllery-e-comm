@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { useWishlist } from '../context/WishlistContext';
 import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
 import { useQuery } from '@tanstack/react-query';
@@ -10,7 +11,8 @@ import { useQuery } from '@tanstack/react-query';
 const Home = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const navigate = useNavigate();
 
   // Query functions
@@ -39,11 +41,6 @@ const Home = () => {
     return data;
   };
 
-  const fetchWishlist = async () => {
-    if (!user) return new Set();
-    const { data } = await axios.get('/api/users/profile', { withCredentials: true });
-    return new Set(data.wishlist.filter(item => item !== null).map(item => item._id));
-  };
 
   // Queries
   const { data: slides = [], isLoading: slidesLoading } = useQuery({
@@ -71,12 +68,6 @@ const Home = () => {
     queryFn: fetchLatestProducts
   });
 
-  const { data: wishlist = new Set(), refetch: refetchWishlist } = useQuery({
-    queryKey: ['wishlist', user?._id],
-    queryFn: fetchWishlist,
-    enabled: !!user // Only run if user exists
-  });
-
   const loading = slidesLoading || trendyLoading || categoriesLoading || homeBannerLoading || latestLoading;
 
   useEffect(() => {
@@ -91,18 +82,18 @@ const Home = () => {
   }, []);
 
   // Update wishlist when user changes
-  useEffect(() => {
-    if (user) {
-      refetchWishlist();
-    }
-  }, [user, refetchWishlist]);
+  // useEffect(() => {
+  //   if (user) {
+  //     refetchWishlist();
+  //   }
+  // }, [user, refetchWishlist]);
 
 
   if (loading) {
     return <Spinner />;
   }
 
-  const toggleWishlist = async (e, productId) => {
+  const handleToggleWishlist = async (e, product) => {
     e.preventDefault();
     e.stopPropagation(); // Prevent modal close or navigation
     
@@ -112,48 +103,7 @@ const Home = () => {
       return;
     }
 
-    const isInWishlist = wishlist.has(productId);
-
-    // Optimistic update
-    setWishlist(prev => {
-      const newWishlist = new Set(prev);
-      if (isInWishlist) {
-        newWishlist.delete(productId);
-      } else {
-        newWishlist.add(productId);
-      }
-      return newWishlist;
-    });
-
-    try {
-      if (isInWishlist) {
-        await axios.delete(`/api/users/wishlist/${productId}`, { withCredentials: true });
-        toast.success('Removed from wishlist');
-      } else {
-        await axios.post('/api/users/wishlist', { productId }, { withCredentials: true });
-        toast.success('Added to wishlist');
-      }
-    } catch (error) {
-      console.error('Error updating wishlist:', error);
-      const message = error.response?.data?.message || 'Error updating wishlist';
-      toast.error(message);
-      
-      if (error.response?.status === 401) {
-        logout();
-        navigate('/login');
-      }
-
-      // Revert on error
-      setWishlist(prev => {
-        const newWishlist = new Set(prev);
-        if (isInWishlist) {
-          newWishlist.add(productId);
-        } else {
-          newWishlist.delete(productId);
-        }
-        return newWishlist;
-      });
-    }
+    await toggleWishlist(product);
   };
 
   const openModal = (e, product) => {

@@ -74,6 +74,7 @@ const Wishlist = () => {
               <button 
                 onClick={() => removeFromWishlist(item._id)}
                 className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 transition"
+                aria-label="Remove from wishlist"
               >
                 <i className="fas fa-trash"></i>
               </button>

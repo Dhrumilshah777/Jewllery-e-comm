@@ -98,10 +98,15 @@ const ProductDetails = () => {
           
           <div className="flex space-x-4">
             <button 
-              onClick={addToWishlist}
-              className="flex-1 items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 px-6 transition duration-300"
+              onClick={handleToggleWishlist}
+              className={`flex-1 items-center justify-center font-bold py-3 px-6 transition duration-300 ${
+                isInWishlist(product._id) 
+                  ? 'bg-red-50 text-red-500 hover:bg-red-100' 
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+              }`}
             >
-              <i className="fas fa-heart mr-2"></i> Add to Wishlist
+              <i className={`${isInWishlist(product._id) ? 'fas' : 'far'} fa-heart mr-2`}></i> 
+              {isInWishlist(product._id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
             </button>
           </div>
         </div>
