@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -86,6 +87,18 @@ const Navbar = () => {
     }
   }, [showSearch]);
 
+  // Prevent body scroll when search is open
+  useEffect(() => {
+    if (showSearch) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showSearch]);
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -100,7 +113,7 @@ const Navbar = () => {
     <nav className="bg-white shadow-lg sticky top-0 z-50">
       {/* Full Screen Search Overlay */}
       <div className={`fixed inset-0 bg-white z-[60] transform transition-transform duration-500 ease-in-out ${showSearch ? 'translate-y-0' : '-translate-y-full'}`}>
-        <div className={`relative h-full flex flex-col pt-24 px-4 transition-opacity duration-500 ${showSearch ? 'opacity-100 delay-100' : 'opacity-0'}`}>
+        <div className={`relative h-full flex flex-col pt-24 px-4 transition-opacity duration-500 overflow-y-auto ${showSearch ? 'opacity-100 delay-100' : 'opacity-0'}`}>
           <button 
             onClick={() => setShowSearch(false)}
             className="absolute top-6 right-6 p-2 text-gray-500 hover:text-gray-800 transition-colors cursor-pointer"
@@ -233,19 +246,19 @@ const Navbar = () => {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
-            <Link to="/" className="group flex items-center gap-1 text-gray-900 hover:text-gray-600 px-1 py-2 text-sm font-light uppercase tracking-wider transition-colors border-b-2 border-gray-900">
+            <Link to="/" className="group flex items-center gap-1 text-gray-900 hover:text-gray-600 px-1 py-2 text-sm font-normal uppercase tracking-wider transition-colors border-b-2 border-gray-900">
               Home
             </Link>
-            <Link to="/products" className="group flex items-center gap-1 text-gray-900 hover:text-gray-600 px-1 py-2 text-sm font-light uppercase tracking-wider transition-colors border-b-2 border-transparent hover:border-gray-900">
+            <Link to="/products" className="group flex items-center gap-1 text-gray-900 hover:text-gray-600 px-1 py-2 text-sm font-normal uppercase tracking-wider transition-colors border-b-2 border-transparent hover:border-gray-900">
               Shop
             </Link>
-            <Link to="/products" className="group flex items-center gap-1 text-gray-900 hover:text-gray-600 px-1 py-2 text-sm font-light uppercase tracking-wider transition-colors border-b-2 border-transparent hover:border-gray-900">
+            <Link to="/products" className="group flex items-center gap-1 text-gray-900 hover:text-gray-600 px-1 py-2 text-sm font-normal uppercase tracking-wider transition-colors border-b-2 border-transparent hover:border-gray-900">
               Product
             </Link>
-            <Link to="#" className="group flex items-center gap-1 text-gray-900 hover:text-gray-600 px-1 py-2 text-sm font-light uppercase tracking-wider transition-colors border-b-2 border-transparent hover:border-gray-900">
+            <Link to="#" className="group flex items-center gap-1 text-gray-900 hover:text-gray-600 px-1 py-2 text-sm font-normal uppercase tracking-wider transition-colors border-b-2 border-transparent hover:border-gray-900">
               Blog
             </Link>
-            <Link to="#" className="group flex items-center gap-1 text-gray-900 hover:text-gray-600 px-1 py-2 text-sm font-light uppercase tracking-wider transition-colors border-b-2 border-transparent hover:border-gray-900">
+            <Link to="#" className="group flex items-center gap-1 text-gray-900 hover:text-gray-600 px-1 py-2 text-sm font-normal uppercase tracking-wider transition-colors border-b-2 border-transparent hover:border-gray-900">
               Featured
             </Link>
           </div>
