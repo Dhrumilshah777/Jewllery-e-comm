@@ -118,7 +118,7 @@ const Navbar = () => {
             onClick={() => setShowSearch(false)}
             className="absolute top-6 right-6 p-2 text-gray-500 hover:text-gray-800 transition-colors cursor-pointer"
           >
-            <i className="fas fa-times text-2xl"></i>
+            <i className="fa-light fa-xmark text-2xl"></i>
           </button>
           
           <div className="w-full max-w-3xl mx-auto">
@@ -135,7 +135,7 @@ const Navbar = () => {
                 type="submit"
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-600 transition-colors"
               >
-                <i className="fas fa-search text-2xl md:text-3xl"></i>
+                <i className="fa-light fa-magnifying-glass text-2xl md:text-3xl"></i>
               </button>
             </form>
 
@@ -270,14 +270,14 @@ const Navbar = () => {
                onClick={() => setShowSearch(true)}
                className="text-gray-900 hover:text-gray-600 transition-colors cursor-pointer"
              >
-               <i className="fas fa-search text-xl"></i>
+               <i className="fa-light fa-magnifying-glass text-xl"></i>
              </button>
              
              {/* Auth */}
              {user ? (
                <div className="relative group">
                  <button className="flex items-center space-x-2 text-gray-900 hover:text-gray-600 focus:outline-none">
-                   <i className="far fa-user text-xl"></i>
+                   <i className="fa-light fa-user text-xl"></i>
                  </button>
                  {/* Dropdown */}
                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right z-50">
@@ -299,13 +299,13 @@ const Navbar = () => {
                </div>
              ) : (
                <Link to="/login" className="text-gray-900 hover:text-gray-600 transition-colors">
-                 <i className="far fa-user text-xl"></i>
+                 <i className="fa-light fa-user text-xl"></i>
                </Link>
              )}
 
              {/* Wishlist */}
              <Link to="/wishlist" className="relative text-gray-900 hover:text-gray-600 transition-colors">
-               <i className="far fa-heart text-xl"></i>
+               <i className="fa-light fa-heart text-xl"></i>
                <span className="absolute -top-1 -right-2 bg-black text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
                  {wishlist.size}
                </span>
@@ -318,7 +318,7 @@ const Navbar = () => {
               onClick={() => setIsOpen(!isOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-indigo-600 focus:outline-none"
             >
-              <i className={`fas ${isOpen ? 'fa-times' : 'fa-bars'} text-2xl`}></i>
+              <i className={`${isOpen ? 'fa-light fa-xmark' : 'fa-light fa-bars'} text-2xl`}></i>
             </button>
           </div>
         </div>
@@ -407,19 +407,19 @@ const Navbar = () => {
       <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-white border-t border-gray-200 md:hidden">
         <div className="grid h-full grid-cols-4 mx-auto font-medium">
           <Link to="/" className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 group text-gray-500 hover:text-indigo-600">
-            <i className="fas fa-home text-xl mb-1 group-hover:text-indigo-600"></i>
+            <i className="fa-light fa-house text-xl mb-1 group-hover:text-indigo-600"></i>
             <span className="text-[10px] uppercase tracking-wider group-hover:text-indigo-600">Home</span>
           </Link>
           <button 
             onClick={() => setShowSearch(true)}
             className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 group text-gray-500 hover:text-indigo-600 cursor-pointer"
           >
-            <i className="fas fa-search text-xl mb-1 group-hover:text-indigo-600"></i>
+            <i className="fa-light fa-magnifying-glass text-xl mb-1 group-hover:text-indigo-600"></i>
             <span className="text-[10px] uppercase tracking-wider group-hover:text-indigo-600">Search</span>
           </button>
           <Link to="/wishlist" className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 group text-gray-500 hover:text-indigo-600 relative">
             <div className="relative">
-              <i className="far fa-heart text-xl mb-1 group-hover:text-indigo-600"></i>
+              <i className="fa-light fa-heart text-xl mb-1 group-hover:text-indigo-600"></i>
               {wishlist.size > 0 && (
                 <div className="absolute -top-2 -right-2 bg-black text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
                   {wishlist.size}
@@ -429,7 +429,7 @@ const Navbar = () => {
             <span className="text-[10px] uppercase tracking-wider group-hover:text-indigo-600">Wishlist</span>
           </Link>
           <Link to={user ? "/profile" : "/login"} className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 group text-gray-500 hover:text-indigo-600">
-            <i className="far fa-user text-xl mb-1 group-hover:text-indigo-600"></i>
+            <i className="fa-light fa-user text-xl mb-1 group-hover:text-indigo-600"></i>
             <span className="text-[10px] uppercase tracking-wider group-hover:text-indigo-600">Account</span>
           </Link>
         </div>

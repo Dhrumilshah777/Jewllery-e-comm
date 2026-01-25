@@ -560,7 +560,7 @@ const Home = () => {
               onClick={closeModal}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10 p-1 cursor-pointer"
             >
-              <i className="fas fa-times text-2xl"></i>
+              <i className="fa-light fa-xmark text-2xl"></i>
             </button>
 
             {/* Product Image */}
