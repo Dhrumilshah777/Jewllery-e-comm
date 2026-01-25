@@ -224,13 +224,10 @@ const Navbar = () => {
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center gap-2">
               <img
-                className="h-12 w-auto transition-transform duration-300 hover:scale-105"
+                className="h-24 w-auto transition-transform duration-300 hover:scale-105"
                 src="/ao-logo.png"
                 alt="AO Jewelry"
               />
-              <span className="font-serif text-xl tracking-widest text-gray-900 hidden sm:block">
-                AO JEWELRY
-              </span>
             </Link>
           </div>
 

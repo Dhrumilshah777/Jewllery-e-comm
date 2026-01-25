@@ -8,6 +8,18 @@ const NotificationModal = () => {
     // Check if permission is default (not granted or denied)
     // and if the browser supports notifications
     if ('Notification' in window && Notification.permission === 'default') {
+      // Check if user clicked "Maybe Later" recently
+      const maybeLaterTime = localStorage.getItem('notification_maybe_later_timestamp');
+      if (maybeLaterTime) {
+        const now = new Date().getTime();
+        const timePassed = now - parseInt(maybeLaterTime, 10);
+        const twentyFourHours = 24 * 60 * 60 * 1000;
+        
+        if (timePassed < twentyFourHours) {
+          return; // Don't show if less than 24 hours
+        }
+      }
+
       const timer = setTimeout(() => {
         setShowModal(true);
       }, 5000); // Show after 5 seconds
@@ -27,6 +39,7 @@ const NotificationModal = () => {
   };
 
   const handleClose = () => {
+    localStorage.setItem('notification_maybe_later_timestamp', new Date().getTime().toString());
     setShowModal(false);
   };
 
