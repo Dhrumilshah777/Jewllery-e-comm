@@ -10,6 +10,8 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [suggestedProducts, setSuggestedProducts] = useState([]);
+  const [loadingSuggestedProducts, setLoadingSuggestedProducts] = useState(false);
   const inputRef = useRef(null);
   const navigate = useNavigate();
   const [wishlist, setWishlist] = useState(new Set());
@@ -65,6 +67,25 @@ const Navbar = () => {
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
 
+  useEffect(() => {
+    const fetchSuggestedProducts = async () => {
+      if (suggestedProducts.length > 0) return;
+      setLoadingSuggestedProducts(true);
+      try {
+        const { data } = await axios.get('/api/products?limit=4');
+        setSuggestedProducts(data.products || data);
+      } catch (error) {
+        console.error('Error fetching suggested products:', error);
+      } finally {
+        setLoadingSuggestedProducts(false);
+      }
+    };
+
+    if (showSearch) {
+      fetchSuggestedProducts();
+    }
+  }, [showSearch]);
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -82,7 +103,7 @@ const Navbar = () => {
         <div className={`relative h-full flex flex-col pt-24 px-4 transition-opacity duration-500 ${showSearch ? 'opacity-100 delay-100' : 'opacity-0'}`}>
           <button 
             onClick={() => setShowSearch(false)}
-            className="absolute top-6 right-6 p-2 text-gray-500 hover:text-gray-800 transition-colors"
+            className="absolute top-6 right-6 p-2 text-gray-500 hover:text-gray-800 transition-colors cursor-pointer"
           >
             <i className="fas fa-times text-2xl"></i>
           </button>
@@ -143,22 +164,54 @@ const Navbar = () => {
             )}
 
             {!searchQuery && (
-              <div className="mt-8 text-center text-gray-500">
-                <p className="text-sm uppercase tracking-wider mb-4">Popular Searches</p>
-                <div className="flex flex-wrap justify-center gap-3">
-                  {['Rings', 'Necklaces', 'Earrings', 'Bracelets'].map((term) => (
-                    <button
-                      key={term}
-                      onClick={() => {
-                        setSearchQuery(term);
-                        navigate(`/products?keyword=${term}`);
-                        setShowSearch(false);
-                      }}
-                      className="px-4 py-2 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors text-sm"
-                    >
-                      {term}
-                    </button>
-                  ))}
+              <div className="mt-8">
+                <div className="text-center text-gray-500 mb-10">
+                  <p className="text-sm uppercase tracking-wider mb-4">Popular Searches</p>
+                  <div className="flex flex-wrap justify-center gap-3">
+                    {['Rings', 'Necklaces', 'Earrings', 'Bracelets'].map((term) => (
+                      <button
+                        key={term}
+                        onClick={() => {
+                          setSearchQuery(term);
+                          navigate(`/products?keyword=${term}`);
+                          setShowSearch(false);
+                        }}
+                        className="px-4 py-2 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors text-sm"
+                      >
+                        {term}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="border-t border-gray-100 pt-8">
+                  <p className="text-sm uppercase tracking-wider mb-6 text-center text-gray-500">Suggested For You</p>
+                  {loadingSuggestedProducts ? (
+                    <div className="text-center text-gray-500">Loading suggestions...</div>
+                  ) : (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                      {suggestedProducts.map((product) => (
+                        <button
+                          key={product._id}
+                          onClick={() => {
+                            navigate(`/products/${product._id}`);
+                            setShowSearch(false);
+                          }}
+                          className="group text-left"
+                        >
+                          <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg bg-gray-100 mb-3">
+                            <img
+                              src={product.imageUrl}
+                              alt={product.name}
+                              className="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                            />
+                          </div>
+                          <h3 className="text-sm text-gray-900 font-medium truncate">{product.name}</h3>
+                          <p className="text-sm text-gray-500">${product.price}</p>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -182,12 +235,21 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium uppercase tracking-wider transition-colors">
+          <div className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
+            <Link to="/" className="group flex items-center gap-1 text-gray-900 hover:text-gray-600 px-1 py-2 text-sm font-light uppercase tracking-wider transition-colors border-b-2 border-gray-900">
               Home
             </Link>
-            <Link to="/products" className="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium uppercase tracking-wider transition-colors">
+            <Link to="/products" className="group flex items-center gap-1 text-gray-900 hover:text-gray-600 px-1 py-2 text-sm font-light uppercase tracking-wider transition-colors border-b-2 border-transparent hover:border-gray-900">
               Shop
+            </Link>
+            <Link to="/products" className="group flex items-center gap-1 text-gray-900 hover:text-gray-600 px-1 py-2 text-sm font-light uppercase tracking-wider transition-colors border-b-2 border-transparent hover:border-gray-900">
+              Product
+            </Link>
+            <Link to="#" className="group flex items-center gap-1 text-gray-900 hover:text-gray-600 px-1 py-2 text-sm font-light uppercase tracking-wider transition-colors border-b-2 border-transparent hover:border-gray-900">
+              Blog
+            </Link>
+            <Link to="#" className="group flex items-center gap-1 text-gray-900 hover:text-gray-600 px-1 py-2 text-sm font-light uppercase tracking-wider transition-colors border-b-2 border-transparent hover:border-gray-900">
+              Featured
             </Link>
           </div>
 
@@ -196,30 +258,23 @@ const Navbar = () => {
              {/* Search */}
              <button 
                onClick={() => setShowSearch(true)}
-               className="text-gray-500 hover:text-indigo-600 transition-colors"
+               className="text-gray-900 hover:text-gray-600 transition-colors cursor-pointer"
              >
                <i className="fas fa-search text-xl"></i>
              </button>
              
-             {/* Wishlist */}
-             <Link to="/wishlist" className="relative text-gray-500 hover:text-red-500 transition-colors">
-               <i className="far fa-heart text-xl"></i>
-               {wishlist.size > 0 && (
-                 <span className="absolute -top-2 -right-2 bg-black text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
-                   {wishlist.size}
-                 </span>
-               )}
-             </Link>
-
              {/* Auth */}
              {user ? (
                <div className="relative group">
-                 <button className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 focus:outline-none">
-                   <span className="text-sm font-medium uppercase tracking-wide">{user.name.split(' ')[0]}</span>
-                   <i className="fas fa-user-circle text-2xl"></i>
+                 <button className="flex items-center space-x-2 text-gray-900 hover:text-gray-600 focus:outline-none">
+                   <i className="far fa-user text-xl"></i>
                  </button>
                  {/* Dropdown */}
-                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right">
+                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right z-50">
+                   <div className="px-4 py-2 border-b border-gray-100">
+                     <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                     <p className="text-xs text-gray-500">{user.email}</p>
+                   </div>
                    <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</Link>
                    {user.isAdmin && (
                      <Link to="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dashboard</Link>
@@ -233,10 +288,18 @@ const Navbar = () => {
                  </div>
                </div>
              ) : (
-               <Link to="/login" className="text-gray-700 hover:text-indigo-600 font-medium uppercase text-sm tracking-wider">
-                 Login
+               <Link to="/login" className="text-gray-900 hover:text-gray-600 transition-colors">
+                 <i className="far fa-user text-xl"></i>
                </Link>
              )}
+
+             {/* Wishlist */}
+             <Link to="/wishlist" className="relative text-gray-900 hover:text-gray-600 transition-colors">
+               <i className="far fa-heart text-xl"></i>
+               <span className="absolute -top-1 -right-2 bg-black text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
+                 {wishlist.size}
+               </span>
+             </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -339,7 +402,7 @@ const Navbar = () => {
           </Link>
           <button 
             onClick={() => setShowSearch(true)}
-            className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 group text-gray-500 hover:text-indigo-600"
+            className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 group text-gray-500 hover:text-indigo-600 cursor-pointer"
           >
             <i className="fas fa-search text-xl mb-1 group-hover:text-indigo-600"></i>
             <span className="text-[10px] uppercase tracking-wider group-hover:text-indigo-600">Search</span>
