@@ -168,6 +168,7 @@ const Home = () => {
 
   const settings = {
     dots: true,
+    fade: true,
     infinite: true,
     speed: 500,
     slidesToShow: 1,
@@ -280,13 +281,13 @@ const Home = () => {
                   <div className="absolute inset-0 bg-black opacity-40"></div>
                 </div>
                 <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-4 space-y-6">
-                  <h1 className="text-5xl font-bold tracking-tight">{slide.title}</h1>
-                  <p className="text-xl max-w-2xl mx-auto">
+                  <h1 className="text-5xl font-bold tracking-tight hero-animate">{slide.title}</h1>
+                  <p className="text-xl max-w-2xl mx-auto hero-animate hero-delay-100">
                     {slide.subtitle}
                   </p>
                   <Link 
                     to="/products" 
-                    className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 transition duration-300"
+                    className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 transition duration-300 hero-animate hero-delay-200"
                   >
                     Shop Collection
                   </Link>

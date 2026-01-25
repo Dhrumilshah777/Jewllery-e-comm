@@ -49,6 +49,30 @@ body {
   animation: slideDown 0.25s ease-out forwards;
 }
 
+/* Hero Carousel Text Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slick-slide .hero-animate {
+  opacity: 0;
+}
+
+.slick-active .hero-animate {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.hero-delay-100 { animation-delay: 0.3s; }
+.hero-delay-200 { animation-delay: 0.5s; }
+.hero-delay-300 { animation-delay: 0.7s; }
+
 /* Slick Carousel Arrow Customization */
 .slick-prev, .slick-next {
   z-index: 10;
