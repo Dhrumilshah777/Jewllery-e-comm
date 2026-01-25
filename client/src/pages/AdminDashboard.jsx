@@ -592,7 +592,6 @@ const AdminDashboard = () => {
                   value={slideFormData.subtitle}
                   onChange={handleSlideChange}
                   className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
                 />
               </div>
               <div className="md:col-span-2">
@@ -672,7 +671,6 @@ const AdminDashboard = () => {
                       value={editingSlide.subtitle}
                       onChange={(e) => setEditingSlide({ ...editingSlide, subtitle: e.target.value })}
                       className="w-full border p-2 rounded focus:outline-none focus:border-indigo-600"
-                      required
                     />
                   </div>
                   <div className="flex gap-4 mt-6">
