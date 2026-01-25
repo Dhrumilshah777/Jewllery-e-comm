@@ -177,6 +177,20 @@ const Home = () => {
     autoplaySpeed: 5000,
     arrows: false,
     pauseOnHover: false,
+    appendDots: dots => (
+      <div
+        style={{
+          position: "absolute",
+          bottom: "30px",
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          zIndex: 20
+        }}
+      >
+        <ul style={{ margin: "0px" }}> {dots} </ul>
+      </div>
+    ),
   };
 
   const trendySettings = {
