@@ -89,21 +89,8 @@ const Products = () => {
       }
     };
 
-    const fetchWishlist = async () => {
-      if (user) {
-        try {
-          const { data } = await axios.get('/api/users/profile', { withCredentials: true });
-          const wishlistIds = new Set(data.wishlist.filter(item => item !== null).map(item => item._id));
-          setWishlist(wishlistIds);
-        } catch (error) {
-          console.error('Error fetching wishlist:', error);
-        }
-      }
-    };
-
     fetchProducts();
-    fetchWishlist();
-  }, [user, keyword, category]);
+  }, [keyword, category]);
 
   useEffect(() => {
     setSelectedCategory(category);

@@ -41,6 +41,11 @@ const Home = () => {
     return data;
   };
 
+  const fetchWishlist = async () => {
+    if (!user) return new Set();
+    const { data } = await axios.get('/api/users/profile', { withCredentials: true });
+    return new Set(data.wishlist.filter(item => item !== null).map(item => item._id));
+  };
 
   // Queries
   const { data: slides = [], isLoading: slidesLoading } = useQuery({
@@ -416,11 +421,11 @@ const Home = () => {
                       </button>
                       {/* Wishlist Icon */}
                       <button
-                        onClick={(e) => toggleWishlist(e, item._id)}
+                        onClick={(e) => handleToggleWishlist(e, item)}
                         className="bg-white p-2 rounded-full shadow-md text-gray-600 hover:text-red-500 hover:bg-gray-50 transition-all duration-300 cursor-pointer"
-                        title={wishlist.has(item._id) ? "Remove from Wishlist" : "Add to Wishlist"}
+                        title={isInWishlist(item._id) ? "Remove from Wishlist" : "Add to Wishlist"}
                       >
-                        {wishlist.has(item._id) ? <i className="fas fa-heart text-red-500 text-lg"></i> : <i className="far fa-heart text-lg"></i>}
+                        {isInWishlist(item._id) ? <i className="fas fa-heart text-red-500 text-lg"></i> : <i className="far fa-heart text-lg"></i>}
                       </button>
                     </div>
                   </div>
@@ -540,20 +545,20 @@ const Home = () => {
               <div className="flex flex-col space-y-4">
                 <button 
                   onClick={(e) => toggleWishlist(e, selectedProduct._id)}
-                  className="flex items-center justify-center space-x-2 w-full bg-gray-900 text-white py-3 px-6 hover:bg-gray-800 transition duration-300 cursor-pointer"
-                >
-                  {wishlist.has(selectedProduct._id) ? (
-                    <>
-                      <i className="fas fa-heart text-red-500"></i>
-                      <span>In Wishlist</span>
-                    </>
-                  ) : (
-                    <>
-                      <i className="far fa-heart"></i>
-                      <span>Add to Wishlist</span>
-                    </>
-                  )}
-                </button>
+            className="flex items-center justify-center space-x-2 w-full bg-gray-900 text-white py-3 px-6 hover:bg-gray-800 transition duration-300 cursor-pointer"
+          >
+            {isInWishlist(selectedProduct._id) ? (
+              <>
+                <i className="fas fa-heart text-red-500"></i>
+                <span>In Wishlist</span>
+              </>
+            ) : (
+              <>
+                <i className="far fa-heart"></i>
+                <span>Add to Wishlist</span>
+              </>
+            )}
+          </button>
                 
                 <Link 
                   to={`/products/${selectedProduct._id}`}
