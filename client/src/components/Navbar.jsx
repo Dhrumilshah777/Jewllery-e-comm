@@ -89,7 +89,7 @@ const Navbar = () => {
 
   // Prevent body scroll when search is open
   useEffect(() => {
-    if (showSearch) {
+    if (showSearch || isOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -97,7 +97,7 @@ const Navbar = () => {
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [showSearch]);
+  }, [showSearch, isOpen]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -313,7 +313,7 @@ const Navbar = () => {
           </div>
 
           {/* Mobile menu button */}
-          <div className="flex items-center md:hidden z-50 absolute left-0">
+          <div className="flex items-center md:hidden z-[60] absolute left-0">
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-indigo-600 focus:outline-none"
@@ -326,7 +326,7 @@ const Navbar = () => {
 
       {/* Mobile Menu Sidebar Overlay */}
       <div 
-        className={`fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300 md:hidden ${
+        className={`fixed inset-0 bg-transparent backdrop-blur-sm z-40 transition-opacity duration-300 md:hidden ${
           isOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
         }`}
         onClick={() => setIsOpen(false)}
@@ -334,8 +334,8 @@ const Navbar = () => {
 
       {/* Mobile Menu Sidebar */}
       <div 
-        className={`fixed top-0 right-0 h-full w-64 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`fixed top-0 left-0 h-full w-64 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="flex flex-col h-full pt-20 px-6 pb-6 overflow-y-auto">
