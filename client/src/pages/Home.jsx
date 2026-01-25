@@ -274,7 +274,7 @@ const Home = () => {
         {slides.length > 0 ? (
           <Slider {...settings}>
             {slides.map((slide) => (
-              <div key={slide._id} className="relative h-[450px] md:h-[550px] overflow-hidden">
+              <div key={slide._id} className="relative h-[550px] md:h-[550px] overflow-hidden">
                 <div 
                   className="absolute inset-0 bg-cover bg-center hero-zoom"
                   style={{ backgroundImage: `url(${slide.image})` }}
