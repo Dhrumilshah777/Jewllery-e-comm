@@ -2,25 +2,27 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useWishlist } from '../context/WishlistContext';
 import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [wishlist, setWishlist] = useState(new Set());
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [filterInStock, setFilterInStock] = useState(false);
   const [filterOutOfStock, setFilterOutOfStock] = useState(false);
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const keyword = searchParams.get('keyword');
   const category = searchParams.get('category');
 
-  const toggleWishlist = async (e, productId) => {
+  const handleToggleWishlist = async (e, product) => {
     e.preventDefault();
+    e.stopPropagation();
     
     if (!user) {
       toast.info('Please login to manage wishlist');
@@ -28,48 +30,7 @@ const Products = () => {
       return;
     }
 
-    const isInWishlist = wishlist.has(productId);
-
-    // Optimistic update
-    setWishlist(prev => {
-      const newWishlist = new Set(prev);
-      if (isInWishlist) {
-        newWishlist.delete(productId);
-      } else {
-        newWishlist.add(productId);
-      }
-      return newWishlist;
-    });
-
-    try {
-      if (isInWishlist) {
-        await axios.delete(`/api/users/wishlist/${productId}`, { withCredentials: true });
-        toast.success('Removed from wishlist');
-      } else {
-        await axios.post('/api/users/wishlist', { productId }, { withCredentials: true });
-        toast.success('Added to wishlist');
-      }
-    } catch (error) {
-      console.error('Error updating wishlist:', error);
-      const message = error.response?.data?.message || 'Error updating wishlist';
-      toast.error(message);
-      
-      if (error.response?.status === 401) {
-        logout();
-        navigate('/login');
-      }
-
-      // Revert on error
-      setWishlist(prev => {
-        const newWishlist = new Set(prev);
-        if (isInWishlist) {
-          newWishlist.add(productId);
-        } else {
-          newWishlist.delete(productId);
-        }
-        return newWishlist;
-      });
-    }
+    await toggleWishlist(product);
   };
 
   useEffect(() => {

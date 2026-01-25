@@ -320,9 +320,9 @@ const Home = () => {
                       <button
                           onClick={(e) => toggleWishlist(e, product._id)}
                           className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-black hover:text-white transition-colors"
-                          title={wishlist.has(product._id) ? "Remove from Wishlist" : "Add to Wishlist"}
+                          title={isInWishlist(product._id) ? "Remove from Wishlist" : "Add to Wishlist"}
                       >
-                          {wishlist.has(product._id) ? <i className="fas fa-heart text-red-500"></i> : <i className="far fa-heart"></i>}
+                          {isInWishlist(product._id) ? <i className="fas fa-heart text-red-500"></i> : <i className="far fa-heart"></i>}
                       </button>
                     </div>
                   </div>
