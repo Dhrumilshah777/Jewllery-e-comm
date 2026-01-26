@@ -171,18 +171,18 @@ const Products = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {availabilityFiltered.map((product) => (
             <div key={product._id} className="bg-white shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300 relative group">
-              <div className="relative">
+              <div className="relative overflow-hidden">
                 <Link to={`/products/${product._id}`} className="block relative">
                   <img 
                     src={product.imageUrl} 
                     alt={product.name} 
-                    className={`w-full h-64 object-cover transition-opacity duration-300 ${product.subImages && product.subImages.length > 0 ? 'group-hover:opacity-0' : ''}`}
+                    className={`w-full h-64 object-cover transition-transform duration-500 ease-in-out ${product.subImages && product.subImages.length > 0 ? 'group-hover:-translate-x-full' : ''}`}
                   />
                   {product.subImages && product.subImages.length > 0 && (
                     <img 
                       src={product.subImages[0]} 
                       alt={product.name} 
-                      className="absolute inset-0 w-full h-64 object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      className="absolute inset-0 w-full h-64 object-cover translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-in-out"
                     />
                   )}
                 </Link>

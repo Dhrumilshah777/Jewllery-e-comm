@@ -303,13 +303,13 @@ const Home = () => {
                       <img 
                         src={product.imageUrl} 
                         alt={product.name}
-                        className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${product.subImages && product.subImages.length > 0 ? 'group-hover:opacity-0' : ''}`}
+                        className={`w-full h-full object-cover transition-transform duration-500 ease-in-out ${product.subImages && product.subImages.length > 0 ? 'group-hover:-translate-x-full' : 'group-hover:scale-110'}`}
                       />
                       {product.subImages && product.subImages.length > 0 && (
                         <img 
                           src={product.subImages[0]} 
                           alt={product.name}
-                          className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-all duration-700 group-hover:scale-110"
+                          className="absolute inset-0 w-full h-full object-cover translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-in-out"
                         />
                       )}
                     </Link>
@@ -413,14 +413,14 @@ const Home = () => {
                       <img
                         src={item.imageUrl}
                         alt={item.name}
-                        className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 ${item.subImages && item.subImages.length > 0 ? 'group-hover:opacity-0' : ''}`}
+                        className={`h-full w-full object-cover transition-transform duration-500 ease-in-out ${item.subImages && item.subImages.length > 0 ? 'group-hover:-translate-x-full' : 'group-hover:scale-110'}`}
                         loading="lazy"
                       />
                       {item.subImages && item.subImages.length > 0 && (
                         <img
                           src={item.subImages[0]}
                           alt={item.name}
-                          className="absolute inset-0 h-full w-full object-cover opacity-0 group-hover:opacity-100 transition-all duration-500 group-hover:scale-110"
+                          className="absolute inset-0 h-full w-full object-cover translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-in-out"
                           loading="lazy"
                         />
                       )}
