@@ -3,10 +3,14 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
+import { useWishlist } from '../context/WishlistContext';
 
 const Wishlist = () => {
   const [wishlistItems, setWishlistItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  // Get context functions to keep state in sync if needed, 
+  // though we are fetching populated items here.
+  const { isInWishlist, toggleWishlist } = useWishlist();
 
   useEffect(() => {
     const fetchWishlist = async () => {
@@ -25,16 +29,22 @@ const Wishlist = () => {
     fetchWishlist();
   }, []);
 
-  const removeFromWishlist = async (productId) => {
+  const handleRemove = async (product) => {
     try {
-      await axios.delete(`/api/users/wishlist/${productId}`, {
-        withCredentials: true
-      });
-      toast.success('Removed from wishlist');
-      setWishlistItems((prev) => prev.filter(item => item._id !== productId));
+        // Use context to remove if possible, as it updates the global count
+        // If context toggleWishlist handles API calls, we can use it.
+        // However, existing code used direct axios. 
+        // Let's use the context method if it expects a product object, 
+        // which will ensure the navbar count updates too.
+        
+        // We need to pass the product object to toggleWishlist
+        await toggleWishlist(product);
+        
+        // Update local state
+        setWishlistItems((prev) => prev.filter(item => item._id !== product._id));
     } catch (error) {
-      console.error(error);
-      toast.error('Error removing from wishlist');
+        console.error(error);
+        // Fallback or error handling handled by context usually
     }
   };
 
@@ -43,41 +53,61 @@ const Wishlist = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <h2 className="text-3xl font-bold mb-8">My Wishlist</h2>
+    <div className="max-w-7xl mx-auto px-4 py-12">
+      <h2 className="text-3xl font-normal text-center mb-12 font-serif">My Wishlist</h2>
       
       {wishlistItems.length === 0 ? (
-        <div className="text-center py-10 bg-white shadow">
-          <p className="text-xl text-gray-600 mb-4">Your wishlist is empty</p>
-          <Link to="/products" className="text-indigo-600 hover:text-indigo-800 font-semibold">
+        <div className="text-center py-16 bg-gray-50 rounded-lg">
+          <p className="text-xl text-gray-500 mb-6 font-light">Your wishlist is empty</p>
+          <Link 
+            to="/products" 
+            className="inline-block bg-black text-white px-8 py-3 uppercase tracking-wider text-sm hover:bg-gray-800 transition-colors"
+          >
             Browse Products
           </Link>
         </div>
       ) : (
-        <div className="grid gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
           {wishlistItems.map((item) => (
-            <div key={item._id} className="bg-white shadow p-4 flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <img 
-                  src={item.imageUrl} 
-                  alt={item.name} 
-                  className="w-24 h-24 object-cover"
-                />
-                <div>
-                  <Link to={`/products/${item._id}`} className="text-xl font-semibold hover:text-indigo-600">
-                    {item.name}
-                  </Link>
-                  <p className="text-gray-600">${item.price}</p>
-                </div>
+            <div key={item._id} className="group">
+              {/* Image Container */}
+              <div className="relative aspect-square bg-gray-100 mb-4 rounded-lg overflow-hidden">
+                <Link to={`/products/${item._id}`} className="block w-full h-full">
+                    <img 
+                    src={item.imageUrl} 
+                    alt={item.name} 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                </Link>
+                <button 
+                  onClick={() => handleRemove(item)}
+                  className="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-100 transition-colors z-10"
+                  aria-label="Remove from wishlist"
+                >
+                  <i className="fas fa-heart text-sm"></i>
+                </button>
               </div>
               
-              <button 
-                onClick={() => removeFromWishlist(item._id)}
-                className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 transition"
-                aria-label="Remove from wishlist"
-              >
-                <i className="fas fa-trash"></i>
-              </button>
+              {/* Product Info */}
+              <div className="flex justify-between items-start">
+                <div className="space-y-1 pr-4">
+                  <h3 className="text-base font-bold text-gray-900 leading-tight">
+                    <Link to={`/products/${item._id}`} className="hover:underline">
+                        {item.name}
+                    </Link>
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    From <span className="underline decoration-gray-300">Collection</span> in <span className="underline decoration-gray-300">{item.category}</span>
+                  </p>
+                  <div className="flex items-center gap-1 text-xs text-gray-500 pt-1">
+                    <i className="fas fa-star text-xs text-gray-400"></i> 
+                    <span>4.5 by <span className="underline decoration-gray-300">Vendor</span></span>
+                  </div>
+                </div>
+                <div className="text-base font-medium text-gray-900 shrink-0">
+                  € {item.price}
+                </div>
+              </div>
             </div>
           ))}
         </div>
