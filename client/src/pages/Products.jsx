@@ -190,7 +190,7 @@ const Products = () => {
                   <span className="absolute top-3 left-3 bg-orange-500 text-white text-xs px-2 py-1">NEW</span>
                 )}
                 <button 
-                  className={`absolute top-3 right-3 p-2 shadow-sm transition-all duration-200 ${
+                  className={`absolute top-3 right-3 p-1.5 shadow-sm transition-all duration-200 ${
                     isInWishlist(product._id) 
                       ? 'bg-red-50 text-red-500 hover:bg-red-100' 
                       : 'bg-white/80 hover:bg-white text-gray-600 hover:text-red-500'
@@ -198,9 +198,9 @@ const Products = () => {
                   onClick={(e) => handleToggleWishlist(e, product)}
                 >
                   {isInWishlist(product._id) ? (
-                    <i className="fas fa-heart text-xl"></i>
+                    <i className="fas fa-heart text-sm"></i>
                   ) : (
-                    <i className="far fa-heart text-xl"></i>
+                    <i className="far fa-heart text-sm"></i>
                   )}
                 </button>
               </div>

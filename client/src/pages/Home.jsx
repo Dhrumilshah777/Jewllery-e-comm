@@ -429,18 +429,18 @@ const Home = () => {
                       {/* Quick View Icon */}
                       <button
                         onClick={(e) => openModal(e, item)}
-                        className="bg-white p-2 rounded-full shadow-md text-gray-600 hover:text-indigo-600 hover:bg-gray-50 transition-all duration-300 cursor-pointer"
+                        className="bg-white p-1.5 rounded-full shadow-md text-gray-600 hover:text-indigo-600 hover:bg-gray-50 transition-all duration-300 cursor-pointer"
                         title="Quick View"
                       >
-                        <i className="fas fa-eye text-lg"></i>
+                        <i className="fas fa-eye text-sm"></i>
                       </button>
                       {/* Wishlist Icon */}
                       <button
                         onClick={(e) => handleToggleWishlist(e, item)}
-                        className="bg-white p-2 rounded-full shadow-md text-gray-600 hover:text-red-500 hover:bg-gray-50 transition-all duration-300 cursor-pointer"
+                        className="bg-white p-1.5 rounded-full shadow-md text-gray-600 hover:text-red-500 hover:bg-gray-50 transition-all duration-300 cursor-pointer"
                         title={isInWishlist(item._id) ? "Remove from Wishlist" : "Add to Wishlist"}
                       >
-                        {isInWishlist(item._id) ? <i className="fas fa-heart text-red-500 text-lg"></i> : <i className="far fa-heart text-lg"></i>}
+                        {isInWishlist(item._id) ? <i className="fas fa-heart text-red-500 text-sm"></i> : <i className="far fa-heart text-sm"></i>}
                       </button>
                     </div>
                   </div>
