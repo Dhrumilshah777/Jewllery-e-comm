@@ -314,7 +314,7 @@ const Home = () => {
                       )}
                     </Link>
                     {/* Hover Icons */}
-                    <div className="absolute bottom-4 right-4 flex flex-col gap-2 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                    <div className="absolute bottom-4 right-4 flex flex-col gap-2 z-10">
                       {/* Quick View */}
                       <button
                         onClick={(e) => openModal(e, product)}
