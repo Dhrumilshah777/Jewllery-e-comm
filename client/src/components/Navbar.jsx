@@ -92,6 +92,7 @@ const Navbar = () => {
   };
 
   return (
+    <>
     <nav className="bg-white shadow-lg sticky top-0 z-50">
       {/* Full Screen Search Overlay */}
       <div className={`fixed inset-0 bg-white z-[60] transform transition-transform duration-500 ease-in-out ${showSearch ? 'translate-y-0' : '-translate-y-full'}`}>
@@ -384,6 +385,7 @@ const Navbar = () => {
           </div>
         </div>
       </div>
+    </nav>
     
       {/* Bottom Navigation for Mobile */}
       <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-white border-t border-gray-200 md:hidden">
@@ -416,7 +418,7 @@ const Navbar = () => {
           </Link>
         </div>
       </div>
-    </nav>
+    </>
   );
 };
 
