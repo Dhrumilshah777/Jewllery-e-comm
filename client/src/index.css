@@ -139,3 +139,14 @@ body {
   background-color: #4f46e5 !important; /* Indigo-600 */
   opacity: 1 !important;
 }
+
+/* Hero Carousel Dots Specific Customization */
+.hero-dots li button:before {
+  width: 6px !important;
+  height: 6px !important;
+}
+
+.hero-dots li.slick-active button:before {
+  width: 8px !important;
+  height: 8px !important;
+}

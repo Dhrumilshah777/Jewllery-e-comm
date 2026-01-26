@@ -143,7 +143,7 @@ const Home = () => {
           zIndex: 20
         }}
       >
-        <ul style={{ margin: "0px" }}> {dots} </ul>
+        <ul style={{ margin: "0px" }} className="slick-dots hero-dots"> {dots} </ul>
       </div>
     ),
   };
