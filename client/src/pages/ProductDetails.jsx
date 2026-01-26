@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { useWishlist } from '../context/WishlistContext';
 import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
 
@@ -11,6 +12,7 @@ const ProductDetails = () => {
   const [activeImage, setActiveImage] = useState('');
   const { id } = useParams();
   const { user } = useAuth();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,23 +31,14 @@ const ProductDetails = () => {
     fetchProduct();
   }, [id]);
 
-  const addToWishlist = async () => {
+  const handleToggleWishlist = async () => {
     if (!user) {
-      toast.info('Please login to add to wishlist');
+      toast.info('Please login to manage wishlist');
       navigate('/login');
       return;
     }
 
-  try {
-      await axios.post(
-        '/api/users/wishlist',
-        { productId: product._id },
-        { withCredentials: true }
-      );
-      toast.success('Added to wishlist');
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Error adding to wishlist');
-    }
+    await toggleWishlist(product);
   };
 
   if (loading) {
