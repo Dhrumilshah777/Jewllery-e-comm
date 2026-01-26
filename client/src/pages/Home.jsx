@@ -136,7 +136,7 @@ const Home = () => {
       <div
         style={{
           position: "absolute",
-          bottom: "30px",
+          bottom: "50px",
           width: "100%",
           display: "flex",
           justifyContent: "center",
