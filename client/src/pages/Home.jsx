@@ -299,12 +299,19 @@ const Home = () => {
                 <div className="group">
                   {/* Image Container */}
                   <div className="relative overflow-hidden aspect-[4/5] bg-gray-100 mb-4">
-                    <Link to={`/products/${product._id}`}>
+                    <Link to={`/products/${product._id}`} className="block w-full h-full relative">
                       <img 
                         src={product.imageUrl} 
                         alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${product.subImages && product.subImages.length > 0 ? 'group-hover:opacity-0' : ''}`}
                       />
+                      {product.subImages && product.subImages.length > 0 && (
+                        <img 
+                          src={product.subImages[0]} 
+                          alt={product.name}
+                          className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-all duration-700 group-hover:scale-110"
+                        />
+                      )}
                     </Link>
                     {/* Hover Icons */}
                     <div className="absolute bottom-4 right-4 flex flex-col gap-2 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
@@ -402,13 +409,21 @@ const Home = () => {
               <div key={item._id} className="px-2">
                 <div className="group block relative">
                   <div className="relative bg-gray-100 aspect-square overflow-hidden">
-                    <Link to={`/products/${item._id}`} className="block w-full h-full cursor-pointer">
+                    <Link to={`/products/${item._id}`} className="block w-full h-full cursor-pointer relative">
                       <img
                         src={item.imageUrl}
                         alt={item.name}
-                        className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 ${item.subImages && item.subImages.length > 0 ? 'group-hover:opacity-0' : ''}`}
                         loading="lazy"
                       />
+                      {item.subImages && item.subImages.length > 0 && (
+                        <img
+                          src={item.subImages[0]}
+                          alt={item.name}
+                          className="absolute inset-0 h-full w-full object-cover opacity-0 group-hover:opacity-100 transition-all duration-500 group-hover:scale-110"
+                          loading="lazy"
+                        />
+                      )}
                     </Link>
                     <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
                       {/* Quick View Icon */}

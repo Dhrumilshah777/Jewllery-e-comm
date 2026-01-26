@@ -172,12 +172,19 @@ const Products = () => {
           {availabilityFiltered.map((product) => (
             <div key={product._id} className="bg-white shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300 relative group">
               <div className="relative">
-                <Link to={`/products/${product._id}`}>
+                <Link to={`/products/${product._id}`} className="block relative">
                   <img 
                     src={product.imageUrl} 
                     alt={product.name} 
-                    className="w-full h-64 object-cover"
+                    className={`w-full h-64 object-cover transition-opacity duration-300 ${product.subImages && product.subImages.length > 0 ? 'group-hover:opacity-0' : ''}`}
                   />
+                  {product.subImages && product.subImages.length > 0 && (
+                    <img 
+                      src={product.subImages[0]} 
+                      alt={product.name} 
+                      className="absolute inset-0 w-full h-64 object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    />
+                  )}
                 </Link>
                 {product.isTrendy && (
                   <span className="absolute top-3 left-3 bg-orange-500 text-white text-xs px-2 py-1">NEW</span>
