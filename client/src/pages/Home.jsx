@@ -318,7 +318,7 @@ const Home = () => {
                       </button>
                       {/* Wishlist */}
                       <button
-                          onClick={(e) => toggleWishlist(e, product._id)}
+                          onClick={(e) => handleToggleWishlist(e, product)}
                           className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-black hover:text-white transition-colors"
                           title={isInWishlist(product._id) ? "Remove from Wishlist" : "Add to Wishlist"}
                       >
