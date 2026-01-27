@@ -342,7 +342,7 @@ const Home = () => {
                       {/* Quick View */}
                       <button
                         onClick={(e) => openModal(e, product)}
-                        className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-black hover:text-white transition-colors"
+                        className="w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-black hover:text-white transition-colors"
                         title="Quick View"
                       >
                         <i className="far fa-eye"></i>
