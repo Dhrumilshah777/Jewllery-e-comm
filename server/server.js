@@ -16,7 +16,6 @@ const productRoutes = require('./routes/productRoutes');
 const slideRoutes = require('./routes/slideRoutes');
 const popularCategoryRoutes = require('./routes/popularCategoryRoutes');
 const homeBannerRoutes = require('./routes/homeBannerRoutes');
-const promoBannerRoutes = require('./routes/promoBannerRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 
 // Middleware
