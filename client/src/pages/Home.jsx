@@ -121,6 +121,28 @@ const Home = () => {
     setSelectedProduct(null);
   };
 
+  const HeroNextArrow = ({ onClick }) => {
+    return (
+      <div
+        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 cursor-pointer"
+        onClick={onClick}
+      >
+        <i className="fa-duotone fa-thin fa-angle-right text-4xl md:text-5xl text-white hover:text-gray-200 transition-colors"></i>
+      </div>
+    );
+  };
+
+  const HeroPrevArrow = ({ onClick }) => {
+    return (
+      <div
+        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 cursor-pointer"
+        onClick={onClick}
+      >
+        <i className="fa-duotone fa-thin fa-angle-left text-4xl md:text-5xl text-white hover:text-gray-200 transition-colors"></i>
+      </div>
+    );
+  };
+
   const settings = {
     dots: true,
     fade: true,
@@ -130,7 +152,9 @@ const Home = () => {
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 5000,
-    arrows: false,
+    arrows: true,
+    nextArrow: <HeroNextArrow />,
+    prevArrow: <HeroPrevArrow />,
     pauseOnHover: false,
     appendDots: dots => (
       <div
@@ -171,7 +195,7 @@ const Home = () => {
         className="absolute top-1/2 -right-5 md:-right-12 -translate-y-1/2 cursor-pointer z-10"
         onClick={onClick}
       >
-        <i className="fa-duotone fa-light fa-angle-right text-3xl md:text-4xl text-gray-800 hover:text-black transition-colors"></i>
+        <i className="fa-duotone fa-thin fa-angle-right text-4xl md:text-5xl text-gray-800 hover:text-black transition-colors"></i>
       </div>
     );
   };
@@ -182,7 +206,7 @@ const Home = () => {
         className="absolute top-1/2 -left-5 md:-left-12 -translate-y-1/2 cursor-pointer z-10"
         onClick={onClick}
       >
-        <i className="fa-duotone fa-light fa-angle-left text-3xl md:text-4xl text-gray-800 hover:text-black transition-colors"></i>
+        <i className="fa-duotone fa-thin fa-angle-left text-4xl md:text-5xl text-gray-800 hover:text-black transition-colors"></i>
       </div>
     );
   };
