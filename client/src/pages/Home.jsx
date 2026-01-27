@@ -460,7 +460,7 @@ const Home = () => {
                       </button>
                     </div>
                   </div>
-                  <div className="pt-4 space-y-1">
+                  <div className="pt-4 space-y-1 text-center">
                     <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900">
                       <Link to={`/products/${item._id}`}>{item.name}</Link>
                     </h3>
