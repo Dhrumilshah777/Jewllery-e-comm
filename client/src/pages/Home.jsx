@@ -460,19 +460,14 @@ const Home = () => {
                       </button>
                     </div>
                   </div>
-                  <Link to={`/products/${item._id}`}>
-                    <div className="pt-4 text-center">
-                      <div className="text-[10px] tracking-widest text-gray-400 uppercase">
-                        {item.category}
-                      </div>
-                      <div className="mt-2 text-xs sm:text-sm text-gray-800">
-                        {item.name}
-                      </div>
-                      <div className="mt-2 text-xs sm:text-sm text-gray-900">
-                        ${item.price.toFixed(2)}
-                      </div>
+                  <div className="pt-4 space-y-1">
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900">
+                      <Link to={`/products/${item._id}`}>{item.name}</Link>
+                    </h3>
+                    <div className="text-xs text-gray-500">
+                      Accessories / {item.category}
                     </div>
-                  </Link>
+                  </div>
                 </div>
               </div>
             ))}
