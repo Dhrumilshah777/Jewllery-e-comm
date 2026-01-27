@@ -9,12 +9,20 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', (event) => {
+  // Force the waiting service worker to become the active service worker.
+  self.skipWaiting();
+  
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
         return cache.addAll(urlsToCache);
       })
   );
+});
+
+self.addEventListener('activate', (event) => {
+  // Tell the active service worker to take control of the page immediately.
+  event.waitUntil(clients.claim());
 });
 
 self.addEventListener('fetch', (event) => {
@@ -30,10 +38,15 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('push', function(event) {
   if (event.data) {
     const data = event.data.json();
+    
+    // Use self.location.origin to get the base URL
+    const origin = self.location.origin;
+    const defaultIcon = `${origin}/ao-logo.png`;
+
     const options = {
       body: data.message,
-      icon: data.icon || '/ao-logo.png', // Use a default icon or one from payload
-      badge: '/ao-logo.png', // Small icon for status bar
+      icon: data.icon || defaultIcon,
+      badge: defaultIcon,
       vibrate: [100, 50, 100],
       data: {
         dateOfArrival: Date.now(),
@@ -44,12 +57,12 @@ self.addEventListener('push', function(event) {
         {
           action: 'explore',
           title: 'View Details',
-          icon: '/ao-logo.png'
+          icon: defaultIcon
         },
         {
           action: 'close',
           title: 'Close',
-          icon: '/ao-logo.png'
+          icon: defaultIcon
         },
       ]
     };
