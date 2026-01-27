@@ -32,8 +32,8 @@ self.addEventListener('push', function(event) {
     const data = event.data.json();
     const options = {
       body: data.message,
-      icon: data.icon || '/vite.svg', // Use a default icon or one from payload
-      badge: '/vite.svg', // Small icon for status bar
+      icon: data.icon || '/ao-logo.png', // Use a default icon or one from payload
+      badge: '/ao-logo.png', // Small icon for status bar
       vibrate: [100, 50, 100],
       data: {
         dateOfArrival: Date.now(),
@@ -44,12 +44,12 @@ self.addEventListener('push', function(event) {
         {
           action: 'explore',
           title: 'View Details',
-          icon: '/vite.svg'
+          icon: '/ao-logo.png'
         },
         {
           action: 'close',
           title: 'Close',
-          icon: '/vite.svg'
+          icon: '/ao-logo.png'
         },
       ]
     };

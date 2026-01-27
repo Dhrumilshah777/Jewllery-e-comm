@@ -82,17 +82,17 @@ const createProduct = async (req, res) => {
     const createdProduct = await product.save();
 
     // Send Push Notification
-    try {
-      await sendPushToAll({
-        title: 'New Product Alert!',
-        message: `Check out our new arrival: ${name}`,
-        url: `/products/${createdProduct._id}`, // Deep link to the new product
-        icon: imageUrl // Use product image as icon
-      });
-    } catch (notifyErr) {
-      console.error('Failed to send notification for new product:', notifyErr);
-      // Don't fail the request just because notification failed
-    }
+    // try {
+    //   await sendPushToAll({
+    //     title: 'New Product Alert!',
+    //     message: `Check out our new arrival: ${name}`,
+    //     url: `/products/${createdProduct._id}`, // Deep link to the new product
+    //     icon: imageUrl // Use product image as icon
+    //   });
+    // } catch (notifyErr) {
+    //   console.error('Failed to send notification for new product:', notifyErr);
+    //   // Don't fail the request just because notification failed
+    // }
 
     res.status(201).json(createdProduct);
   } catch (error) {
