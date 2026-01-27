@@ -480,8 +480,8 @@ const Home = () => {
         </div>
       </section>
 
-      <section>
-        <div className="grid grid-cols-1 md:grid-cols-2">
+      <section className="px-4 md:px-12 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="relative h-64 md:h-80 lg:h-96 overflow-hidden">
             <img
               src={homeBanner?.leftImage || 'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1600&auto=format&fit=crop'}
