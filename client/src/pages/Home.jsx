@@ -342,14 +342,6 @@ const Home = () => {
                     <div className="text-xs text-gray-500">
                       Accessories / {product.category}
                     </div>
-                    <div className="text-sm font-medium text-gray-900 mt-1">
-                      ${product.price.toFixed(2)}
-                    </div>
-                    {/* Color Dots (Mockup) */}
-                    <div className="flex gap-1 mt-2">
-                      <span className="w-3 h-3 rounded-full bg-[#E5D0B1]"></span>
-                      <span className="w-3 h-3 rounded-full bg-[#D4AF37]"></span>
-                    </div>
                   </div>
                 </div>
               </div>
