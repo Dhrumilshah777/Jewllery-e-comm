@@ -165,6 +165,28 @@ const Home = () => {
     dotsClass: "slick-dots"
   };
 
+  const LatestBeautyNextArrow = ({ onClick }) => {
+    return (
+      <div
+        className="absolute top-1/2 -right-5 md:-right-12 -translate-y-1/2 cursor-pointer z-10"
+        onClick={onClick}
+      >
+        <i className="fa-duotone fa-light fa-angle-right text-3xl md:text-4xl text-gray-800 hover:text-black transition-colors"></i>
+      </div>
+    );
+  };
+
+  const LatestBeautyPrevArrow = ({ onClick }) => {
+    return (
+      <div
+        className="absolute top-1/2 -left-5 md:-left-12 -translate-y-1/2 cursor-pointer z-10"
+        onClick={onClick}
+      >
+        <i className="fa-duotone fa-light fa-angle-left text-3xl md:text-4xl text-gray-800 hover:text-black transition-colors"></i>
+      </div>
+    );
+  };
+
   const latestBeautySettings = {
     dots: true,
     infinite: Math.min(latestProducts.length, 4) > slidesForWidth(viewportWidth),
@@ -174,6 +196,8 @@ const Home = () => {
     autoplay: latestProducts.length > 1,
     autoplaySpeed: 3000,
     arrows: true,
+    nextArrow: <LatestBeautyNextArrow />,
+    prevArrow: <LatestBeautyPrevArrow />,
     appendDots: dots => (
       <ul style={{ bottom: "-85px" }}>
         {dots}
@@ -292,7 +316,7 @@ const Home = () => {
       {/* Latest Beauty Section */}
       <section className="py-16 px-4 max-w-7xl mx-auto mb-12">
         <h2 className="text-3xl font-normal text-center mb-12 uppercase tracking-widest font-sans">Latest Beauty</h2>
-        <div className="mb-8">
+        <div className="mb-8 relative px-4 md:px-8">
           <Slider key={`latest-${slidesForWidth(viewportWidth)}-${latestProducts.length}`} {...latestBeautySettings}>
             {latestProducts.map((product) => (
               <div key={product._id} className="px-4">
