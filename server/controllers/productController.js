@@ -1,5 +1,4 @@
 const Product = require('../models/Product');
-const { sendPushToAll } = require('./notificationController');
 
 // @desc    Fetch all products
 // @route   GET /api/products
