@@ -1,6 +1,6 @@
 // Service Worker for Web Push Notifications and Offline Caching
 
-const CACHE_NAME = 'luxegems-v1';
+const CACHE_NAME = 'AO';
 const urlsToCache = [
   '/',
   '/index.html',
