@@ -137,7 +137,7 @@ body {
 .slick-dots li.slick-active button:before {
   width: 10px !important;
   height: 10px !important;
-  background-color: #4f46e5 !important; /* Indigo-600 */
+  background-color: #000000 !important; /* Black */
   opacity: 1 !important;
 }
 
