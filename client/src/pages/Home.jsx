@@ -127,7 +127,7 @@ const Home = () => {
         className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 cursor-pointer"
         onClick={onClick}
       >
-        <i className="fa-sharp fa-thin fa-angle-right text-4xl md:text-5xl text-white hover:text-gray-200 transition-colors"></i>
+        <i className="fa-thin fa-angle-right text-4xl md:text-5xl text-white hover:text-gray-200 transition-colors"></i>
       </div>
     );
   };
@@ -138,7 +138,7 @@ const Home = () => {
         className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 cursor-pointer"
         onClick={onClick}
       >
-        <i className="fa-sharp fa-thin fa-angle-left text-4xl md:text-5xl text-white hover:text-gray-200 transition-colors"></i>
+        <i className="fa-thin fa-angle-left text-4xl md:text-5xl text-white hover:text-gray-200 transition-colors"></i>
       </div>
     );
   };
