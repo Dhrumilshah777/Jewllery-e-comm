@@ -127,7 +127,7 @@ const Home = () => {
         className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 cursor-pointer"
         onClick={onClick}
       >
-        <i className="fa-duotone fa-thin fa-angle-right text-4xl md:text-5xl text-white hover:text-gray-200 transition-colors"></i>
+        <i className="fa-sharp fa-thin fa-angle-right text-4xl md:text-5xl text-white hover:text-gray-200 transition-colors"></i>
       </div>
     );
   };
@@ -138,7 +138,7 @@ const Home = () => {
         className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 cursor-pointer"
         onClick={onClick}
       >
-        <i className="fa-duotone fa-thin fa-angle-left text-4xl md:text-5xl text-white hover:text-gray-200 transition-colors"></i>
+        <i className="fa-sharp fa-thin fa-angle-left text-4xl md:text-5xl text-white hover:text-gray-200 transition-colors"></i>
       </div>
     );
   };
@@ -189,28 +189,6 @@ const Home = () => {
     dotsClass: "slick-dots"
   };
 
-  const LatestBeautyNextArrow = ({ onClick }) => {
-    return (
-      <div
-        className="absolute top-1/2 -right-5 md:-right-12 -translate-y-1/2 cursor-pointer z-10"
-        onClick={onClick}
-      >
-        <i className="fa-duotone fa-thin fa-angle-right text-4xl md:text-5xl text-gray-800 hover:text-black transition-colors"></i>
-      </div>
-    );
-  };
-
-  const LatestBeautyPrevArrow = ({ onClick }) => {
-    return (
-      <div
-        className="absolute top-1/2 -left-5 md:-left-12 -translate-y-1/2 cursor-pointer z-10"
-        onClick={onClick}
-      >
-        <i className="fa-duotone fa-thin fa-angle-left text-4xl md:text-5xl text-gray-800 hover:text-black transition-colors"></i>
-      </div>
-    );
-  };
-
   const latestBeautySettings = {
     dots: true,
     infinite: Math.min(latestProducts.length, 4) > slidesForWidth(viewportWidth),
@@ -219,9 +197,7 @@ const Home = () => {
     slidesToScroll: 1,
     autoplay: latestProducts.length > 1,
     autoplaySpeed: 3000,
-    arrows: true,
-    nextArrow: <LatestBeautyNextArrow />,
-    prevArrow: <LatestBeautyPrevArrow />,
+    arrows: false,
     appendDots: dots => (
       <ul style={{ bottom: "-85px" }}>
         {dots}
@@ -340,7 +316,7 @@ const Home = () => {
       {/* Latest Beauty Section */}
       <section className="py-16 px-4 max-w-7xl mx-auto mb-12">
         <h2 className="text-3xl font-normal text-center mb-12 uppercase tracking-widest font-sans">Latest Beauty</h2>
-        <div className="mb-8 relative px-4 md:px-8">
+        <div className="mb-8">
           <Slider key={`latest-${slidesForWidth(viewportWidth)}-${latestProducts.length}`} {...latestBeautySettings}>
             {latestProducts.map((product) => (
               <div key={product._id} className="px-4">
