@@ -407,7 +407,7 @@ const Home = () => {
       
       
 
-      <section className="py-8 px-2 md:px-6 max-w-7xl mx-auto">
+      <section className="py-16 px-2 md:px-4 max-w-7xl mx-auto">
         <div className="flex items-center justify-center gap-6">
           <div className="h-px bg-gray-200 flex-1 max-w-24" />
           <h2 className="text-xl sm:text-2xl md:text-3xl font-normal text-center font-sans uppercase tracking-widest">
@@ -424,36 +424,36 @@ const Home = () => {
             {trendyCollection.map((item) => (
               <div key={item._id} className="px-2">
                 <div className="group block relative">
-                  <div className="relative bg-gray-100 aspect-square overflow-hidden">
+                  <div className="relative overflow-hidden aspect-[4/5] bg-gray-100">
                     <Link to={`/products/${item._id}`} className="block w-full h-full cursor-pointer relative">
                       <img
                         src={item.imageUrl}
                         alt={item.name}
-                        className={`h-full w-full object-cover transition-transform duration-500 ease-in-out ${item.subImages && item.subImages.length > 0 ? 'group-hover:-translate-x-full' : 'group-hover:scale-110'}`}
+                        className={`w-full h-full object-cover transition-transform duration-500 ease-in-out ${item.subImages && item.subImages.length > 0 ? 'group-hover:-translate-x-full' : 'group-hover:scale-110'}`}
                         loading="lazy"
                       />
                       {item.subImages && item.subImages.length > 0 && (
                         <img
                           src={item.subImages[0]}
                           alt={item.name}
-                          className="absolute inset-0 h-full w-full object-cover translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-in-out"
+                          className="absolute inset-0 w-full h-full object-cover translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-in-out"
                           loading="lazy"
                         />
                       )}
                     </Link>
-                    <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+                    <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
                       {/* Quick View Icon */}
                       <button
                         onClick={(e) => openModal(e, item)}
-                        className="bg-white p-1.5 rounded-full shadow-md text-gray-600 hover:text-indigo-600 hover:bg-gray-50 transition-all duration-300 cursor-pointer"
+                        className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-black hover:text-white transition-colors"
                         title="Quick View"
                       >
-                        <i className="fas fa-eye text-sm"></i>
+                        <i className="far fa-eye text-sm"></i>
                       </button>
                       {/* Wishlist Icon */}
                       <button
                         onClick={(e) => handleToggleWishlist(e, item)}
-                        className="bg-white p-1.5 rounded-full shadow-md text-gray-600 hover:text-red-500 hover:bg-gray-50 transition-all duration-300 cursor-pointer"
+                        className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-black hover:text-white transition-colors"
                         title={isInWishlist(item._id) ? "Remove from Wishlist" : "Add to Wishlist"}
                       >
                         {isInWishlist(item._id) ? <i className="fas fa-heart text-red-500 text-sm"></i> : <i className="far fa-heart text-sm"></i>}
