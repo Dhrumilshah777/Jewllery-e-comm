@@ -465,7 +465,7 @@ const AdminDashboard = () => {
                 value={notificationForm.icon}
                 onChange={(e) => setNotificationForm({ ...notificationForm, icon: e.target.value })}
                 className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                placeholder="https://example.com/icon.png"
+                placeholder="Default: /ao-logo.png"
               />
             </div>
             
