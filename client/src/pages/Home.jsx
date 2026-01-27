@@ -338,7 +338,7 @@ const Home = () => {
                       )}
                     </Link>
                     {/* Hover Icons */}
-                    <div className="absolute bottom-4 right-4 flex flex-col gap-2 z-10">
+                    <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
                       {/* Quick View */}
                       <button
                         onClick={(e) => openModal(e, product)}
