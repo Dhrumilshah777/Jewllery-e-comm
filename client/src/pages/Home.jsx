@@ -173,7 +173,7 @@ const Home = () => {
     slidesToScroll: 1,
     autoplay: latestProducts.length > 1,
     autoplaySpeed: 3000,
-    arrows: false,
+    arrows: true,
     appendDots: dots => (
       <ul style={{ bottom: "-85px" }}>
         {dots}

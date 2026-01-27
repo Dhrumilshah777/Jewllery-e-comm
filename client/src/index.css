@@ -113,6 +113,7 @@ body {
   font-size: 40px !important;
   opacity: 0.75 !important;
   transition: opacity 0.3s ease;
+  color: #000 !important;
 }
 
 .slick-prev:hover:before, .slick-next:hover:before {
