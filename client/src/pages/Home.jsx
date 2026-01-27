@@ -243,7 +243,7 @@ const Home = () => {
         {slides.length > 0 ? (
           <Slider {...settings}>
             {slides.map((slide) => (
-              <div key={slide._id} className="relative h-[550px] md:h-[550px] overflow-hidden">
+              <div key={slide._id} className="relative h-[400px] md:h-[550px] overflow-hidden">
                 <div 
                   className="absolute inset-0 bg-cover bg-center hero-zoom"
                   style={{ backgroundImage: `url(${slide.image})` }}
@@ -266,7 +266,7 @@ const Home = () => {
             ))}
           </Slider>
         ) : (
-          <div className="relative h-[450px] md:h-[550px]">
+          <div className="relative h-[400px] md:h-[550px]">
             <div 
               className="absolute inset-0 bg-cover bg-center"
               style={{ backgroundImage: `url(https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=1600&auto=format&fit=crop)` }}

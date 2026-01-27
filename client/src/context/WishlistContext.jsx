@@ -59,7 +59,7 @@ export const WishlistProvider = ({ children }) => {
 
     try {
       await axios.post('/api/users/wishlist', { productId: product._id }, { withCredentials: true });
-      toast.success('Added to wishlist');
+      // toast.success('Added to wishlist');
       return true;
     } catch (error) {
       console.error('Error adding to wishlist:', error);
@@ -83,7 +83,7 @@ export const WishlistProvider = ({ children }) => {
 
     try {
       await axios.delete(`/api/users/wishlist/${productId}`, { withCredentials: true });
-      toast.success('Removed from wishlist');
+      // toast.success('Removed from wishlist');
       return true;
     } catch (error) {
       console.error('Error removing from wishlist:', error);
