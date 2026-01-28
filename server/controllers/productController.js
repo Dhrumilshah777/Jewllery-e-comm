@@ -16,7 +16,13 @@ const getProducts = async (req, res) => {
       : {};
 
     const isTrendy = req.query.isTrendy === 'true' ? { isTrendy: true } : {};
-    const isLatestBeauty = req.query.isLatestBeauty === 'true' ? { isLatestBeauty: true } : {};
+    
+    let isLatestBeauty = {};
+    if (req.query.isLatestBeauty === 'true') {
+      isLatestBeauty = { isLatestBeauty: true };
+    } else if (req.query.isLatestBeauty === 'false') {
+      isLatestBeauty = { isLatestBeauty: { $ne: true } };
+    }
 
     const category = req.query.category 
       ? { 
