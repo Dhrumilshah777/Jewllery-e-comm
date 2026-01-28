@@ -17,28 +17,28 @@ const Home = () => {
 
   // Query functions
   const fetchSlides = async () => {
-    const { data } = await axios.get('/api/slides');
+    const { data } = await axios.get(`/api/slides?t=${new Date().getTime()}`);
     return data;
   };
 
   const fetchPopularCategories = async () => {
-    const { data } = await axios.get('/api/popular-categories');
+    const { data } = await axios.get(`/api/popular-categories?t=${new Date().getTime()}`);
     return data;
   };
 
   const fetchHomeBanner = async () => {
-    const { data } = await axios.get('/api/home-banner');
+    const { data } = await axios.get(`/api/home-banner?t=${new Date().getTime()}`);
     return data;
   };
 
   const fetchLatestProducts = async () => {
-    const { data } = await axios.get('/api/products?isLatestBeauty=true&sort=latest&limit=8');
+    const { data } = await axios.get(`/api/products?isLatestBeauty=true&sort=latest&limit=8&t=${new Date().getTime()}`);
     return data;
   };
 
   const fetchNewestProducts = async () => {
     // Fetch products explicitly marked as Newest Collection
-    const { data } = await axios.get('/api/products?isNewest=true&sort=latest&limit=8');
+    const { data } = await axios.get(`/api/products?isNewest=true&sort=latest&limit=8&t=${new Date().getTime()}`);
     return data;
   };
 
