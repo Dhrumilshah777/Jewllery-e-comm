@@ -47,6 +47,11 @@ const Gallery = () => {
     ? images 
     : images.filter(img => img.category === selectedCategory);
 
+  const handleImageError = (e) => {
+    e.target.onerror = null; 
+    e.target.src = 'https://placehold.co/600x400?text=Image+Not+Found';
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="text-center mb-12">
@@ -76,7 +81,8 @@ const Gallery = () => {
             <img 
               src={image.url} 
               alt={image.name} 
-              className="w-full h-auto transition-transform duration-500 group-hover:scale-110"
+              onError={handleImageError}
+              className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
             />
             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
               <span className="text-white text-lg font-medium opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
