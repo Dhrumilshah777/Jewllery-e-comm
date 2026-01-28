@@ -498,6 +498,20 @@ const AdminDashboard = () => {
       {activeTab === 'collections' && (
       <div className="bg-white shadow-md p-6">
         <h2 className="text-xl font-semibold mb-6">Manage Collections (Latest Beauty & Newest)</h2>
+        
+        {/* Debug Info Section - Remove after fixing */}
+        <div className="bg-yellow-50 p-4 border-b border-yellow-100 text-sm font-mono text-yellow-800 mb-4">
+          <p><strong>Debug Stats:</strong></p>
+          <p>Total Products Loaded: {products.length}</p>
+          <p>Latest Beauty Count: {products.filter(p => p.isLatestBeauty === true || p.isLatestBeauty === 'true').length}</p>
+          <p>Newest Collection Count: {products.filter(p => p.isNewest === true || p.isNewest === 'true').length}</p>
+          <details>
+            <summary>Raw First Product (Click to expand)</summary>
+            <pre className="text-xs">{JSON.stringify(products[0] || {}, null, 2)}</pre>
+          </details>
+        </div>
+        {/* End Debug Info */}
+
         <div className="overflow-x-auto">
           <table className="min-w-full table-auto">
             <thead>
