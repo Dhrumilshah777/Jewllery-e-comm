@@ -975,6 +975,7 @@ const AdminDashboard = () => {
                 <th className="px-6 py-3 text-left">Product</th>
                 <th className="px-6 py-3 text-left">Price</th>
                 <th className="px-6 py-3 text-left">Category</th>
+                <th className="px-6 py-3 text-left">Tags</th>
                 <th className="px-6 py-3 text-left">Stock</th>
                 <th className="px-6 py-3 text-left">Actions</th>
               </tr>
@@ -995,6 +996,20 @@ const AdminDashboard = () => {
                   </td>
                   <td className="px-6 py-4">${product.price}</td>
                   <td className="px-6 py-4">{product.category}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col gap-1 text-xs">
+                      {product.isTrendy && (
+                        <span className="bg-pink-100 text-pink-800 px-2 py-0.5 rounded-full inline-block text-center">
+                          Trendy
+                        </span>
+                      )}
+                      {product.isLatestBeauty && (
+                        <span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full inline-block text-center">
+                          Latest
+                        </span>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-6 py-4">{product.stock}</td>
                   <td className="px-6 py-4">
                     <button

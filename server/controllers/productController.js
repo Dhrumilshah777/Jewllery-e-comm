@@ -129,8 +129,16 @@ const updateProduct = async (req, res) => {
     product.imageUrl = imageUrl || product.imageUrl;
     product.category = category || product.category;
     product.stock = stock || product.stock;
-    product.isTrendy = isTrendy !== undefined ? isTrendy : product.isTrendy;
-    product.isLatestBeauty = isLatestBeauty !== undefined ? isLatestBeauty : product.isLatestBeauty;
+    
+    // Explicitly handle boolean updates
+    if (isTrendy !== undefined) {
+      product.isTrendy = isTrendy === true || isTrendy === 'true';
+    }
+    
+    if (isLatestBeauty !== undefined) {
+      product.isLatestBeauty = isLatestBeauty === true || isLatestBeauty === 'true';
+    }
+
     product.subImages = subImages || product.subImages;
 
     const updatedProduct = await product.save();
