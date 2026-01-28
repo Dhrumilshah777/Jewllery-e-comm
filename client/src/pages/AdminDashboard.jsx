@@ -377,7 +377,11 @@ const AdminDashboard = () => {
       });
       fetchGalleryItems();
     } catch (error) {
-      toast.error('Error adding image to gallery');
+      console.error('Error adding to gallery:', error);
+      const message = error.response && error.response.data && error.response.data.message
+        ? error.response.data.message
+        : error.message || 'Error adding image to gallery';
+      toast.error(message);
     }
   };
 
