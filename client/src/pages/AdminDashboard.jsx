@@ -63,7 +63,7 @@ const AdminDashboard = () => {
 
   const fetchProducts = async () => {
     try {
-      const { data } = await axios.get('/api/products');
+      const { data } = await axios.get(`/api/products?t=${new Date().getTime()}`);
       setProducts(data);
     } catch (error) {
       toast.error('Error fetching products');
@@ -142,7 +142,8 @@ const AdminDashboard = () => {
         isNewest: false,
         subImages: ['']
       });
-      fetchProducts();
+      await fetchProducts();
+      setActiveTab('manage');
     } catch (error) {
       toast.error('Error creating product');
     }
@@ -157,7 +158,7 @@ const AdminDashboard = () => {
     try {
       await axios.delete(`/api/products/${deleteConfirmation}`, { withCredentials: true });
       toast.success('Product deleted successfully');
-      fetchProducts();
+      await fetchProducts();
       setDeleteConfirmation(null);
     } catch (error) {
       toast.error('Error deleting product');
@@ -302,7 +303,7 @@ const AdminDashboard = () => {
       );
       toast.success('Product updated successfully');
       setEditingProduct(null);
-      fetchProducts();
+      await fetchProducts();
     } catch (error) {
       toast.error('Error updating product');
     }
