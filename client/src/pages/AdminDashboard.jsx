@@ -497,21 +497,7 @@ const AdminDashboard = () => {
 
       {activeTab === 'collections' && (
       <div className="bg-white shadow-md p-6">
-        <h2 className="text-xl font-semibold mb-6">Manage Collections (Latest Beauty & Newest)</h2>
-        
-        {/* Debug Info Section - Remove after fixing */}
-        <div className="bg-yellow-50 p-4 border-b border-yellow-100 text-sm font-mono text-yellow-800 mb-4">
-          <p><strong>Debug Stats:</strong></p>
-          <p>Total Products Loaded: {products.length}</p>
-          <p>Latest Beauty Count: {products.filter(p => p.isLatestBeauty === true || p.isLatestBeauty === 'true').length}</p>
-          <p>Newest Collection Count: {products.filter(p => p.isNewest === true || p.isNewest === 'true').length}</p>
-          <details>
-            <summary>Raw First Product (Click to expand)</summary>
-            <pre className="text-xs">{JSON.stringify(products[0] || {}, null, 2)}</pre>
-          </details>
-        </div>
-        {/* End Debug Info */}
-
+        <h2 className="text-xl font-semibold mb-6">Manage Collections</h2>
         <div className="overflow-x-auto">
           <table className="min-w-full table-auto">
             <thead>
@@ -1103,17 +1089,17 @@ const AdminDashboard = () => {
                   <td className="px-6 py-4">{product.category}</td>
                   <td className="px-6 py-4">
                     <div className="flex flex-col gap-1 text-xs">
-                      {product.isTrendy && (
+                      {(product.isTrendy === true || product.isTrendy === 'true') && (
                         <span className="bg-pink-100 text-pink-800 px-2 py-0.5 rounded-full inline-block text-center">
                           Trendy
                         </span>
                       )}
-                      {product.isLatestBeauty && (
+                      {(product.isLatestBeauty === true || product.isLatestBeauty === 'true') && (
                         <span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full inline-block text-center">
                           Latest
                         </span>
                       )}
-                      {product.isNewest && (
+                      {(product.isNewest === true || product.isNewest === 'true') && (
                         <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full inline-block text-center">
                           Newest
                         </span>
