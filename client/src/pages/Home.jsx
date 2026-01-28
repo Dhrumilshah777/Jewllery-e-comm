@@ -21,11 +21,6 @@ const Home = () => {
     return data;
   };
 
-  const fetchTrendyProducts = async () => {
-    const { data } = await axios.get('/api/products?isTrendy=true&sort=latest');
-    return data;
-  };
-
   const fetchPopularCategories = async () => {
     const { data } = await axios.get('/api/popular-categories');
     return data;
@@ -53,11 +48,6 @@ const Home = () => {
     queryFn: fetchSlides
   });
 
-  const { data: trendyCollection = [], isLoading: trendyLoading } = useQuery({
-    queryKey: ['trendyProducts'],
-    queryFn: fetchTrendyProducts
-  });
-
   const { data: popularCategories = [], isLoading: categoriesLoading } = useQuery({
     queryKey: ['popularCategories'],
     queryFn: fetchPopularCategories
@@ -73,7 +63,7 @@ const Home = () => {
     queryFn: fetchLatestProducts
   });
 
-  const loading = slidesLoading || trendyLoading || categoriesLoading || homeBannerLoading || latestLoading;
+  const loading = slidesLoading || categoriesLoading || homeBannerLoading || latestLoading;
 
   useEffect(() => {
     const onResize = () => setViewportWidth(window.innerWidth);
@@ -156,23 +146,6 @@ const Home = () => {
     nextArrow: <HeroNextArrow />,
     prevArrow: <HeroPrevArrow />,
     pauseOnHover: false,
-  };
-
-  const trendySettings = {
-    dots: true,
-    infinite: Math.min(trendyCollection.length, 4) > slidesForWidth(viewportWidth),
-    speed: 500,
-    slidesToShow: slidesForWidth(viewportWidth),
-    slidesToScroll: 1,
-    autoplay: trendyCollection.length > 1,
-    autoplaySpeed: 3000,
-    arrows: false,
-    appendDots: dots => (
-      <ul style={{ bottom: "-85px" }}>
-        {dots}
-      </ul>
-    ),
-    dotsClass: "slick-dots"
   };
 
   const latestBeautySettings = {
@@ -393,73 +366,7 @@ const Home = () => {
       
       
 
-      <section className="py-16 px-2 md:px-4 max-w-7xl mx-auto">
-        <div className="flex items-center justify-center gap-6">
-          <div className="h-px bg-gray-200 flex-1 max-w-24" />
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-normal text-center font-sans uppercase tracking-widest">
-            Trendy Collection
-          </h2>
-          <div className="h-px bg-gray-200 flex-1 max-w-24" />
-        </div>
-        <p className="mt-2 text-center text-gray-500 text-xs sm:text-sm font-sans">
-          Collect your loves with our newest arrivals
-        </p>
-
-        <div className="mt-10 mb-16">
-          <Slider key={`trendy-${slidesForWidth(viewportWidth)}-${trendyCollection.length}`} {...trendySettings}>
-            {trendyCollection.map((item) => (
-              <div key={item._id} className="px-2">
-                <div className="group block relative">
-                  <div className="relative overflow-hidden aspect-[4/5] bg-gray-100">
-                    <Link to={`/products/${item._id}`} className="block w-full h-full cursor-pointer relative">
-                      <img
-                        src={item.imageUrl}
-                        alt={item.name}
-                        className={`w-full h-full object-cover transition-transform duration-500 ease-in-out ${item.subImages && item.subImages.length > 0 ? 'group-hover:-translate-x-full' : 'group-hover:scale-110'}`}
-                        loading="lazy"
-                      />
-                      {item.subImages && item.subImages.length > 0 && (
-                        <img
-                          src={item.subImages[0]}
-                          alt={item.name}
-                          className="absolute inset-0 w-full h-full object-cover translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-in-out"
-                          loading="lazy"
-                        />
-                      )}
-                    </Link>
-                    <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
-                      {/* Quick View Icon */}
-                      <button
-                        onClick={(e) => openModal(e, item)}
-                        className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-black hover:text-white transition-colors"
-                        title="Quick View"
-                      >
-                        <i className="far fa-eye text-sm"></i>
-                      </button>
-                      {/* Wishlist Icon */}
-                      <button
-                        onClick={(e) => handleToggleWishlist(e, item)}
-                        className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-black hover:text-white transition-colors"
-                        title={isInWishlist(item._id) ? "Remove from Wishlist" : "Add to Wishlist"}
-                      >
-                        {isInWishlist(item._id) ? <i className="fas fa-heart text-red-500 text-sm"></i> : <i className="far fa-heart text-sm"></i>}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="pt-4 space-y-1 flex flex-col items-center">
-                    <h3 className="text-sm font-medium uppercase tracking-wider text-gray-900 text-center">
-                      <Link to={`/products/${item._id}`}>{item.name}</Link>
-                    </h3>
-                    <div className="text-xs text-gray-500 text-center">
-                      Accessories / {item.category}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </Slider>
-        </div>
-      </section>
+      
 
       <section className="px-4 md:px-12 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
