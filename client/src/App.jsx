@@ -10,6 +10,7 @@ import ProductDetails from './pages/ProductDetails';
 import Wishlist from './pages/Wishlist';
 import Profile from './pages/Profile';
 import AdminDashboard from './pages/AdminDashboard';
+import Gallery from './pages/Gallery';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotificationModal from './components/NotificationModal';
 
@@ -27,6 +28,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetails />} />
+          <Route path="/gallery" element={<Gallery />} />
           
           {/* Protected Routes */}
           <Route path="/wishlist" element={

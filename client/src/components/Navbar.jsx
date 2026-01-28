@@ -238,8 +238,8 @@ const Navbar = () => {
             <Link to="/products" className="group flex items-center gap-1 text-gray-900 hover:text-gray-600 px-1 py-2 text-sm font-normal uppercase tracking-wider transition-colors border-b-2 border-transparent hover:border-gray-900">
               Product
             </Link>
-            <Link to="#" className="group flex items-center gap-1 text-gray-900 hover:text-gray-600 px-1 py-2 text-sm font-normal uppercase tracking-wider transition-colors border-b-2 border-transparent hover:border-gray-900">
-              Blog
+            <Link to="/gallery" className="group flex items-center gap-1 text-gray-900 hover:text-gray-600 px-1 py-2 text-sm font-normal uppercase tracking-wider transition-colors border-b-2 border-transparent hover:border-gray-900">
+              Gallery
             </Link>
             <Link to="#" className="group flex items-center gap-1 text-gray-900 hover:text-gray-600 px-1 py-2 text-sm font-normal uppercase tracking-wider transition-colors border-b-2 border-transparent hover:border-gray-900">
               Featured
