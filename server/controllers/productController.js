@@ -69,7 +69,16 @@ const createProduct = async (req, res) => {
   console.log('createProduct body:', req.body);
   const { name, price, description, imageUrl, category, stock, isTrendy, isLatestBeauty, subImages } = req.body;
   
-  console.log('Saving product with flags:', { isTrendy, isLatestBeauty, typeTrendy: typeof isTrendy, typeLatest: typeof isLatestBeauty });
+  // Explicitly cast to boolean to avoid string/type issues
+  const isTrendyBool = isTrendy === true || isTrendy === 'true';
+  const isLatestBeautyBool = isLatestBeauty === true || isLatestBeauty === 'true';
+
+  console.log('Saving product with flags:', { 
+    originalTrendy: isTrendy, 
+    originalLatest: isLatestBeauty,
+    finalTrendy: isTrendyBool, 
+    finalLatest: isLatestBeautyBool 
+  });
 
   try {
     const product = new Product({
@@ -79,8 +88,8 @@ const createProduct = async (req, res) => {
       imageUrl,
       category,
       stock,
-      isTrendy,
-      isLatestBeauty,
+      isTrendy: isTrendyBool,
+      isLatestBeauty: isLatestBeautyBool,
       subImages
     });
 
