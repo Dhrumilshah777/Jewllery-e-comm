@@ -413,6 +413,16 @@ const AdminDashboard = () => {
         >
           Notifications
         </button>
+        <button
+          onClick={() => setActiveTab('collections')}
+          className={`px-6 py-2 font-medium transition duration-200 ${
+            activeTab === 'collections'
+              ? 'bg-indigo-600 text-white shadow-md'
+              : 'bg-white text-gray-600 hover:bg-gray-50'
+          }`}
+        >
+          Collections
+        </button>
       </div>
       
       {activeTab === 'notifications' && (
@@ -483,6 +493,72 @@ const AdminDashboard = () => {
             </div>
           </form>
         </div>
+      )}
+
+      {activeTab === 'collections' && (
+      <div className="bg-white shadow-md p-6">
+        <h2 className="text-xl font-semibold mb-6">Manage Collections (Latest Beauty & Newest)</h2>
+        <div className="overflow-x-auto">
+          <table className="min-w-full table-auto">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="px-6 py-3 text-left">Sr.no</th>
+                <th className="px-6 py-3 text-left">Product</th>
+                <th className="px-6 py-3 text-left">Price</th>
+                <th className="px-6 py-3 text-left">Category</th>
+                <th className="px-6 py-3 text-left">Collections</th>
+                <th className="px-6 py-3 text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {products
+                .filter(p => p.isLatestBeauty || p.isNewest)
+                .map((product, index) => (
+                <tr key={product._id}>
+                  <td className="px-6 py-4">{index + 1}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center">
+                      <img
+                        src={product.imageUrl}
+                        alt={product.name}
+                        className="h-10 w-10 object-cover mr-3"
+                      />
+                      <span className="font-medium">{product.name}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">${product.price}</td>
+                  <td className="px-6 py-4">{product.category}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col gap-1 text-xs">
+                      {product.isLatestBeauty && (
+                        <span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full inline-block text-center">
+                          Latest Beauty
+                        </span>
+                      )}
+                      {product.isNewest && (
+                        <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full inline-block text-center">
+                          Newest Collection
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => handleDelete(product._id)}
+                      className="text-red-600 hover:text-red-900 bg-red-100 hover:bg-red-200 px-3 py-1 transition duration-300"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {products.filter(p => p.isLatestBeauty || p.isNewest).length === 0 && (
+            <p className="text-center text-gray-500 mt-4">No products found in these collections.</p>
+          )}
+        </div>
+      </div>
       )}
 
       {activeTab === 'categories' && (
