@@ -36,6 +36,10 @@ const productSchema = new mongoose.Schema({
   isLatestBeauty: {
     type: Boolean,
     default: false
+  },
+  isNewest: {
+    type: Boolean,
+    default: false
   }
 }, { timestamps: true });
 

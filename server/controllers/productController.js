@@ -16,6 +16,7 @@ const getProducts = async (req, res) => {
       : {};
 
     const isTrendy = req.query.isTrendy === 'true' ? { isTrendy: true } : {};
+    const isNewest = req.query.isNewest === 'true' ? { isNewest: true } : {};
     
     let isLatestBeauty = {};
     if (req.query.isLatestBeauty === 'true') {
@@ -33,7 +34,7 @@ const getProducts = async (req, res) => {
         } 
       : {};
 
-    let query = Product.find({ ...keyword, ...isTrendy, ...isLatestBeauty, ...category });
+    let query = Product.find({ ...keyword, ...isTrendy, ...isLatestBeauty, ...isNewest, ...category });
 
     if (req.query.sort === 'latest') {
       query = query.sort({ createdAt: -1 });
@@ -73,17 +74,20 @@ const getProductById = async (req, res) => {
 // @access  Private/Admin
 const createProduct = async (req, res) => {
   console.log('createProduct body:', req.body);
-  const { name, price, description, imageUrl, category, stock, isTrendy, isLatestBeauty, subImages } = req.body;
+  const { name, price, description, imageUrl, category, stock, isTrendy, isLatestBeauty, isNewest, subImages } = req.body;
   
   // Explicitly cast to boolean to avoid string/type issues
   const isTrendyBool = isTrendy === true || isTrendy === 'true';
   const isLatestBeautyBool = isLatestBeauty === true || isLatestBeauty === 'true';
+  const isNewestBool = isNewest === true || isNewest === 'true';
 
   console.log('Saving product with flags:', { 
     originalTrendy: isTrendy, 
     originalLatest: isLatestBeauty,
+    originalNewest: isNewest,
     finalTrendy: isTrendyBool, 
-    finalLatest: isLatestBeautyBool 
+    finalLatest: isLatestBeautyBool,
+    finalNewest: isNewestBool
   });
 
   try {
@@ -96,6 +100,7 @@ const createProduct = async (req, res) => {
       stock,
       isTrendy: isTrendyBool,
       isLatestBeauty: isLatestBeautyBool,
+      isNewest: isNewestBool,
       subImages
     });
 
@@ -124,7 +129,7 @@ const createProduct = async (req, res) => {
 // @route   PUT /api/products/:id
 // @access  Private/Admin
 const updateProduct = async (req, res) => {
-  const { name, price, description, imageUrl, category, stock, isTrendy, isLatestBeauty, subImages } = req.body;
+  const { name, price, description, imageUrl, category, stock, isTrendy, isLatestBeauty, isNewest, subImages } = req.body;
 
   const product = await Product.findById(req.params.id);
 
@@ -143,6 +148,10 @@ const updateProduct = async (req, res) => {
     
     if (isLatestBeauty !== undefined) {
       product.isLatestBeauty = isLatestBeauty === true || isLatestBeauty === 'true';
+    }
+
+    if (isNewest !== undefined) {
+      product.isNewest = isNewest === true || isNewest === 'true';
     }
 
     product.subImages = subImages || product.subImages;

@@ -37,8 +37,8 @@ const Home = () => {
   };
 
   const fetchNewestProducts = async () => {
-    // Exclude latest beauty products
-    const { data } = await axios.get('/api/products?isLatestBeauty=false&sort=latest&limit=8');
+    // Fetch products explicitly marked as Newest Collection
+    const { data } = await axios.get('/api/products?isNewest=true&sort=latest&limit=8');
     return data;
   };
 

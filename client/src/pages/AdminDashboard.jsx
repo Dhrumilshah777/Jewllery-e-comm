@@ -19,6 +19,7 @@ const AdminDashboard = () => {
     stock: '',
     isTrendy: false,
     isLatestBeauty: false,
+    isNewest: false,
     subImages: ['']
   });
   const [slideFormData, setSlideFormData] = useState({
@@ -138,6 +139,7 @@ const AdminDashboard = () => {
         stock: '',
         isTrendy: false,
         isLatestBeauty: false,
+        isNewest: false,
         subImages: ['']
       });
       fetchProducts();
@@ -900,7 +902,7 @@ const AdminDashboard = () => {
             />
           </div>
           
-          <div className="md:col-span-2 flex flex-col space-y-3">
+          <div className="md:col-span-2 flex space-x-6">
             <label className="flex items-center space-x-2 cursor-pointer">
               <input
                 type="checkbox"
@@ -909,7 +911,7 @@ const AdminDashboard = () => {
                 onChange={handleChange}
                 className="form-checkbox h-5 w-5 text-indigo-600 focus:ring-indigo-600"
               />
-              <span className="text-gray-700">Add to Trendy Collection</span>
+              <span className="text-gray-700">Trendy Collection</span>
             </label>
             <label className="flex items-center space-x-2 cursor-pointer">
               <input
@@ -919,7 +921,17 @@ const AdminDashboard = () => {
                 onChange={handleChange}
                 className="form-checkbox h-5 w-5 text-indigo-600 focus:ring-indigo-600"
               />
-              <span className="text-gray-700">Add to Latest Beauty</span>
+              <span className="text-gray-700">Latest Beauty</span>
+            </label>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                name="isNewest"
+                checked={formData.isNewest}
+                onChange={handleChange}
+                className="form-checkbox h-5 w-5 text-indigo-600 focus:ring-indigo-600"
+              />
+              <span className="text-gray-700">Newest Collection</span>
             </label>
           </div>
 
@@ -1006,6 +1018,11 @@ const AdminDashboard = () => {
                       {product.isLatestBeauty && (
                         <span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full inline-block text-center">
                           Latest
+                        </span>
+                      )}
+                      {product.isNewest && (
+                        <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full inline-block text-center">
+                          Newest
                         </span>
                       )}
                     </div>
@@ -1132,6 +1149,15 @@ const AdminDashboard = () => {
                     className="form-checkbox h-5 w-5 text-indigo-600 focus:ring-indigo-600"
                   />
                   <span className="text-gray-700">Latest Beauty</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editingProduct.isNewest || false}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, isNewest: e.target.checked })}
+                    className="form-checkbox h-5 w-5 text-indigo-600 focus:ring-indigo-600"
+                  />
+                  <span className="text-gray-700">Newest Collection</span>
                 </label>
               </div>
 
