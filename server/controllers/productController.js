@@ -15,8 +15,8 @@ const getProducts = async (req, res) => {
         }
       : {};
 
-    const isTrendy = req.query.isTrendy ? { isTrendy: true } : {};
-    const isLatestBeauty = req.query.isLatestBeauty ? { isLatestBeauty: true } : {};
+    const isTrendy = req.query.isTrendy === 'true' ? { isTrendy: true } : {};
+    const isLatestBeauty = req.query.isLatestBeauty === 'true' ? { isLatestBeauty: true } : {};
 
     const category = req.query.category 
       ? { 
@@ -38,6 +38,7 @@ const getProducts = async (req, res) => {
     }
 
     const products = await query;
+    console.log(`Found ${products.length} products for query:`, { isTrendy: !!isTrendy.isTrendy, isLatestBeauty: !!isLatestBeauty.isLatestBeauty });
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
@@ -67,6 +68,8 @@ const getProductById = async (req, res) => {
 const createProduct = async (req, res) => {
   console.log('createProduct body:', req.body);
   const { name, price, description, imageUrl, category, stock, isTrendy, isLatestBeauty, subImages } = req.body;
+  
+  console.log('Saving product with flags:', { isTrendy, isLatestBeauty, typeTrendy: typeof isTrendy, typeLatest: typeof isLatestBeauty });
 
   try {
     const product = new Product({
