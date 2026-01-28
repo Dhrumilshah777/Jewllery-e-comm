@@ -5,10 +5,19 @@ import Spinner from '../components/Spinner';
 const Gallery = () => {
   const [loading, setLoading] = useState(true);
   const [images, setImages] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
-  // For now, we can just fetch products and display their images as a gallery
-  // or we could have a dedicated gallery endpoint. 
-  // Since no specific requirement was given for content, I'll display product images.
+  const categories = [
+    'All',
+    'General',
+    'Rings',
+    'Necklaces',
+    'Earrings',
+    'Bracelets',
+    'Charm & Dangles',
+    'Gift Ideas'
+  ];
+
   useEffect(() => {
     const fetchGalleryImages = async () => {
       try {
@@ -34,6 +43,10 @@ const Gallery = () => {
     return <Spinner />;
   }
 
+  const filteredImages = selectedCategory === 'All' 
+    ? images 
+    : images.filter(img => img.category === selectedCategory);
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="text-center mb-12">
@@ -41,8 +54,24 @@ const Gallery = () => {
         <div className="w-24 h-1 bg-indigo-600 mx-auto"></div>
       </div>
 
+      <div className="flex flex-wrap justify-center gap-4 mb-10">
+        {categories.map((category) => (
+          <button
+            key={category}
+            onClick={() => setSelectedCategory(category)}
+            className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+              selectedCategory === category
+                ? 'bg-indigo-600 text-white shadow-md transform scale-105'
+                : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300'
+            }`}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
+
       <div className="grid grid-cols-2 gap-6">
-        {images.map((image) => (
+        {filteredImages.map((image) => (
           <div key={image.id} className="relative group overflow-hidden shadow-lg bg-gray-100">
             <img 
               src={image.url} 
@@ -58,9 +87,9 @@ const Gallery = () => {
         ))}
       </div>
       
-      {images.length === 0 && (
+      {filteredImages.length === 0 && (
         <div className="text-center text-gray-500 py-12">
-          No images found in the gallery.
+          No images found in this category.
         </div>
       )}
     </div>

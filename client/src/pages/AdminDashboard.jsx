@@ -673,15 +673,20 @@ const AdminDashboard = () => {
 
               <div>
                 <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Category (Optional)
+                  Category
                 </label>
-                <input
-                  type="text"
+                <select
                   value={galleryFormData.category}
                   onChange={(e) => setGalleryFormData({ ...galleryFormData, category: e.target.value })}
-                  className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  placeholder="General"
-                />
+                  className="shadow border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                >
+                  <option value="General">General</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="md:col-span-2">
