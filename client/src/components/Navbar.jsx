@@ -338,6 +338,13 @@ const Navbar = () => {
               Shop
             </Link>
             <Link 
+              to="/gallery" 
+              onClick={() => setIsOpen(false)}
+              className="block text-lg font-medium text-gray-800 hover:text-indigo-600 border-b border-gray-100 pb-2"
+            >
+              Gallery
+            </Link>
+            <Link 
               to="/wishlist" 
               onClick={() => setIsOpen(false)}
               className="block text-lg font-medium text-gray-800 hover:text-indigo-600 border-b border-gray-100 pb-2"

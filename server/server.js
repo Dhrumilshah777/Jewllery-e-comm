@@ -17,6 +17,7 @@ const slideRoutes = require('./routes/slideRoutes');
 const popularCategoryRoutes = require('./routes/popularCategoryRoutes');
 const homeBannerRoutes = require('./routes/homeBannerRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const galleryRoutes = require('./routes/galleryRoutes');
 
 // Middleware
 app.use(express.json());
@@ -56,6 +57,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/slides', slideRoutes);
 app.use('/api/popular-categories', popularCategoryRoutes);
 app.use('/api/home-banner', homeBannerRoutes);
+app.use('/api/gallery', galleryRoutes);
 
 app.use('/api/notifications', notificationRoutes);
 

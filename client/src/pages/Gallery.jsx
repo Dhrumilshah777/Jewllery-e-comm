@@ -12,18 +12,14 @@ const Gallery = () => {
   useEffect(() => {
     const fetchGalleryImages = async () => {
       try {
-        const { data } = await axios.get('/api/products?limit=20');
-        // Extract images from products
-        const productImages = data.products ? data.products.map(p => ({
-          id: p._id,
-          url: p.imageUrl,
-          name: p.name
-        })) : data.map(p => ({
-          id: p._id,
-          url: p.imageUrl,
-          name: p.name
+        const { data } = await axios.get('/api/gallery');
+        const galleryImages = data.map(item => ({
+          id: item._id,
+          url: item.imageUrl,
+          name: item.title,
+          category: item.category
         }));
-        setImages(productImages);
+        setImages(galleryImages);
       } catch (error) {
         console.error('Error fetching gallery images:', error);
       } finally {
@@ -45,13 +41,13 @@ const Gallery = () => {
         <div className="w-24 h-1 bg-indigo-600 mx-auto"></div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 gap-6">
         {images.map((image) => (
-          <div key={image.id} className="relative group overflow-hidden shadow-lg aspect-[4/5] bg-gray-100">
+          <div key={image.id} className="relative group overflow-hidden shadow-lg bg-gray-100">
             <img 
               src={image.url} 
               alt={image.name} 
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              className="w-full h-auto transition-transform duration-500 group-hover:scale-110"
             />
             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
               <span className="text-white text-lg font-medium opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">

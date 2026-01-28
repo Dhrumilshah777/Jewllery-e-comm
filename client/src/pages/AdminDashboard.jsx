@@ -54,6 +54,15 @@ const AdminDashboard = () => {
   const [editingSlide, setEditingSlide] = useState(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState(null);
   const [filterType, setFilterType] = useState('all'); // 'all', 'latest', 'newest', 'trendy'
+  
+  // Gallery State
+  const [galleryItems, setGalleryItems] = useState([]);
+  const [galleryFormData, setGalleryFormData] = useState({
+    title: '',
+    imageUrl: '',
+    category: 'General'
+  });
+  const [galleryFilter, setGalleryFilter] = useState('All');
 
   const categories = [
     'Rings',
@@ -110,13 +119,21 @@ const AdminDashboard = () => {
     }
   };
 
-
+  const fetchGalleryItems = async () => {
+    try {
+      const { data } = await axios.get('/api/gallery');
+      setGalleryItems(data);
+    } catch (error) {
+      console.error('Error fetching gallery items');
+    }
+  };
 
   useEffect(() => {
     fetchProducts();
     fetchSlides();
     fetchPopularCategories();
     fetchHomeBanner();
+    fetchGalleryItems();
   }, []);
 
   const handleChange = (e) => {
@@ -344,6 +361,38 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleGallerySubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(
+        '/api/gallery',
+        galleryFormData,
+        { withCredentials: true }
+      );
+      toast.success('Image added to gallery');
+      setGalleryFormData({
+        title: '',
+        imageUrl: '',
+        category: 'General'
+      });
+      fetchGalleryItems();
+    } catch (error) {
+      toast.error('Error adding image to gallery');
+    }
+  };
+
+  const handleGalleryDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this image?')) {
+      try {
+        await axios.delete(`/api/gallery/${id}`, { withCredentials: true });
+        toast.success('Image deleted from gallery');
+        fetchGalleryItems();
+      } catch (error) {
+        toast.error('Error deleting image');
+      }
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <style>
@@ -437,6 +486,16 @@ const AdminDashboard = () => {
           }`}
         >
           Collections
+        </button>
+        <button
+          onClick={() => setActiveTab('gallery')}
+          className={`px-6 py-2 font-medium transition duration-200 ${
+            activeTab === 'gallery'
+              ? 'bg-indigo-600 text-white shadow-md'
+              : 'bg-white text-gray-600 hover:bg-gray-50'
+          }`}
+        >
+          Gallery
         </button>
       </div>
       
@@ -577,6 +636,116 @@ const AdminDashboard = () => {
           )}
         </div>
       </div>
+      )}
+
+      {activeTab === 'gallery' && (
+        <div className="space-y-8">
+          <div className="bg-white shadow-md p-6">
+            <h2 className="text-xl font-semibold mb-6">Add New Gallery Image</h2>
+            <form onSubmit={handleGallerySubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  value={galleryFormData.title}
+                  onChange={(e) => setGalleryFormData({ ...galleryFormData, title: e.target.value })}
+                  className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  placeholder="Image Title"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Image URL
+                </label>
+                <input
+                  type="text"
+                  value={galleryFormData.imageUrl}
+                  onChange={(e) => setGalleryFormData({ ...galleryFormData, imageUrl: e.target.value })}
+                  className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  placeholder="https://..."
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Category (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={galleryFormData.category}
+                  onChange={(e) => setGalleryFormData({ ...galleryFormData, category: e.target.value })}
+                  className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  placeholder="General"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <button
+                  type="submit"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline w-full flex items-center justify-center"
+                >
+                  <i className="fa-light fa-plus mr-2"></i> Add to Gallery
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div className="bg-white shadow-md p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold">Manage Gallery</h2>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-600">Filter by Category:</span>
+                <select
+                  value={galleryFilter}
+                  onChange={(e) => setGalleryFilter(e.target.value)}
+                  className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <option value="All">All</option>
+                  {[...new Set(galleryItems.map(item => item.category))].map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {galleryItems
+                .filter(item => galleryFilter === 'All' || item.category === galleryFilter)
+                .map((item) => (
+                <div key={item._id} className="relative group bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                  <div className="aspect-w-1 aspect-h-1">
+                    <img 
+                      src={item.imageUrl} 
+                      alt={item.title} 
+                      className="w-full h-48 object-cover"
+                    />
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-medium text-gray-900 truncate">{item.title}</h3>
+                    <p className="text-xs text-gray-500 mb-2">{item.category}</p>
+                    <button
+                      onClick={() => handleGalleryDelete(item._id)}
+                      className="text-red-600 hover:text-red-800 text-sm font-medium"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {galleryItems.filter(item => galleryFilter === 'All' || item.category === galleryFilter).length === 0 && (
+              <div className="text-center py-12 text-gray-500">
+                No images found in the gallery.
+              </div>
+            )}
+          </div>
+        </div>
       )}
 
       {activeTab === 'categories' && (
