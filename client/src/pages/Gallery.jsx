@@ -75,7 +75,7 @@ const Gallery = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {filteredImages.map((image) => (
           <div key={image.id} className="relative group overflow-hidden shadow-lg bg-gray-100 aspect-square">
             <img 
