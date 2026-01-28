@@ -2,7 +2,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Navbar from './components/Navbar';
-import Home from './pages/Home';
+import Home from './pages/HomePage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Products from './pages/Products';
