@@ -512,7 +512,7 @@ const AdminDashboard = () => {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {products
-                .filter(p => p.isLatestBeauty || p.isNewest)
+                .filter(p => (p.isLatestBeauty === true || p.isLatestBeauty === 'true') || (p.isNewest === true || p.isNewest === 'true'))
                 .map((product, index) => (
                 <tr key={product._id}>
                   <td className="px-6 py-4">{index + 1}</td>
@@ -530,12 +530,12 @@ const AdminDashboard = () => {
                   <td className="px-6 py-4">{product.category}</td>
                   <td className="px-6 py-4">
                     <div className="flex flex-col gap-1 text-xs">
-                      {product.isLatestBeauty && (
+                      {(product.isLatestBeauty === true || product.isLatestBeauty === 'true') && (
                         <span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full inline-block text-center">
                           Latest Beauty
                         </span>
                       )}
-                      {product.isNewest && (
+                      {(product.isNewest === true || product.isNewest === 'true') && (
                         <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full inline-block text-center">
                           Newest Collection
                         </span>
@@ -554,8 +554,11 @@ const AdminDashboard = () => {
               ))}
             </tbody>
           </table>
-          {products.filter(p => p.isLatestBeauty || p.isNewest).length === 0 && (
-            <p className="text-center text-gray-500 mt-4">No products found in these collections.</p>
+          {products.filter(p => (p.isLatestBeauty === true || p.isLatestBeauty === 'true') || (p.isNewest === true || p.isNewest === 'true')).length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-gray-500 mb-2">No products found in these collections.</p>
+              <p className="text-sm text-gray-400">Go to "Manage Products" or "Add New Product" to add items to Latest Beauty or Newest Collection.</p>
+            </div>
           )}
         </div>
       </div>
