@@ -673,6 +673,7 @@ const AdminDashboard = () => {
                   placeholder="https://..."
                   required
                 />
+                <p className="text-xs text-gray-500 mt-1">Provide a direct public link to an image (jpg/png).</p>
               </div>
 
               <div>
