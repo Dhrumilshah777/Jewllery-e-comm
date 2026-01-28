@@ -66,12 +66,16 @@ const Home = () => {
 
   const { data: latestProducts = [], isLoading: latestLoading } = useQuery({
     queryKey: ['latestProducts'],
-    queryFn: fetchLatestProducts
+    queryFn: fetchLatestProducts,
+    staleTime: 0,
+    refetchOnWindowFocus: true
   });
 
   const { data: newestProducts = [], isLoading: newestLoading } = useQuery({
     queryKey: ['newestProducts'],
-    queryFn: fetchNewestProducts
+    queryFn: fetchNewestProducts,
+    staleTime: 0,
+    refetchOnWindowFocus: true
   });
 
   const loading = slidesLoading || categoriesLoading || homeBannerLoading || latestLoading || newestLoading;
