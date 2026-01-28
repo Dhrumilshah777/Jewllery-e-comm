@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'; // CHECK
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import axios from 'axios';
