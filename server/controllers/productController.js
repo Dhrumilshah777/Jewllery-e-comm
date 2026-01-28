@@ -5,6 +5,7 @@ const Product = require('../models/Product');
 // @access  Public
 const getProducts = async (req, res) => {
   try {
+    console.log('getProducts query:', req.query);
     const keyword = req.query.keyword
       ? {
           name: {
@@ -64,6 +65,7 @@ const getProductById = async (req, res) => {
 // @route   POST /api/products
 // @access  Private/Admin
 const createProduct = async (req, res) => {
+  console.log('createProduct body:', req.body);
   const { name, price, description, imageUrl, category, stock, isTrendy, isLatestBeauty, subImages } = req.body;
 
   try {
