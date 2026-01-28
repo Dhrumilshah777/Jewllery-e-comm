@@ -15,6 +15,7 @@ const getProducts = async (req, res) => {
       : {};
 
     const isTrendy = req.query.isTrendy ? { isTrendy: true } : {};
+    const isLatestBeauty = req.query.isLatestBeauty ? { isLatestBeauty: true } : {};
 
     const category = req.query.category 
       ? { 
@@ -25,7 +26,7 @@ const getProducts = async (req, res) => {
         } 
       : {};
 
-    let query = Product.find({ ...keyword, ...isTrendy, ...category });
+    let query = Product.find({ ...keyword, ...isTrendy, ...isLatestBeauty, ...category });
 
     if (req.query.sort === 'latest') {
       query = query.sort({ createdAt: -1 });

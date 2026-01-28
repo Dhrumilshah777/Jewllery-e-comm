@@ -18,6 +18,7 @@ const AdminDashboard = () => {
     imageUrl: '',
     stock: '',
     isTrendy: false,
+    isLatestBeauty: false,
     subImages: ['']
   });
   const [slideFormData, setSlideFormData] = useState({
@@ -136,6 +137,7 @@ const AdminDashboard = () => {
         imageUrl: '',
         stock: '',
         isTrendy: false,
+        isLatestBeauty: false,
         subImages: ['']
       });
       fetchProducts();
