@@ -22,7 +22,7 @@ const Home = () => {
   };
 
   const fetchTrendyProducts = async () => {
-    const { data } = await axios.get('/api/products?isTrendy=true');
+    const { data } = await axios.get('/api/products?isTrendy=true&sort=latest');
     return data;
   };
 
@@ -144,7 +144,7 @@ const Home = () => {
   };
 
   const settings = {
-    dots: true,
+    dots: false,
     fade: true,
     infinite: true,
     speed: 1500,
@@ -156,20 +156,6 @@ const Home = () => {
     nextArrow: <HeroNextArrow />,
     prevArrow: <HeroPrevArrow />,
     pauseOnHover: false,
-    appendDots: dots => (
-      <div
-        style={{
-          position: "absolute",
-          bottom: "50px",
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          zIndex: 20
-        }}
-      >
-        <ul style={{ margin: "0px" }} className="slick-dots hero-dots"> {dots} </ul>
-      </div>
-    ),
   };
 
   const trendySettings = {

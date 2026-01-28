@@ -141,13 +141,4 @@ body {
   opacity: 1 !important;
 }
 
-/* Hero Carousel Dots Specific Customization */
-.hero-dots li button:before {
-  width: 4px !important;
-  height: 4px !important;
-}
 
-.hero-dots li.slick-active button:before {
-  width: 6px !important;
-  height: 6px !important;
-}
