@@ -51,6 +51,7 @@ const AdminDashboard = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [editingSlide, setEditingSlide] = useState(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState(null);
+  const [filterType, setFilterType] = useState('all'); // 'all', 'latest', 'newest', 'trendy'
 
   const categories = [
     'Rings',
@@ -1058,7 +1059,51 @@ const AdminDashboard = () => {
 
       {activeTab === 'manage' && (
       <div className="bg-white shadow-md p-6">
-        <h2 className="text-xl font-semibold mb-6">Manage Products</h2>
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+          <h2 className="text-xl font-semibold">Manage Products</h2>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setFilterType('all')}
+              className={`px-3 py-1 text-sm rounded-full border transition-colors ${
+                filterType === 'all'
+                  ? 'bg-gray-800 text-white border-gray-800'
+                  : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              All Products
+            </button>
+            <button
+              onClick={() => setFilterType('latest')}
+              className={`px-3 py-1 text-sm rounded-full border transition-colors ${
+                filterType === 'latest'
+                  ? 'bg-purple-100 text-purple-800 border-purple-200 ring-2 ring-purple-500'
+                  : 'bg-white text-gray-600 border-gray-300 hover:bg-purple-50'
+              }`}
+            >
+              Latest Beauty
+            </button>
+            <button
+              onClick={() => setFilterType('newest')}
+              className={`px-3 py-1 text-sm rounded-full border transition-colors ${
+                filterType === 'newest'
+                  ? 'bg-blue-100 text-blue-800 border-blue-200 ring-2 ring-blue-500'
+                  : 'bg-white text-gray-600 border-gray-300 hover:bg-blue-50'
+              }`}
+            >
+              Newest Collection
+            </button>
+            <button
+              onClick={() => setFilterType('trendy')}
+              className={`px-3 py-1 text-sm rounded-full border transition-colors ${
+                filterType === 'trendy'
+                  ? 'bg-pink-100 text-pink-800 border-pink-200 ring-2 ring-pink-500'
+                  : 'bg-white text-gray-600 border-gray-300 hover:bg-pink-50'
+              }`}
+            >
+              Trendy
+            </button>
+          </div>
+        </div>
         <div className="overflow-x-auto">
           <table className="min-w-full table-auto">
             <thead>
@@ -1073,7 +1118,15 @@ const AdminDashboard = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {products.map((product, index) => (
+              {products
+                .filter(p => {
+                  if (filterType === 'all') return true;
+                  if (filterType === 'latest') return p.isLatestBeauty === true || p.isLatestBeauty === 'true';
+                  if (filterType === 'newest') return p.isNewest === true || p.isNewest === 'true';
+                  if (filterType === 'trendy') return p.isTrendy === true || p.isTrendy === 'true';
+                  return true;
+                })
+                .map((product, index) => (
                 <tr key={product._id}>
                   <td className="px-6 py-4">{index + 1}</td>
                   <td className="px-6 py-4">
