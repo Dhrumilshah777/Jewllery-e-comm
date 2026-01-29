@@ -585,7 +585,7 @@ const Home = () => {
       {selectedProduct && (
         <div className="fixed inset-0 z-50 flex justify-start md:items-center md:justify-center md:p-4 bg-transparent backdrop-blur-md" onClick={closeModal}>
           <div 
-            className="bg-white w-[85%] h-full md:h-auto md:w-full md:max-w-4xl rounded-none shadow-2xl overflow-y-auto md:overflow-hidden relative animate-slide-left md:animate-popup flex flex-col md:flex-row"
+            className="bg-white w-[85%] h-full md:h-auto md:w-full md:max-w-4xl rounded-none shadow-2xl overflow-y-auto md:overflow-hidden relative animate-fade-in md:animate-popup flex flex-col md:flex-row"
             onClick={(e) => e.stopPropagation()}
           >
             <button 
