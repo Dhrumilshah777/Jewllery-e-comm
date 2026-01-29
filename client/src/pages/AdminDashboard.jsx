@@ -197,23 +197,44 @@ const AdminDashboard = () => {
 
   const uploadFileHandler = async (e, isEditing = false) => {
     const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append('image', file);
+    if (!file) return;
+
     setUploading(true);
 
     try {
-      const config = {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      };
+      // 1. Get signature from backend
+      const { data: signData } = await axios.get('/api/upload/signature');
+      const { signature, timestamp, folder, cloudName, apiKey } = signData;
 
-      const { data } = await axios.post('/api/upload', formData, config);
+      // 2. Upload directly to Cloudinary
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('api_key', apiKey);
+      formData.append('timestamp', timestamp);
+      formData.append('signature', signature);
+      formData.append('folder', folder);
 
+      // Detect resource type (image or video)
+      const resourceType = file.type.startsWith('video/') ? 'video' : 'image';
+      
+      const { data } = await axios.post(
+        `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
+        formData
+      );
+
+      // 3. Update state with Cloudinary URL and Type
       if (isEditing) {
-        setEditingSlide({ ...editingSlide, image: data.image });
+        setEditingSlide({ 
+          ...editingSlide, 
+          image: data.secure_url,
+          type: resourceType 
+        });
       } else {
-        setSlideFormData({ ...slideFormData, image: data.image });
+        setSlideFormData({ 
+          ...slideFormData, 
+          image: data.secure_url,
+          type: resourceType 
+        });
       }
       setUploading(false);
     } catch (error) {
