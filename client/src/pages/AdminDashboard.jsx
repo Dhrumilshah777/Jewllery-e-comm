@@ -192,7 +192,19 @@ const AdminDashboard = () => {
   };
 
   const handleSlideChange = (e) => {
-    setSlideFormData({ ...slideFormData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    let newFormData = { ...slideFormData, [name]: value };
+    
+    if (name === 'image') {
+      const isVideoFile = value.match(/\.(mp4|webm|ogg|mov)$/i) || value.includes('/video/upload/');
+      const isYouTube = value.includes('youtube.com') || value.includes('youtu.be');
+      const isVimeo = value.includes('vimeo.com');
+      
+      if (isVideoFile || isYouTube || isVimeo) {
+        newFormData.type = 'video';
+      }
+    }
+    setSlideFormData(newFormData);
   };
 
   const uploadFileHandler = async (e, isEditing = false) => {
@@ -1027,7 +1039,18 @@ const AdminDashboard = () => {
                       <input
                         type="text"
                         value={editingSlide.image}
-                        onChange={(e) => setEditingSlide({ ...editingSlide, image: e.target.value })}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          let newSlideData = { ...editingSlide, image: value };
+                          const isVideoFile = value.match(/\.(mp4|webm|ogg|mov)$/i) || value.includes('/video/upload/');
+                          const isYouTube = value.includes('youtube.com') || value.includes('youtu.be');
+                          const isVimeo = value.includes('vimeo.com');
+                          
+                          if (isVideoFile || isYouTube || isVimeo) {
+                            newSlideData.type = 'video';
+                          }
+                          setEditingSlide(newSlideData);
+                        }}
                         className="w-full border p-2 rounded focus:outline-none focus:border-indigo-600"
                         required
                       />

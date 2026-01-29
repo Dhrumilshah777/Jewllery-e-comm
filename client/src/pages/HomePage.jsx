@@ -257,18 +257,56 @@ const Home = () => {
       <section className="overflow-hidden shadow-2xl">
         {slides.length > 0 ? (
           <Slider {...settings}>
-            {slides.map((slide, index) => (
+            {slides.map((slide, index) => {
+              const url = slide.image || '';
+              const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
+              const isVimeo = url.includes('vimeo.com');
+              const isVideoFile = slide.type === 'video' || url.match(/\.(mp4|webm|ogg|mov)$/i) || url.includes('/video/upload/');
+              const isVideo = isYouTube || isVimeo || isVideoFile;
+              
+              const getYouTubeId = (url) => {
+                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                const match = url.match(regExp);
+                return (match && match[2].length === 11) ? match[2] : null;
+              };
+
+              const getVimeoId = (url) => {
+                const match = url.match(/vimeo\.com\/(\d+)/);
+                return match ? match[1] : null;
+              };
+
+              return (
               <div key={slide._id} className="relative h-[400px] md:h-[550px] overflow-hidden">
-                {slide.type === 'video' ? (
+                {isYouTube ? (
+                  <div className="absolute inset-0 w-full h-full bg-black">
+                    <iframe
+                      className="absolute inset-0 w-full h-full pointer-events-none"
+                      src={`https://www.youtube.com/embed/${getYouTubeId(url)}?autoplay=1&mute=1&loop=1&playlist=${getYouTubeId(url)}&controls=0&showinfo=0&modestbranding=1`}
+                      allow="autoplay; encrypted-media"
+                      title={slide.title}
+                    ></iframe>
+                    <div className="absolute inset-0 bg-black opacity-30"></div>
+                  </div>
+                ) : isVimeo ? (
+                  <div className="absolute inset-0 w-full h-full bg-black">
+                    <iframe
+                      className="absolute inset-0 w-full h-full pointer-events-none"
+                      src={`https://player.vimeo.com/video/${getVimeoId(url)}?background=1&autoplay=1&loop=1&byline=0&title=0`}
+                      allow="autoplay; encrypted-media"
+                      title={slide.title}
+                    ></iframe>
+                    <div className="absolute inset-0 bg-black opacity-30"></div>
+                  </div>
+                ) : isVideoFile ? (
                   <div className="absolute inset-0 w-full h-full">
                     <video 
+                      src={url}
                       autoPlay 
                       loop 
                       muted 
                       playsInline
                       className="absolute inset-0 w-full h-full object-cover"
                     >
-                      <source src={slide.image} type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
                     <div className="absolute inset-0 bg-black opacity-30"></div>
@@ -294,7 +332,7 @@ const Home = () => {
                   </Link>
                 </div>
               </div>
-            ))}
+            )})}
           </Slider>
         ) : (
           <div className="relative h-[400px] md:h-[550px]">
@@ -381,7 +419,16 @@ const Home = () => {
         </div>
       </section>
 
-
+      {/* Featured Video Section */}
+      <section className="w-full mb-12">
+        <video 
+          controls 
+          className="w-full h-auto"
+          src="https://videos.pexels.com/video-files/5350357/5350357-uhd_2560_1440_25fps.mp4"
+        >
+          Your browser does not support the video tag.
+        </video>
+      </section>
 
       {/* Popular Categories Section */}
       <section className="py-12 bg-white">
