@@ -16,13 +16,14 @@ const getSlides = async (req, res) => {
 // @route   POST /api/slides
 // @access  Private/Admin
 const createSlide = async (req, res) => {
-  const { image, title, subtitle } = req.body;
+  const { image, title, subtitle, type } = req.body;
 
   try {
     const slide = new Slide({
       image,
       title,
       subtitle,
+      type: type || 'image',
     });
 
     const createdSlide = await slide.save();
@@ -36,7 +37,7 @@ const createSlide = async (req, res) => {
 // @route   PUT /api/slides/:id
 // @access  Private/Admin
 const updateSlide = async (req, res) => {
-  const { image, title, subtitle } = req.body;
+  const { image, title, subtitle, type } = req.body;
 
   const slide = await Slide.findById(req.params.id);
 
@@ -44,6 +45,7 @@ const updateSlide = async (req, res) => {
     slide.image = image || slide.image;
     slide.title = title || slide.title;
     slide.subtitle = subtitle || slide.subtitle;
+    slide.type = type || slide.type;
 
     const updatedSlide = await slide.save();
     res.json(updatedSlide);

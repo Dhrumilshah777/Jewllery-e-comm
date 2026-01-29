@@ -13,6 +13,12 @@ const slideSchema = mongoose.Schema({
     type: String,
     required: false,
   },
+  type: {
+    type: String,
+    required: true,
+    enum: ['image', 'video'],
+    default: 'image'
+  },
 }, {
   timestamps: true,
 });
