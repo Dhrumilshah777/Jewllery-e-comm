@@ -424,7 +424,7 @@ const Home = () => {
         <video 
           controls 
           className="w-full h-[600px] object-cover"
-          src="https://videos.pexels.com/video-files/5350357/5350357-uhd_2560_1440_25fps.mp4"
+          src="https://ik.imagekit.io/dqel2bwws/Video/13500266_1080_1920_60fps.mp4?updatedAt=1769689027910"
         >
           Your browser does not support the video tag.
         </video>
