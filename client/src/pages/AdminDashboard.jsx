@@ -27,7 +27,8 @@ const AdminDashboard = () => {
   const [slideFormData, setSlideFormData] = useState({
     title: '',
     subtitle: '',
-    image: ''
+    image: '',
+    type: 'image'
   });
   const [popularCategoryFormData, setPopularCategoryFormData] = useState({
     name: '',
@@ -205,7 +206,8 @@ const AdminDashboard = () => {
       setSlideFormData({
         title: '',
         subtitle: '',
-        image: ''
+        image: '',
+        type: 'image'
       });
       fetchSlides();
       queryClient.invalidateQueries({ queryKey: ['slides'] });
@@ -835,7 +837,20 @@ const AdminDashboard = () => {
             <form onSubmit={handleSlideSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Image URL
+                  Slide Type
+                </label>
+                <select
+                  name="type"
+                  value={slideFormData.type}
+                  onChange={handleSlideChange}
+                  className="shadow border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4"
+                >
+                  <option value="image">Image</option>
+                  <option value="video">Video</option>
+                </select>
+
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  {slideFormData.type === 'video' ? 'Video URL' : 'Image URL'}
                 </label>
                 <input
                   type="text"
@@ -845,6 +860,9 @@ const AdminDashboard = () => {
                   className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   required
                 />
+                {slideFormData.type === 'video' && (
+                  <p className="text-xs text-gray-500 mt-1">Provide a direct link to a video file (mp4, webm).</p>
+                )}
               </div>
               <div>
                 <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -887,7 +905,11 @@ const AdminDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {slides.map((slide) => (
                 <div key={slide._id} className="border overflow-hidden shadow-sm relative group">
-                  <img src={slide.image} alt={slide.title} className="w-full h-48 object-cover" />
+                  {slide.type === 'video' ? (
+                    <video src={slide.image} className="w-full h-48 object-cover" muted />
+                  ) : (
+                    <img src={slide.image} alt={slide.title} className="w-full h-48 object-cover" />
+                  )}
                   <div className="p-4">
                     <h3 className="font-bold text-lg">{slide.title}</h3>
                     <p className="text-gray-600">{slide.subtitle}</p>
@@ -922,7 +944,19 @@ const AdminDashboard = () => {
                 <h2 className="text-2xl font-bold mb-6">Edit Slide</h2>
                 <form onSubmit={handleUpdateSlide} className="space-y-4">
                   <div>
-                    <label className="block text-gray-700 mb-2">Image URL</label>
+                    <label className="block text-gray-700 mb-2">Slide Type</label>
+                    <select
+                      value={editingSlide.type || 'image'}
+                      onChange={(e) => setEditingSlide({ ...editingSlide, type: e.target.value })}
+                      className="w-full border p-2 rounded focus:outline-none focus:border-indigo-600 mb-4"
+                    >
+                      <option value="image">Image</option>
+                      <option value="video">Video</option>
+                    </select>
+
+                    <label className="block text-gray-700 mb-2">
+                      {editingSlide.type === 'video' ? 'Video URL' : 'Image URL'}
+                    </label>
                     <input
                       type="text"
                       value={editingSlide.image}

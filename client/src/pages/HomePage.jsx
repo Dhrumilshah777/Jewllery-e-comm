@@ -259,7 +259,7 @@ const Home = () => {
           <Slider {...settings}>
             {slides.map((slide, index) => (
               <div key={slide._id} className="relative h-[400px] md:h-[550px] overflow-hidden">
-                {index === 0 ? (
+                {slide.type === 'video' ? (
                   <div className="absolute inset-0 w-full h-full">
                     <video 
                       autoPlay 
@@ -268,7 +268,7 @@ const Home = () => {
                       playsInline
                       className="absolute inset-0 w-full h-full object-cover"
                     >
-                      <source src="https://videos.pexels.com/video-files/5356553/5356553-hd_1920_1080_25fps.mp4" type="video/mp4" />
+                      <source src={slide.image} type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
                     <div className="absolute inset-0 bg-black opacity-30"></div>
