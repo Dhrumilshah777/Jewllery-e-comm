@@ -455,9 +455,6 @@ const Home = () => {
                     <div className="text-xs text-gray-500 text-center">
                       {item.category}
                     </div>
-                    <div className="text-sm font-semibold text-gray-900">
-                      ${item.price}
-                    </div>
                   </div>
                 </div>
               </div>
