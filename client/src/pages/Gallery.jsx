@@ -75,14 +75,14 @@ const Gallery = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div className="columns-2 md:columns-4 gap-6">
         {filteredImages.map((image) => (
-          <div key={image.id} className="relative group overflow-hidden shadow-lg bg-gray-100 aspect-square">
+          <div key={image.id} className="relative group overflow-hidden shadow-lg bg-gray-100 mb-6 break-inside-avoid">
             <img 
               src={image.url} 
               alt={image.name} 
               onError={handleImageError}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              className="w-full h-auto block transition-transform duration-500 group-hover:scale-110"
             />
             <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-40 transition-opacity duration-300"></div>
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
