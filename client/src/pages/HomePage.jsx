@@ -423,7 +423,7 @@ const Home = () => {
       <section className="w-full mb-12">
         <video 
           controls 
-          className="w-full h-auto"
+          className="w-full h-[600px] object-cover"
           src="https://videos.pexels.com/video-files/5350357/5350357-uhd_2560_1440_25fps.mp4"
         >
           Your browser does not support the video tag.
