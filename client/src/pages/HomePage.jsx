@@ -257,14 +257,30 @@ const Home = () => {
       <section className="overflow-hidden shadow-2xl">
         {slides.length > 0 ? (
           <Slider {...settings}>
-            {slides.map((slide) => (
+            {slides.map((slide, index) => (
               <div key={slide._id} className="relative h-[400px] md:h-[550px] overflow-hidden">
-                <div 
-                  className="absolute inset-0 bg-cover bg-center hero-zoom"
-                  style={{ backgroundImage: `url(${slide.image})` }}
-                >
-                  <div className="absolute inset-0 bg-black opacity-40"></div>
-                </div>
+                {index === 0 ? (
+                  <div className="absolute inset-0 w-full h-full">
+                    <video 
+                      autoPlay 
+                      loop 
+                      muted 
+                      playsInline
+                      className="absolute inset-0 w-full h-full object-cover"
+                    >
+                      <source src="https://videos.pexels.com/video-files/5356553/5356553-hd_1920_1080_25fps.mp4" type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                    <div className="absolute inset-0 bg-black opacity-30"></div>
+                  </div>
+                ) : (
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center hero-zoom"
+                    style={{ backgroundImage: `url(${slide.image})` }}
+                  >
+                    <div className="absolute inset-0 bg-black opacity-40"></div>
+                  </div>
+                )}
                 <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-4 space-y-6 font-italiana">
                   <h1 className="text-6xl md:text-8xl font-bold tracking-tight hero-animate">{slide.title}</h1>
                   <p className="text-xl max-w-2xl mx-auto hero-animate hero-delay-100">
