@@ -350,11 +350,11 @@ const Home = () => {
                   </div>
                   
                   {/* Product Info */}
-                  <div className="space-y-1 flex flex-col items-center">
-                    <h3 className="text-sm font-medium uppercase tracking-wider text-gray-900 text-center">
+                  <div className="space-y-1 flex flex-col items-start">
+                    <h3 className="text-sm font-medium uppercase tracking-wider text-gray-900 text-left">
                       <Link to={`/products/${product._id}`}>{product.name}</Link>
                     </h3>
-                    <div className="text-xs text-gray-500 text-center">
+                    <div className="text-xs text-gray-500 text-left">
                       Accessories / {product.category}
                     </div>
                   </div>
@@ -448,11 +448,11 @@ const Home = () => {
                       </button>
                     </div>
                   </div>
-                  <div className="pt-4 space-y-1 flex flex-col items-center">
-                    <h3 className="text-sm font-medium uppercase tracking-wider text-gray-900 text-center">
+                  <div className="pt-4 space-y-1 flex flex-col items-start">
+                    <h3 className="text-sm font-medium uppercase tracking-wider text-gray-900 text-left">
                       <Link to={`/products/${item._id}`}>{item.name}</Link>
                     </h3>
-                    <div className="text-xs text-gray-500 text-center">
+                    <div className="text-xs text-gray-500 text-left">
                       {item.category}
                     </div>
                   </div>
