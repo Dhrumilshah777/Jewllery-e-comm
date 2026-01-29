@@ -64,6 +64,7 @@ const AdminDashboard = () => {
     category: 'General'
   });
   const [galleryFilter, setGalleryFilter] = useState('All');
+  const [uploading, setUploading] = useState(false);
 
   const categories = [
     'Rings',
@@ -192,6 +193,34 @@ const AdminDashboard = () => {
 
   const handleSlideChange = (e) => {
     setSlideFormData({ ...slideFormData, [e.target.name]: e.target.value });
+  };
+
+  const uploadFileHandler = async (e, isEditing = false) => {
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append('image', file);
+    setUploading(true);
+
+    try {
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      };
+
+      const { data } = await axios.post('/api/upload', formData, config);
+
+      if (isEditing) {
+        setEditingSlide({ ...editingSlide, image: data.image });
+      } else {
+        setSlideFormData({ ...slideFormData, image: data.image });
+      }
+      setUploading(false);
+    } catch (error) {
+      console.error(error);
+      setUploading(false);
+      toast.error('File upload failed');
+    }
   };
 
   const handleSlideSubmit = async (e) => {
@@ -852,14 +881,30 @@ const AdminDashboard = () => {
                 <label className="block text-gray-700 text-sm font-bold mb-2">
                   {slideFormData.type === 'video' ? 'Video URL' : 'Image URL'}
                 </label>
-                <input
-                  type="text"
-                  name="image"
-                  value={slideFormData.image}
-                  onChange={handleSlideChange}
-                  className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
-                />
+                <div className="flex gap-2 mb-2 items-center">
+                  <input
+                    type="text"
+                    name="image"
+                    value={slideFormData.image}
+                    onChange={handleSlideChange}
+                    className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    placeholder="Enter URL or upload file"
+                    required
+                  />
+                  <input
+                    type="file"
+                    onChange={(e) => uploadFileHandler(e, false)}
+                    className="hidden"
+                    id="image-upload"
+                  />
+                  <label 
+                    htmlFor="image-upload"
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded cursor-pointer whitespace-nowrap flex items-center"
+                  >
+                    {uploading ? <Spinner className="w-4 h-4 mr-2" /> : <i className="fas fa-upload mr-2"></i>}
+                    Upload
+                  </label>
+                </div>
                 {slideFormData.type === 'video' && (
                   <p className="text-xs text-gray-500 mt-1">Provide a direct link to a video file (mp4, webm).</p>
                 )}
@@ -957,13 +1002,28 @@ const AdminDashboard = () => {
                     <label className="block text-gray-700 mb-2">
                       {editingSlide.type === 'video' ? 'Video URL' : 'Image URL'}
                     </label>
-                    <input
-                      type="text"
-                      value={editingSlide.image}
-                      onChange={(e) => setEditingSlide({ ...editingSlide, image: e.target.value })}
-                      className="w-full border p-2 rounded focus:outline-none focus:border-indigo-600"
-                      required
-                    />
+                    <div className="flex gap-2 mb-2 items-center">
+                      <input
+                        type="text"
+                        value={editingSlide.image}
+                        onChange={(e) => setEditingSlide({ ...editingSlide, image: e.target.value })}
+                        className="w-full border p-2 rounded focus:outline-none focus:border-indigo-600"
+                        required
+                      />
+                      <input
+                        type="file"
+                        onChange={(e) => uploadFileHandler(e, true)}
+                        className="hidden"
+                        id="edit-image-upload"
+                      />
+                      <label 
+                        htmlFor="edit-image-upload"
+                        className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded cursor-pointer whitespace-nowrap flex items-center"
+                      >
+                        {uploading ? <Spinner className="w-4 h-4 mr-2" /> : <i className="fas fa-upload mr-2"></i>}
+                        Upload
+                      </label>
+                    </div>
                   </div>
                   <div>
                     <label className="block text-gray-700 mb-2">Title</label>
