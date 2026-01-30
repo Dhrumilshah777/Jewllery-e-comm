@@ -5,13 +5,15 @@ const VirtualTryOn = ({ product, onClose }) => {
   const [image, setImage] = useState(null);
   const [isModelLoading, setIsModelLoading] = useState(true);
   const [isDetecting, setIsDetecting] = useState(false);
+  const [error, setError] = useState(null);
+  
   const [overlayConfig, setOverlayConfig] = useState({
     scale: 1,
     x: 0,
     y: 0,
     rotation: 0
   });
-  
+
   const canvasRef = useRef(null);
   const imgRef = useRef(null);
 
@@ -27,8 +29,8 @@ const VirtualTryOn = ({ product, onClose }) => {
         setIsModelLoading(false);
       } catch (error) {
         console.error('Error loading models:', error);
+        setError("Failed to load AI models. Manual mode enabled.");
         setIsModelLoading(false);
-        // Fallback to manual mode if models fail
       }
     };
     loadModels();
@@ -39,77 +41,62 @@ const VirtualTryOn = ({ product, onClose }) => {
     if (file) {
       const url = URL.createObjectURL(file);
       setImage(url);
-      setOverlayConfig({ scale: 1, x: 0, y: 0, rotation: 0 }); // Reset config
+      setOverlayConfig({ scale: 1, x: 0, y: 0, rotation: 0 });
+      setError(null);
     }
   };
 
   const detectFaceAndPosition = async () => {
-    if (!imgRef.current || !canvasRef.current) return;
+    if (!imgRef.current || !canvasRef.current || isModelLoading) return;
     
     setIsDetecting(true);
+    setError(null);
     
-    // Detect face
-    const detection = await faceapi.detectSingleFace(
-      imgRef.current, 
-      new faceapi.TinyFaceDetectorOptions()
-    ).withFaceLandmarks();
+    try {
+      // Detect face
+      const detection = await faceapi.detectSingleFace(
+        imgRef.current, 
+        new faceapi.TinyFaceDetectorOptions()
+      ).withFaceLandmarks();
 
-    if (detection) {
-      const landmarks = detection.landmarks;
-      const jawline = landmarks.getJawOutline();
-      const nose = landmarks.getNose();
-      
-      // Basic logic for placement based on product category
-      // This is a simplified heuristic
-      let newConfig = { ...overlayConfig };
-      
-      const faceWidth = detection.detection.box.width;
-      
-      if (product.category?.toLowerCase().includes('earring')) {
-        // Position near ear (approximate with jawline start/end)
-        // Default to left ear for single earring or generic placement
-        const leftEarArea = jawline[0];
-        newConfig.x = leftEarArea.x - (faceWidth * 0.2); // Offset
-        newConfig.y = leftEarArea.y;
-        newConfig.scale = faceWidth * 0.15 / 100; // Rough scale estimation
-      } else if (product.category?.toLowerCase().includes('necklace') || product.category?.toLowerCase().includes('pendant')) {
-        // Position below chin
-        const chin = jawline[8];
-        newConfig.x = chin.x - (faceWidth * 0.5); // Center horizontally roughly
-        newConfig.y = chin.y + (faceWidth * 0.2); // Below chin
-        newConfig.scale = faceWidth * 0.8 / 100;
+      if (detection) {
+        const landmarks = detection.landmarks;
+        const jawline = landmarks.getJawOutline();
+        const nose = landmarks.getNose();
+        
+        const faceWidth = detection.detection.box.width;
+        let newConfig = { ...overlayConfig };
+        
+        if (product.category?.toLowerCase().includes('earring')) {
+          const leftEarArea = jawline[0];
+          newConfig.x = leftEarArea.x - (faceWidth * 0.2);
+          newConfig.y = leftEarArea.y;
+          newConfig.scale = faceWidth * 0.15 / 100;
+        } else if (product.category?.toLowerCase().includes('necklace') || product.category?.toLowerCase().includes('pendant')) {
+          const chin = jawline[8];
+          newConfig.x = chin.x - (faceWidth * 0.5);
+          newConfig.y = chin.y + (faceWidth * 0.2);
+          newConfig.scale = faceWidth * 0.8 / 100;
+        } else {
+          const noseTip = nose[3];
+          newConfig.x = noseTip.x;
+          newConfig.y = noseTip.y;
+        }
+
+        setOverlayConfig(prev => ({
+          ...prev,
+          scale: faceWidth / 300
+        }));
       } else {
-        // Default: Center on nose
-        const noseTip = nose[3];
-        newConfig.x = noseTip.x;
-        newConfig.y = noseTip.y;
+        setError("No face detected. Please adjust manually.");
       }
-
-      // Adjust for canvas coordinates if needed, but here we render product on top
-      // Actually, we'll just update the config to "suggest" a position
-      // For now, let's just center it relative to the detected feature
-      
-      // Since we are rendering the product image via CSS or Canvas, we need to map these coordinates
-      // For simplicity in this v1, we'll just center the product on the face and let user adjust
-      // or use the calculated values if they seem reasonable.
-      
-      // Let's just set a "detected" flag and let the user fine-tune, 
-      // but try to set initial scale based on face size
-      setOverlayConfig(prev => ({
-        ...prev,
-        scale: faceWidth / 300 // Normalize scale based on face width
-      }));
+    } catch (err) {
+      console.error("Detection error:", err);
+      setError("Face detection failed. Please adjust manually.");
+    } finally {
+      setIsDetecting(false);
     }
-    
-    setIsDetecting(false);
   };
-
-  useEffect(() => {
-    if (image && !isModelLoading) {
-      // Small delay to ensure image is loaded in DOM
-      setTimeout(detectFaceAndPosition, 500);
-    }
-  }, [image, isModelLoading]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 p-4">
@@ -150,8 +137,16 @@ const VirtualTryOn = ({ product, onClose }) => {
                   src={image} 
                   alt="User upload" 
                   className="max-h-full max-w-full object-contain"
+                  onLoad={() => detectFaceAndPosition()}
                 />
                 
+                {/* Error Message */}
+                {error && (
+                  <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-20 text-sm font-medium">
+                    {error}
+                  </div>
+                )}
+
                 {/* Product Overlay */}
                 <div 
                   className="absolute cursor-move"
