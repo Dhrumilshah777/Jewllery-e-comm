@@ -359,7 +359,7 @@ const Home = () => {
       </section>
 
       {/* Latest Beauty Section */}
-      <section className="py-16 px-2 md:px-4 max-w-7xl mx-auto mb-12">
+      <section className="py-16 px-6 mb-12">
         <h2 className="text-3xl font-normal text-center mb-12 uppercase tracking-widest font-sans">Latest Beauty</h2>
         <div className="mb-8">
           <Slider key={`latest-${slidesForWidth(viewportWidth)}-${latestProducts.length}`} {...latestBeautySettings}>
@@ -367,7 +367,7 @@ const Home = () => {
               <div key={product._id} className="px-4">
                 <div className="group">
                   {/* Image Container */}
-                  <div className="relative overflow-hidden aspect-square bg-gray-100 mb-4">
+                  <div className="relative overflow-hidden aspect-[4/5] bg-gray-100 mb-4">
                     <Link to={`/products/${product._id}`} className="block w-full h-full relative">
                       <img 
                         src={product.imageUrl} 
