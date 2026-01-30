@@ -367,7 +367,7 @@ const Home = () => {
               <div key={product._id} className="px-4">
                 <div className="group">
                   {/* Image Container */}
-                  <div className="relative overflow-hidden aspect-[4/5] bg-gray-100 mb-4">
+                  <div className="relative overflow-hidden aspect-square bg-gray-100 mb-4">
                     <Link to={`/products/${product._id}`} className="block w-full h-full relative">
                       <img 
                         src={product.imageUrl} 
