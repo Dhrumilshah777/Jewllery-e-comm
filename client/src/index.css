@@ -55,7 +55,8 @@ body {
 .wishlist-notification {
   position: fixed;
   top: 100px;
-  right: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   background-color: #000;
   color: #fff;
   padding: 12px 24px;
@@ -65,16 +66,17 @@ body {
   text-transform: uppercase;
   font-size: 0.875rem;
   letter-spacing: 0.1em;
-  animation: slideInRightFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: slideInCenterFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  white-space: nowrap;
 }
 
-@keyframes slideInRightFade {
+@keyframes slideInCenterFade {
   from {
     opacity: 0;
-    transform: translateX(20px);
+    transform: translate(-50%, 20px);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translate(-50%, 0);
   }
 }
