@@ -54,17 +54,17 @@ body {
 /* Custom Wishlist Notification */
 .wishlist-notification {
   position: fixed;
-  top: 500px;
+  top: 700px;
   left: 50%;
   transform: translateX(-50%);
   background-color: #000;
   color: #fff;
-  padding: 12px 24px;
+  padding: 10px 20px;
   z-index: 9999;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   font-family: "Jost", sans-serif;
   text-transform: uppercase;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.1em;
   animation: slideInCenterFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   white-space: nowrap;
