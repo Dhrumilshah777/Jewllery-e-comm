@@ -54,7 +54,7 @@ body {
 /* Custom Wishlist Notification */
 .wishlist-notification {
   position: fixed;
-  top: 75%;
+  top: 83%;
   left: 50%;
   transform: translateX(-50%);
   background-color: #000;
