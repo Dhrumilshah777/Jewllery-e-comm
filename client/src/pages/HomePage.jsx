@@ -359,7 +359,7 @@ const Home = () => {
       </section>
 
       {/* Latest Beauty Section */}
-      <section className="py-16 px-2 md:px-6 mb-12">
+      <section className="py-16 px-0 md:px-6 mb-12">
         <h2 className="text-3xl font-normal text-center mb-12 uppercase tracking-widest font-sans">Latest Beauty</h2>
         <div className="mb-8">
           <Slider key={`latest-${slidesForWidth(viewportWidth)}-${latestProducts.length}`} {...latestBeautySettings}>
