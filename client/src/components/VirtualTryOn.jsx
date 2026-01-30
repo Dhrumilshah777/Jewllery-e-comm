@@ -4,6 +4,7 @@ import * as faceapi from 'face-api.js';
 const VirtualTryOn = ({ product, onClose }) => {
   const [image, setImage] = useState(null);
   const [isModelLoading, setIsModelLoading] = useState(true);
+  const [modelsLoaded, setModelsLoaded] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
   const [error, setError] = useState(null);
   
@@ -26,10 +27,12 @@ const VirtualTryOn = ({ product, onClose }) => {
           faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
           faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
         ]);
+        setModelsLoaded(true);
         setIsModelLoading(false);
       } catch (error) {
         console.error('Error loading models:', error);
         setError("Failed to load AI models. Manual mode enabled.");
+        setModelsLoaded(false);
         setIsModelLoading(false);
       }
     };
@@ -49,10 +52,23 @@ const VirtualTryOn = ({ product, onClose }) => {
   const detectFaceAndPosition = async () => {
     if (!imgRef.current || !canvasRef.current || isModelLoading) return;
     
+    // If models failed to load, don't try detection, just let user position manually
+    if (!modelsLoaded) {
+       console.log("Models not loaded, skipping detection");
+       return;
+    }
+
     setIsDetecting(true);
     setError(null);
     
     try {
+      // Check if image is valid for detection
+      if (imgRef.current.naturalWidth === 0 || imgRef.current.naturalHeight === 0) {
+         console.log("Image not fully loaded yet");
+         setIsDetecting(false);
+         return;
+      }
+
       // Detect face
       const detection = await faceapi.detectSingleFace(
         imgRef.current, 
