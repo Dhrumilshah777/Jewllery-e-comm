@@ -235,8 +235,10 @@ const VirtualTryOn = ({ product, onClose }) => {
       const centerY = displayedHeight / 2;
 
       // --- Category Logic ---
+      // Combine category and name for better detection
+      const productType = (product.category + " " + product.name).toLowerCase();
       
-      if (product.category?.toLowerCase().includes('earring')) {
+      if (productType.includes('earring')) {
         // --- Dual Earring Logic ---
         // Refined Anchoring: Jaw[0]/[16] are top of jaw. Earlobes are slightly lower and outward.
         
@@ -280,25 +282,32 @@ const VirtualTryOn = ({ product, onClose }) => {
           opacity: rightOpacity
         });
 
-      } else if (product.category?.toLowerCase().includes('necklace') || product.category?.toLowerCase().includes('pendant')) {
-        // --- Necklace Logic ---
+      } else if (productType.includes('necklace') || productType.includes('pendant') || productType.includes('set') || productType.includes('chain')) {
+        // --- Necklace / Pendant / Set Logic ---
         // Anchor: Estimate Suprasternal Notch (Collarbone center)
         // Chin (Jaw[8]) is too high.
         // Average neck length is roughly 1/3 to 1/2 of face height.
         
         const chin = jawline[8];
-        const neckY = chin.y + (faceHeight * 0.45); 
+        const neckY = chin.y + (faceHeight * 0.55); // Moved lower (was 0.45)
         
         // Perspective adjustment:
         // Necklaces rest on the chest. They don't pitch up/down with the head as much.
         // They do rotate (roll) with the body.
         
-        const necklaceScale = faceWidth * 0.85 / 100;
+        const necklaceScale = faceWidth * 0.9 / 100; // Slightly larger
         
+        // Offset Y for image centering
+        // If the image is a full bust/stand, the "neck" part is near the top.
+        // We want the TOP QUARTER of the image to be at neckY.
+        // Default center is 50%. So we shift down by ~25% of image height?
+        // Hard to know image aspect ratio without loading, but we can guess.
+        const verticalShift = 50; // Pixels down
+
         setOverlayConfig({
           scale: necklaceScale * scaleX * 1.2,
           x: (chin.x * scaleX) - centerX,
-          y: (neckY * scaleY) - centerY,
+          y: (neckY * scaleY) - centerY + verticalShift,
           rotation: rollDeg,     // Follows body tilt
           pitch: pitchDeg * 0.1, // Dampened pitch (chest is stable)
           yaw: yawDeg * 0.5,     // Dampened yaw (neck turns less than head)
@@ -307,9 +316,11 @@ const VirtualTryOn = ({ product, onClose }) => {
         setSecondOverlayConfig(null);
 
       } else {
-        // --- Default (Nose/Face) ---
-        const targetX = noseTip.x;
-        const targetY = noseTip.y;
+        // --- Default (Face Center/Chin) ---
+        // Fallback to chin/neck area instead of Nose, as it's safer for unknown jewelry
+        const chin = jawline[8];
+        const targetX = chin.x;
+        const targetY = chin.y + (faceHeight * 0.3); // Neck area
         
         setOverlayConfig({
           scale: (faceWidth / 300) * scaleX * 1.5,
@@ -387,7 +398,7 @@ const VirtualTryOn = ({ product, onClose }) => {
                     transform: `translate(-50%, -50%) translate(${overlayConfig.x}px, ${overlayConfig.y}px) rotate(${overlayConfig.rotation}deg) scale(${overlayConfig.scale}) perspective(1000px) rotateX(${overlayConfig.pitch}deg) rotateY(${overlayConfig.yaw}deg)`,
                     width: '200px',
                     pointerEvents: 'none',
-                    // mixBlendMode: 'multiply', // Removed for solid jewelry realism
+                    mixBlendMode: 'multiply', // Restore multiply for white background handling
                     zIndex: 10,
                     opacity: overlayConfig.opacity
                   }}
@@ -397,7 +408,7 @@ const VirtualTryOn = ({ product, onClose }) => {
                     alt="Product" 
                     className="w-full h-full object-contain drop-shadow-2xl"
                     style={{
-                      filter: 'brightness(0.95) contrast(1.1)' 
+                      filter: 'contrast(1.2) brightness(1.1)' // Enhance contrast to make jewelry pop against skin
                     }}
                   />
                 </div>
@@ -413,6 +424,7 @@ const VirtualTryOn = ({ product, onClose }) => {
                       width: '200px',
                       pointerEvents: 'none',
                       zIndex: 10,
+                      mixBlendMode: 'multiply',
                       opacity: secondOverlayConfig.opacity
                     }}
                   >
