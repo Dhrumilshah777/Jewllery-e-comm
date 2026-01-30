@@ -14,8 +14,14 @@ const VirtualTryOn = ({ product, onClose }) => {
     scale: 1,
     x: 0,
     y: 0,
-    rotation: 0
+    rotation: 0,
+    pitch: 0, // For 3D perspective
+    yaw: 0,   // For left/right turn
+    opacity: 1 // For occlusion
   });
+
+  // For Earrings: We need dual configs (Left and Right)
+  const [secondOverlayConfig, setSecondOverlayConfig] = useState(null);
 
   const canvasRef = useRef(null);
   const imgRef = useRef(null);
@@ -53,7 +59,8 @@ const VirtualTryOn = ({ product, onClose }) => {
     if (file) {
       const url = URL.createObjectURL(file);
       setImage(url);
-      setOverlayConfig({ scale: 1, x: 0, y: 0, rotation: 0 });
+      setOverlayConfig({ scale: 1, x: 0, y: 0, rotation: 0, pitch: 0, yaw: 0, opacity: 1 });
+      setSecondOverlayConfig(null);
       setError(null);
     }
   };
@@ -115,9 +122,10 @@ const VirtualTryOn = ({ product, onClose }) => {
       const mcp = landmarks[13]; // [x, y, z]
       const pip = landmarks[14]; // [x, y, z]
 
-      // Calculate position (midpoint between MCP and PIP)
-      const x = (mcp[0] + pip[0]) / 2;
-      const y = (mcp[1] + pip[1]) / 2;
+      // Calculate position: Rings sit closer to the knuckle (MCP)
+      // Weighted average: 70% MCP, 30% PIP
+      const x = (mcp[0] * 0.7 + pip[0] * 0.3);
+      const y = (mcp[1] * 0.7 + pip[1] * 0.3);
 
       // Calculate rotation
       // Vector from MCP to PIP
@@ -125,33 +133,17 @@ const VirtualTryOn = ({ product, onClose }) => {
       const deltaY = pip[1] - mcp[1];
       // Angle in radians
       const angleRad = Math.atan2(deltaY, deltaX);
-      // Convert to degrees and adjust (assuming product image is vertical 0deg?)
-      // Usually rings are vertical images. If finger is horizontal, we need to rotate 90deg?
-      // Let's assume standard upright ring image.
-      // If finger is pointing up (-90deg), ring should be upright (0deg).
-      // So Rotation = Angle + 90deg.
       const angleDeg = (angleRad * 180 / Math.PI) + 90;
 
-      // Calculate scale based on finger width
-      // Distance between index MCP (5) and Pinky MCP (17) is hand width
-      // Or just distance between mcp and pip as a proxy for segment length
+      // Calculate finger depth/tilt (Pitch)
+      // If z-coordinates differ significantly, the finger is pointing towards/away
+      // Handpose Z is relative.
+      // Let's rely on 2D rotation for now, as Ring Try-On is mostly top-down.
+      
       const segmentLength = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-      // Scale factor: adjust empirically. Say ring width should be slightly wider than finger width.
-      // Finger width is approx 1/3 of segment length? Rough guess.
       const scale = segmentLength / 100; // Normalizing factor
 
-      // Adjust to center on canvas coordinates
-      // The image is displayed "contain" centered or full size?
-      // Wait, the overlay uses absolute positioning relative to the container.
-      // We need to map video/image coordinates to container coordinates.
-      // Since we are using the img element itself for detection, the coordinates match the image display size
-      // IF the image is not scaled by CSS object-fit.
-      // The image has class "max-h-full max-w-full object-contain".
-      // We need to account for the actual rendered size vs natural size if detection ran on natural size.
-      // Handpose runs on the DOM element usually, so it returns coordinates relative to the element (or video).
-      // If we pass the img element, it *should* handle it. But let's verify.
-      // Actually handpose expects tensor or video/image. If we pass img element, it uses natural size usually?
-      // We might need to scale coordinates if the displayed image size != natural size.
+      // ... (coordinate mapping code)
       
       const displayedWidth = imgRef.current.width;
       const displayedHeight = imgRef.current.height;
@@ -161,38 +153,23 @@ const VirtualTryOn = ({ product, onClose }) => {
       const scaleX = displayedWidth / naturalWidth;
       const scaleY = displayedHeight / naturalHeight;
       
-      // But wait, handpose might return coords in natural size?
-      // Actually `estimateHands` takes the image. 
-      // Let's assume it returns coordinates in the scale of the input.
-      // If we pass the img element, detection usually runs on the rendered pixels if it's a video, 
-      // but for an image element, it often uses the source data.
-      // Let's perform a safe check: calculate based on natural size then scale to display size.
-      // Actually, standardizing on natural size is safer.
-      // But we are rendering the overlay on top of the displayed image.
-      // We need to calculate the offset relative to the CENTER of the displayed image.
-      
-      // Let's simplify:
-      // The overlay is centered at 50% 50%.
-      // We need `x` and `y` to be offsets from the center.
-      
-      // Current center in image coords (scaled to display):
       const centerX = displayedWidth / 2;
       const centerY = displayedHeight / 2;
 
-      // Detection Coords (assuming natural size)
+      // Detection Coords
       const detX = x * scaleX;
       const detY = y * scaleY;
 
-      // Offset from center
-      const offsetX = detX - centerX;
-      const offsetY = detY - centerY;
-
       setOverlayConfig({
-        scale: scale * scaleX * 1.5, // 1.5x multiplier for visibility
-        x: offsetX,
-        y: offsetY,
-        rotation: angleDeg
+        scale: scale * scaleX * 1.5,
+        x: detX - centerX,
+        y: detY - centerY,
+        rotation: angleDeg,
+        pitch: 0,
+        yaw: 0,
+        opacity: 1
       });
+      setSecondOverlayConfig(null);
 
     } else {
       setError("No hand detected. Please ensure hand is clearly visible.");
@@ -209,77 +186,142 @@ const VirtualTryOn = ({ product, onClose }) => {
       const landmarks = detection.landmarks;
       const jawline = landmarks.getJawOutline();
       const nose = landmarks.getNose();
+      const leftEye = landmarks.getLeftEye();
+      const rightEye = landmarks.getRightEye();
       
       const faceWidth = detection.detection.box.width;
+      const faceHeight = detection.detection.box.height; // More reliable for vertical scaling
       
-      // Image display scaling factors
+      // --- Pose Estimation (Geometric) ---
+      // 1. Roll (Tilt head left/right): Angle between eyes
+      const leftEyeCenter = { x: (leftEye[0].x + leftEye[3].x)/2, y: (leftEye[0].y + leftEye[3].y)/2 };
+      const rightEyeCenter = { x: (rightEye[0].x + rightEye[3].x)/2, y: (rightEye[0].y + rightEye[3].y)/2 };
+      const dX = rightEyeCenter.x - leftEyeCenter.x;
+      const dY = rightEyeCenter.y - leftEyeCenter.y;
+      const rollDeg = Math.atan2(dY, dX) * (180 / Math.PI);
+
+      // 2. Yaw (Turn head left/right): Ratio of Nose-to-Jaw distances
+      const noseTip = nose[3];
+      const leftJaw = jawline[0];  // User's right jaw (Viewer's left)
+      const rightJaw = jawline[16]; // User's left jaw (Viewer's right)
+      
+      const distToLeftJaw = Math.sqrt(Math.pow(noseTip.x - leftJaw.x, 2) + Math.pow(noseTip.y - leftJaw.y, 2));
+      const distToRightJaw = Math.sqrt(Math.pow(noseTip.x - rightJaw.x, 2) + Math.pow(noseTip.y - rightJaw.y, 2));
+      
+      // Yaw Factor: -1 (Full Left) to 1 (Full Right)
+      const totalJawWidth = distToLeftJaw + distToRightJaw;
+      const yawFactor = (distToRightJaw - distToLeftJaw) / totalJawWidth; 
+      const yawDeg = yawFactor * 60; // Max ~60 degree turn
+
+      // 3. Pitch (Nod up/down): Ratio of Eye-Nose vs Nose-Mouth (Jaw Bottom)
+      const jawBottom = jawline[8];
+      const eyeMidY = (leftEyeCenter.y + rightEyeCenter.y) / 2;
+      const noseY = noseTip.y;
+      const mouthY = jawBottom.y; 
+      
+      const upperFaceH = noseY - eyeMidY;
+      const lowerFaceH = mouthY - noseY;
+      const pitchRatio = upperFaceH / lowerFaceH;
+      const pitchDeg = (1 - pitchRatio) * 45; 
+
+      // --- Display Scaling ---
       const displayedWidth = imgRef.current.width;
       const displayedHeight = imgRef.current.height;
       const naturalWidth = imgRef.current.naturalWidth;
       const naturalHeight = imgRef.current.naturalHeight;
       const scaleX = displayedWidth / naturalWidth;
       const scaleY = displayedHeight / naturalHeight;
-
       const centerX = displayedWidth / 2;
       const centerY = displayedHeight / 2;
 
-      let targetX = 0;
-      let targetY = 0;
-      let targetScale = 1;
-      let targetRotation = 0;
-
-      // Calculate Face Roll (Rotation)
-      // Use eye positions (landmarks 36 (left eye outer) and 45 (right eye outer))?
-      // Face-api landmarks: 
-      // Left Eye: 36-41
-      // Right Eye: 42-47
-      // Jaw: 0-16
-      // Let's use Jaw 0 and 16 to estimate roll? Or eyes. Eyes are better.
-      // Actually we don't have explicit eye landmarks in the simplified vars above, but we can access landmarks.positions
-      // Let's use jawline[0] and jawline[16] for rough roll.
-      const leftJaw = jawline[0];
-      const rightJaw = jawline[16];
-      const jawDeltaX = rightJaw.x - leftJaw.x;
-      const jawDeltaY = rightJaw.y - leftJaw.y;
-      const faceRoll = Math.atan2(jawDeltaY, jawDeltaX); // Radians
-      const faceRollDeg = faceRoll * 180 / Math.PI;
-
-      if (product.category?.toLowerCase().includes('earring')) {
-        // Position on earlobes
-        // Jawline[0] is roughly left earlobe area, Jawline[16] is right.
-        // Let's pick Left Ear (Viewer's Left, Person's Right) for now, or place two?
-        // Single image -> Single earring.
-        // Let's default to Viewer's Left (Jawline[0]).
-        targetX = leftJaw.x;
-        targetY = leftJaw.y + (faceWidth * 0.05); // Slightly down
-        targetScale = faceWidth * 0.15 / 100;
-        targetRotation = faceRollDeg;
-      } else if (product.category?.toLowerCase().includes('necklace') || product.category?.toLowerCase().includes('pendant')) {
-        // Position below chin
-        const chin = jawline[8];
-        targetX = chin.x;
-        targetY = chin.y + (faceWidth * 0.15); // Below chin
-        targetScale = faceWidth * 0.8 / 100;
-        targetRotation = faceRollDeg;
-      } else {
-        // Default: Nose
-        const noseTip = nose[3];
-        targetX = noseTip.x;
-        targetY = noseTip.y;
-        targetScale = faceWidth / 300;
-        targetRotation = faceRollDeg;
-      }
-
-      // Apply display scaling
-      const detX = targetX * scaleX;
-      const detY = targetY * scaleY;
+      // --- Category Logic ---
       
-      setOverlayConfig({
-        scale: targetScale * scaleX * 1.5, // 1.5x boost
-        x: detX - centerX,
-        y: detY - centerY,
-        rotation: targetRotation
-      });
+      if (product.category?.toLowerCase().includes('earring')) {
+        // --- Dual Earring Logic ---
+        // Refined Anchoring: Jaw[0]/[16] are top of jaw. Earlobes are slightly lower and outward.
+        
+        const earOffsetX = faceWidth * 0.05; // Push outward
+        const earOffsetY = faceHeight * 0.15; // Push down from top of jaw to lobe
+
+        // Left Ear (Viewer's Left)
+        const leftEarX = leftJaw.x - (earOffsetX * Math.cos(rollDeg * Math.PI/180));
+        const leftEarY = leftJaw.y + earOffsetY; 
+        
+        // Right Ear (Viewer's Right)
+        const rightEarX = rightJaw.x + (earOffsetX * Math.cos(rollDeg * Math.PI/180));
+        const rightEarY = rightJaw.y + earOffsetY;
+
+        const earringScale = faceWidth * 0.12 / 100; // Slightly smaller for realism
+        
+        // Occlusion Logic - Tighter thresholds
+        // If Looking Right (Yaw > 0), Left Ear (Viewer Left) gets hidden quickly.
+        const leftOpacity = yawFactor > 0.35 ? 0 : 1;
+        const rightOpacity = yawFactor < -0.35 ? 0 : 1;
+
+        // Config 1: Left Ear
+        setOverlayConfig({
+          scale: earringScale * scaleX * 1.5,
+          x: (leftEarX * scaleX) - centerX,
+          y: (leftEarY * scaleY) - centerY,
+          rotation: rollDeg,
+          pitch: pitchDeg,
+          yaw: yawDeg,
+          opacity: leftOpacity
+        });
+
+        // Config 2: Right Ear
+        setSecondOverlayConfig({
+          scale: earringScale * scaleX * 1.5,
+          x: (rightEarX * scaleX) - centerX,
+          y: (rightEarY * scaleY) - centerY,
+          rotation: rollDeg,
+          pitch: pitchDeg,
+          yaw: yawDeg,
+          opacity: rightOpacity
+        });
+
+      } else if (product.category?.toLowerCase().includes('necklace') || product.category?.toLowerCase().includes('pendant')) {
+        // --- Necklace Logic ---
+        // Anchor: Estimate Suprasternal Notch (Collarbone center)
+        // Chin (Jaw[8]) is too high.
+        // Average neck length is roughly 1/3 to 1/2 of face height.
+        
+        const chin = jawline[8];
+        const neckY = chin.y + (faceHeight * 0.45); 
+        
+        // Perspective adjustment:
+        // Necklaces rest on the chest. They don't pitch up/down with the head as much.
+        // They do rotate (roll) with the body.
+        
+        const necklaceScale = faceWidth * 0.85 / 100;
+        
+        setOverlayConfig({
+          scale: necklaceScale * scaleX * 1.2,
+          x: (chin.x * scaleX) - centerX,
+          y: (neckY * scaleY) - centerY,
+          rotation: rollDeg,     // Follows body tilt
+          pitch: pitchDeg * 0.1, // Dampened pitch (chest is stable)
+          yaw: yawDeg * 0.5,     // Dampened yaw (neck turns less than head)
+          opacity: 1
+        });
+        setSecondOverlayConfig(null);
+
+      } else {
+        // --- Default (Nose/Face) ---
+        const targetX = noseTip.x;
+        const targetY = noseTip.y;
+        
+        setOverlayConfig({
+          scale: (faceWidth / 300) * scaleX * 1.5,
+          x: (targetX * scaleX) - centerX,
+          y: (targetY * scaleY) - centerY,
+          rotation: rollDeg,
+          pitch: pitchDeg,
+          yaw: yawDeg,
+          opacity: 1
+        });
+        setSecondOverlayConfig(null);
+      }
 
     } else {
       setError("No face detected.");
@@ -342,10 +384,12 @@ const VirtualTryOn = ({ product, onClose }) => {
                   style={{
                     left: '50%',
                     top: '50%',
-                    transform: `translate(-50%, -50%) translate(${overlayConfig.x}px, ${overlayConfig.y}px) scale(${overlayConfig.scale}) rotate(${overlayConfig.rotation}deg)`,
+                    transform: `translate(-50%, -50%) translate(${overlayConfig.x}px, ${overlayConfig.y}px) rotate(${overlayConfig.rotation}deg) scale(${overlayConfig.scale}) perspective(1000px) rotateX(${overlayConfig.pitch}deg) rotateY(${overlayConfig.yaw}deg)`,
                     width: '200px',
-                    pointerEvents: 'none', // Interaction disabled
-                    mixBlendMode: 'multiply' // Basic blending
+                    pointerEvents: 'none',
+                    // mixBlendMode: 'multiply', // Removed for solid jewelry realism
+                    zIndex: 10,
+                    opacity: overlayConfig.opacity
                   }}
                 >
                   <img 
@@ -353,10 +397,36 @@ const VirtualTryOn = ({ product, onClose }) => {
                     alt="Product" 
                     className="w-full h-full object-contain drop-shadow-2xl"
                     style={{
-                      filter: 'brightness(0.95) contrast(1.1)' // Slight adjustment for realism
+                      filter: 'brightness(0.95) contrast(1.1)' 
                     }}
                   />
                 </div>
+
+                {/* Second Overlay (Right Ear for Earrings) */}
+                {secondOverlayConfig && (
+                  <div 
+                    className="absolute transition-all duration-700 ease-out"
+                    style={{
+                      left: '50%',
+                      top: '50%',
+                      transform: `translate(-50%, -50%) translate(${secondOverlayConfig.x}px, ${secondOverlayConfig.y}px) rotate(${secondOverlayConfig.rotation}deg) scale(${secondOverlayConfig.scale}) perspective(1000px) rotateX(${secondOverlayConfig.pitch}deg) rotateY(${secondOverlayConfig.yaw}deg)`,
+                      width: '200px',
+                      pointerEvents: 'none',
+                      zIndex: 10,
+                      opacity: secondOverlayConfig.opacity
+                    }}
+                  >
+                    <img 
+                      src={product.imageUrl} 
+                      alt="Product" 
+                      className="w-full h-full object-contain drop-shadow-2xl"
+                      style={{
+                        filter: 'brightness(0.95) contrast(1.1)',
+                        transform: 'scaleX(-1)' // Mirror image for symmetry if needed, or keep same
+                      }}
+                    />
+                  </div>
+                )}
 
                 {isDetecting && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm">
