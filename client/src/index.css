@@ -51,107 +51,30 @@ body {
   animation: slideInLeft 0.3s ease-out forwards;
 }
 
-@keyframes slideDown {
-  from {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-  }
+/* Custom Wishlist Notification */
+.wishlist-notification {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  background-color: #000;
+  color: #fff;
+  padding: 12px 24px;
+  z-index: 9999;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  font-family: "Jost", sans-serif;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+  animation: slideInRightFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.animate-slide-down {
-  animation: slideDown 0.25s ease-out forwards;
-}
-
-/* Hero Carousel Text Animation */
-@keyframes fadeInUp {
+@keyframes slideInRightFade {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateX(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(0);
   }
 }
-
-.slick-slide .hero-animate {
-  opacity: 0;
-}
-
-.slick-active .hero-animate {
-  animation: fadeInUp 0.8s ease-out forwards;
-}
-
-.hero-delay-100 { animation-delay: 0.3s; }
-.hero-delay-200 { animation-delay: 0.5s; }
-.hero-delay-300 { animation-delay: 0.7s; }
-
-/* Hero Carousel Image Zoom Animation */
-@keyframes zoomIn {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.1);
-  }
-}
-
-.slick-slide .hero-zoom {
-  transform: scale(1);
-}
-
-.slick-active .hero-zoom {
-  animation: zoomIn 6s linear forwards;
-}
-
-/* Slick Carousel Arrow Customization */
-.slick-prev, .slick-next {
-  z-index: 10;
-  width: 40px !important;
-  height: 40px !important;
-}
-
-.slick-prev {
-  left: 20px !important;
-}
-
-.slick-next {
-  right: 20px !important;
-}
-
-.slick-prev:before, .slick-next:before {
-  font-size: 40px !important;
-  opacity: 0.75 !important;
-  transition: opacity 0.3s ease;
-  color: #000 !important;
-}
-
-.slick-prev:hover:before, .slick-next:hover:before {
-  opacity: 1 !important;
-}
-
-/* Slick Carousel Dots Customization */
-.slick-dots li button:before {
-  content: '' !important;
-  width: 6px !important;
-  height: 6px !important;
-  background-color: #9ca3af !important; /* gray-400 */
-  border-radius: 0 !important; /* Square shape */
-  opacity: 0.5 !important;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(45deg) !important; /* Diamond shape */
-}
-
-.slick-dots li.slick-active button:before {
-  width: 8px !important;
-  height: 8px !important;
-  background-color: #000000 !important; /* Black */
-  opacity: 1 !important;
-}
-
-

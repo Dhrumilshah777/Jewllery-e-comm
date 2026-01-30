@@ -11,6 +11,7 @@ import { useQuery } from '@tanstack/react-query';
 const Home = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
+  const [notification, setNotification] = useState(null);
   const { user } = useAuth();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const navigate = useNavigate();
@@ -113,7 +114,13 @@ const Home = () => {
       return;
     }
 
-    await toggleWishlist(product);
+    const wasInWishlist = isInWishlist(product._id);
+    const success = await toggleWishlist(product);
+
+    if (success) {
+      setNotification(wasInWishlist ? "Removed from wishlist" : "Added to wishlist");
+      setTimeout(() => setNotification(null), 3000);
+    }
   };
 
   const openModal = (e, product) => {
@@ -646,6 +653,12 @@ const Home = () => {
               </div>
             </div>
           </div>
+        </div>
+      )}
+      
+      {notification && (
+        <div className="wishlist-notification">
+          {notification}
         </div>
       )}
     </div>
