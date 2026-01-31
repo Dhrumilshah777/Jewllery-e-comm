@@ -5,11 +5,13 @@ import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
 import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
+import VirtualTryOn from '../components/VirtualTryOn';
 
 const ProductDetails = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState('');
+  const [showTryOn, setShowTryOn] = useState(false);
   const { id } = useParams();
   const { user } = useAuth();
   const { toggleWishlist, isInWishlist } = useWishlist();
@@ -91,6 +93,13 @@ const ProductDetails = () => {
           
           <div className="flex space-x-4">
             <button 
+              onClick={() => setShowTryOn(true)}
+              className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 transition duration-300 flex items-center justify-center"
+            >
+              <i className="fas fa-camera mr-2"></i>
+              Virtual Try-On
+            </button>
+            <button 
               onClick={handleToggleWishlist}
               className={`flex-1 items-center justify-center font-bold py-3 px-6 transition duration-300 ${
                 isInWishlist(product._id) 
@@ -104,6 +113,12 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
+      {showTryOn && (
+        <VirtualTryOn 
+          product={product} 
+          onClose={() => setShowTryOn(false)} 
+        />
+      )}
     </div>
   );
 };
