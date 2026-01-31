@@ -8,9 +8,11 @@ const VirtualTryOn = ({ product, onClose }) => {
   const canvasRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
   const [cameraPermission, setCameraPermission] = useState(null);
+  const [debugInfo, setDebugInfo] = useState("");
 
   // Jewelry image ref
   const jewelryImgRef = useRef(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   // Load product image
   useEffect(() => {
@@ -18,7 +20,13 @@ const VirtualTryOn = ({ product, onClose }) => {
     img.crossOrigin = 'Anonymous';
     img.src = product.imageUrl;
     img.onload = () => {
+      console.log("Jewelry image loaded:", product.imageUrl);
       jewelryImgRef.current = img;
+      setImageLoaded(true);
+    };
+    img.onerror = (err) => {
+      console.error("Error loading jewelry image:", err);
+      setDebugInfo("Error loading product image");
     };
   }, [product]);
 
@@ -42,14 +50,19 @@ const VirtualTryOn = ({ product, onClose }) => {
       const landmarks = results.multiFaceLandmarks[0];
       const productType = (product.category + " " + product.name).toLowerCase();
       
-      // Calculate face geometry for orientation
-      // Nose tip: 1, Chin: 152, Left cheek: 234, Right cheek: 454
-      const nose = landmarks[1];
+      // Draw debug points for face detection verification
+      // drawing a small green dot on the nose tip
+      const noseTip = landmarks[1];
+      ctx.beginPath();
+      ctx.arc(noseTip.x * videoWidth, noseTip.y * videoHeight, 3, 0, 2 * Math.PI);
+      ctx.fillStyle = '#00FF00'; // Green dot to confirm detection
+      ctx.fill();
+
+      // Calculate face geometry
       const leftCheek = landmarks[234];
       const rightCheek = landmarks[454];
 
       // Calculate yaw (rotation around Y axis)
-      // Positive yaw = looking left (from camera view), Negative = looking right
       const yaw = (rightCheek.z - leftCheek.z) * 10; 
       
       // Calculate roll (tilt head left/right)
@@ -58,33 +71,47 @@ const VirtualTryOn = ({ product, onClose }) => {
       if (jewelryImgRef.current) {
         if (productType.includes('earring')) {
           renderEarrings(ctx, landmarks, jewelryImgRef.current, videoWidth, videoHeight, yaw, roll);
-        } else if (productType.includes('necklace') || productType.includes('pendant') || productType.includes('set') || productType.includes('chain')) {
+        } else if (productType.includes('necklace') || productType.includes('pendant') || productType.includes('set') || productType.includes('chain') || productType.includes('mangalsutra')) {
           renderNecklace(ctx, landmarks, jewelryImgRef.current, videoWidth, videoHeight, yaw, roll);
+        } else {
+             // Fallback for debugging if category doesn't match
+             ctx.font = "20px Arial";
+             ctx.fillStyle = "red";
+             ctx.fillText(`Type not supported: ${product.category}`, 50, 50);
         }
+      } else {
+         ctx.font = "20px Arial";
+         ctx.fillStyle = "yellow";
+         ctx.fillText("Loading Image...", 50, 50);
       }
+    } else {
+        // No face detected
+        // ctx.font = "20px Arial";
+        // ctx.fillStyle = "red";
+        // ctx.fillText("No Face Detected", 50, 50);
     }
     ctx.restore();
     setIsLoading(false);
-  }, [product]);
+  }, [product, imageLoaded]);
 
   const renderEarrings = (ctx, landmarks, img, width, height, yaw, roll) => {
-    // Approximate ear positions (Face Mesh doesn't give exact earlobes, so we use cheek/jaw boundaries)
-    // Left Ear Area: 234 (cheek), 93 (jaw)
+    // Left Ear Area: 234 (cheek), 93 (jaw) - approximating ear lobe
     // Right Ear Area: 454 (cheek), 323 (jaw)
     
-    const leftPoint = landmarks[132]; // Near left ear
-    const rightPoint = landmarks[361]; // Near right ear
+    // Using landmarks closer to ear lobes
+    const leftEar = landmarks[177]; // Approximation
+    const rightEar = landmarks[401]; // Approximation
     
     const scaleFactor = getFaceScale(landmarks, width);
-    const earringSize = 100 * scaleFactor; // Adjust base size as needed
+    const earringSize = 150 * scaleFactor; // Increased base size
 
     // Left Earring
-    if (yaw > -0.2) { // Hide if looking too far right
+    if (yaw > -0.2) { 
       drawRotatedImage(
         ctx, 
         img, 
-        leftPoint.x * width - earringSize / 2, 
-        leftPoint.y * height, 
+        leftEar.x * width - earringSize / 2, 
+        leftEar.y * height, 
         earringSize, 
         earringSize, 
         roll
@@ -92,12 +119,12 @@ const VirtualTryOn = ({ product, onClose }) => {
     }
 
     // Right Earring
-    if (yaw < 0.2) { // Hide if looking too far left
+    if (yaw < 0.2) { 
       drawRotatedImage(
         ctx, 
         img, 
-        rightPoint.x * width - earringSize / 2, 
-        rightPoint.y * height, 
+        rightEar.x * width - earringSize / 2, 
+        rightEar.y * height, 
         earringSize, 
         earringSize, 
         roll
@@ -108,16 +135,15 @@ const VirtualTryOn = ({ product, onClose }) => {
   const renderNecklace = (ctx, landmarks, img, width, height, yaw, roll) => {
     // Chin: 152
     const chin = landmarks[152];
-    const leftShoulder = { x: chin.x - 0.2, y: chin.y + 0.3 }; // Approximate
-    const rightShoulder = { x: chin.x + 0.2, y: chin.y + 0.3 }; // Approximate
-
+    
     const scaleFactor = getFaceScale(landmarks, width);
-    const necklaceWidth = 300 * scaleFactor;
+    const necklaceWidth = 350 * scaleFactor; // Slightly larger
     const necklaceHeight = necklaceWidth * (img.height / img.width);
 
     // Position below chin
+    // We adjust Y based on pitch slightly if needed, but simple offset is often enough
     const x = chin.x * width - necklaceWidth / 2;
-    const y = chin.y * height + (20 * scaleFactor); 
+    const y = chin.y * height + (10 * scaleFactor); 
 
     drawRotatedImage(ctx, img, x, y, necklaceWidth, necklaceHeight, roll);
   };
@@ -127,21 +153,16 @@ const VirtualTryOn = ({ product, onClose }) => {
     const left = landmarks[234];
     const right = landmarks[454];
     const dx = (right.x - left.x) * width;
-    const dy = (right.y - left.y) * width; // Assuming square pixels
+    const dy = (right.y - left.y) * width; 
     const distance = Math.sqrt(dx*dx + dy*dy);
-    return distance / 200; // Normalize
+    return distance / 300; // Adjusted normalization factor
   };
 
   const drawRotatedImage = (ctx, image, x, y, width, height, rotation) => {
     ctx.save();
     ctx.translate(x + width / 2, y + height / 2);
     ctx.rotate(rotation);
-    // Draw image centered
     ctx.drawImage(image, -width / 2, -height / 2, width, height);
-    
-    // Apply mix-blend-mode to help with white backgrounds if needed
-    // ctx.globalCompositeOperation = 'multiply'; 
-    
     ctx.restore();
   };
 
@@ -224,12 +245,19 @@ const VirtualTryOn = ({ product, onClose }) => {
               <p>Camera permission denied. Please allow camera access to use this feature.</p>
             </div>
           )}
+          
+          {debugInfo && (
+             <div className="absolute bottom-20 left-4 text-red-500 bg-black/50 p-2 rounded">
+                {debugInfo}
+             </div>
+          )}
         </div>
 
         {/* Footer/Instructions */}
         <div className="p-4 bg-gray-800 text-white text-center">
           <p className="text-sm opacity-80">
             {product.category === 'Earrings' ? 'Move your head to see earrings from different angles.' : 'Position your face in the center.'}
+            { !jewelryImgRef.current && " (Loading Product Image...)" }
           </p>
         </div>
       </div>
