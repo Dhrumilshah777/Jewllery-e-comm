@@ -17,16 +17,19 @@ const VirtualTryOn = ({ product, onClose }) => {
   // Load product image
   useEffect(() => {
     const img = new Image();
-    img.crossOrigin = 'Anonymous';
+    // Removed crossOrigin to avoid CORS issues with images from external domains that don't send headers
+    // img.crossOrigin = 'Anonymous'; 
     img.src = product.imageUrl;
     img.onload = () => {
       console.log("Jewelry image loaded:", product.imageUrl);
       jewelryImgRef.current = img;
       setImageLoaded(true);
+      setDebugInfo(""); // Clear error if successful
     };
     img.onerror = (err) => {
       console.error("Error loading jewelry image:", err);
-      setDebugInfo("Error loading product image");
+      // Try a backup method or just show error
+      setDebugInfo("Error loading product image. Check console for CORS or URL issues.");
     };
   }, [product]);
 
@@ -74,21 +77,11 @@ const VirtualTryOn = ({ product, onClose }) => {
         } else if (productType.includes('necklace') || productType.includes('pendant') || productType.includes('set') || productType.includes('chain') || productType.includes('mangalsutra')) {
           renderNecklace(ctx, landmarks, jewelryImgRef.current, videoWidth, videoHeight, yaw, roll);
         } else {
-             // Fallback for debugging if category doesn't match
-             ctx.font = "20px Arial";
-             ctx.fillStyle = "red";
-             ctx.fillText(`Type not supported: ${product.category}`, 50, 50);
+             // Debug info is handled in UI overlay now
         }
-      } else {
-         ctx.font = "20px Arial";
-         ctx.fillStyle = "yellow";
-         ctx.fillText("Loading Image...", 50, 50);
       }
     } else {
         // No face detected
-        // ctx.font = "20px Arial";
-        // ctx.fillStyle = "red";
-        // ctx.fillText("No Face Detected", 50, 50);
     }
     ctx.restore();
     setIsLoading(false);
@@ -247,7 +240,7 @@ const VirtualTryOn = ({ product, onClose }) => {
           )}
           
           {debugInfo && (
-             <div className="absolute bottom-20 left-4 text-red-500 bg-black/50 p-2 rounded">
+             <div className="absolute bottom-20 left-4 text-red-500 bg-black/50 p-2 rounded z-30">
                 {debugInfo}
              </div>
           )}
