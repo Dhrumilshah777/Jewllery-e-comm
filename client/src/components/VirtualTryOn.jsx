@@ -6,9 +6,15 @@ import { Camera } from '@mediapipe/camera_utils';
 const VirtualTryOn = ({ product, onClose }) => {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [cameraPermission, setCameraPermission] = useState(null);
   const [debugInfo, setDebugInfo] = useState("");
+  
+  // Mode state: 'upload' (default) or 'camera'
+  const [mode, setMode] = useState('upload');
+  const [uploadedImage, setUploadedImage] = useState(null);
+  const faceMeshRef = useRef(null);
+  const cameraRef = useRef(null);
 
   // Jewelry image ref
   const jewelryImgRef = useRef(null);
@@ -34,30 +40,32 @@ const VirtualTryOn = ({ product, onClose }) => {
   }, [product]);
 
   const onResults = useCallback((results) => {
-    if (!canvasRef.current || !webcamRef.current || !webcamRef.current.video) return;
+    if (!canvasRef.current) return;
 
-    const videoWidth = webcamRef.current.video.videoWidth;
-    const videoHeight = webcamRef.current.video.videoHeight;
+    // Determine dimensions based on input
+    const width = results.image.width;
+    const height = results.image.height;
 
-    canvasRef.current.width = videoWidth;
-    canvasRef.current.height = videoHeight;
+    canvasRef.current.width = width;
+    canvasRef.current.height = height;
 
     const ctx = canvasRef.current.getContext('2d');
     ctx.save();
-    ctx.clearRect(0, 0, videoWidth, videoHeight);
+    ctx.clearRect(0, 0, width, height);
     
-    // Draw the video frame
-    ctx.drawImage(results.image, 0, 0, videoWidth, videoHeight);
+    // Draw the image/video frame
+    ctx.drawImage(results.image, 0, 0, width, height);
 
     if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+      if (mode === 'upload') setDebugInfo(""); // Clear error if face found
+
       const landmarks = results.multiFaceLandmarks[0];
       const productType = (product.category + " " + product.name).toLowerCase();
       
       // Draw debug points for face detection verification
-      // drawing a small green dot on the nose tip
       const noseTip = landmarks[1];
       ctx.beginPath();
-      ctx.arc(noseTip.x * videoWidth, noseTip.y * videoHeight, 3, 0, 2 * Math.PI);
+      ctx.arc(noseTip.x * width, noseTip.y * height, 3, 0, 2 * Math.PI);
       ctx.fillStyle = '#00FF00'; // Green dot to confirm detection
       ctx.fill();
 
@@ -73,19 +81,21 @@ const VirtualTryOn = ({ product, onClose }) => {
 
       if (jewelryImgRef.current) {
         if (productType.includes('earring')) {
-          renderEarrings(ctx, landmarks, jewelryImgRef.current, videoWidth, videoHeight, yaw, roll);
+          renderEarrings(ctx, landmarks, jewelryImgRef.current, width, height, yaw, roll);
         } else if (productType.includes('necklace') || productType.includes('pendant') || productType.includes('set') || productType.includes('chain') || productType.includes('mangalsutra')) {
-          renderNecklace(ctx, landmarks, jewelryImgRef.current, videoWidth, videoHeight, yaw, roll);
-        } else {
-             // Debug info is handled in UI overlay now
+          renderNecklace(ctx, landmarks, jewelryImgRef.current, width, height, yaw, roll);
         }
       }
     } else {
-        // No face detected
+      if (mode === 'upload') {
+        setDebugInfo("No face detected. Please use a clear front-facing photo.");
+      }
     }
     ctx.restore();
     setIsLoading(false);
-  }, [product, imageLoaded]);
+  }, [product, imageLoaded, mode]);
+
+  // ... (renderEarrings, renderNecklace, getFaceScale, drawRotatedImage remain same)
 
   const renderEarrings = (ctx, landmarks, img, width, height, yaw, roll) => {
     // Left Ear Area: 234 (cheek), 93 (jaw) - approximating ear lobe
@@ -134,7 +144,6 @@ const VirtualTryOn = ({ product, onClose }) => {
     const necklaceHeight = necklaceWidth * (img.height / img.width);
 
     // Position below chin
-    // We adjust Y based on pitch slightly if needed, but simple offset is often enough
     const x = chin.x * width - necklaceWidth / 2;
     const y = chin.y * height + (10 * scaleFactor); 
 
@@ -159,6 +168,7 @@ const VirtualTryOn = ({ product, onClose }) => {
     ctx.restore();
   };
 
+  // Initialize FaceMesh
   useEffect(() => {
     const faceMesh = new FaceMesh({locateFile: (file) => {
       return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
@@ -172,34 +182,79 @@ const VirtualTryOn = ({ product, onClose }) => {
     });
 
     faceMesh.onResults(onResults);
-
-    if (webcamRef.current && webcamRef.current.video) {
-      const camera = new Camera(webcamRef.current.video, {
-        onFrame: async () => {
-          if (webcamRef.current && webcamRef.current.video) {
-            await faceMesh.send({image: webcamRef.current.video});
-          }
-        },
-        width: 640,
-        height: 480
-      });
-      camera.start();
-    }
+    faceMeshRef.current = faceMesh;
 
     return () => {
       faceMesh.close();
     };
   }, [onResults]);
 
+  // Handle Camera Mode
+  useEffect(() => {
+    if (mode === 'camera' && webcamRef.current && webcamRef.current.video) {
+       setIsLoading(true);
+       const camera = new Camera(webcamRef.current.video, {
+        onFrame: async () => {
+          if (webcamRef.current && webcamRef.current.video && faceMeshRef.current) {
+            await faceMeshRef.current.send({image: webcamRef.current.video});
+          }
+        },
+        width: 640,
+        height: 480
+      });
+      camera.start();
+      cameraRef.current = camera;
+    } else {
+      if (cameraRef.current) {
+        cameraRef.current.stop();
+        cameraRef.current = null;
+      }
+    }
+  }, [mode]);
+
+  // Handle Upload Mode
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setUploadedImage(url);
+      setIsLoading(true);
+    }
+  };
+
+  useEffect(() => {
+    if (mode === 'upload' && uploadedImage && faceMeshRef.current) {
+      const img = new Image();
+      img.src = uploadedImage;
+      img.onload = async () => {
+        await faceMeshRef.current.send({image: img});
+        setIsLoading(false);
+      };
+    }
+  }, [mode, uploadedImage]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90">
-      <div className="relative w-full max-w-4xl h-[80vh] bg-gray-900 rounded-xl overflow-hidden shadow-2xl flex flex-col">
+      <div className="relative w-full max-w-4xl h-[85vh] bg-gray-900 rounded-xl overflow-hidden shadow-2xl flex flex-col">
         {/* Header */}
-        <div className="absolute top-0 left-0 right-0 p-4 z-20 flex justify-between items-center bg-gradient-to-b from-black/70 to-transparent">
-          <h2 className="text-white text-xl font-bold drop-shadow-md">Virtual Try-On</h2>
+        <div className="p-4 z-20 flex justify-between items-center bg-gray-800">
+          <div className="flex space-x-4">
+             <button 
+               onClick={() => setMode('upload')}
+               className={`px-4 py-2 rounded ${mode === 'upload' ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-300'}`}
+             >
+               Upload Photo
+             </button>
+             <button 
+               onClick={() => setMode('camera')}
+               className={`px-4 py-2 rounded ${mode === 'camera' ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-300'}`}
+             >
+               Live Camera
+             </button>
+          </div>
           <button 
             onClick={onClose}
-            className="bg-white/10 hover:bg-white/20 text-white rounded-full p-2 transition-all backdrop-blur-sm"
+            className="bg-white/10 hover:bg-white/20 text-white rounded-full p-2 transition-all"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -209,36 +264,70 @@ const VirtualTryOn = ({ product, onClose }) => {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center z-10 bg-gray-900 text-white">
+          <div className="absolute inset-0 flex items-center justify-center z-30 bg-black/50 text-white pointer-events-none">
             <div className="flex flex-col items-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
-              <p>Loading Face Mesh Model...</p>
+              <p>Processing...</p>
             </div>
           </div>
         )}
 
-        {/* Camera and Canvas */}
+        {/* Main Content */}
         <div className="relative flex-1 bg-black flex items-center justify-center overflow-hidden">
-           <Webcam
-            ref={webcamRef}
-            className="absolute opacity-0" 
-            width={640}
-            height={480}
-            mirrored
-            onUserMedia={() => setCameraPermission(true)}
-            onUserMediaError={() => setCameraPermission(false)}
-          />
-          <canvas
-            ref={canvasRef}
-            className="w-full h-full object-contain transform -scale-x-100" // Mirror the canvas output
-          />
           
-          {cameraPermission === false && (
-            <div className="absolute inset-0 flex items-center justify-center text-white bg-gray-900">
-              <p>Camera permission denied. Please allow camera access to use this feature.</p>
-            </div>
+          {mode === 'camera' && (
+             <>
+               <Webcam
+                ref={webcamRef}
+                className="absolute opacity-0" 
+                width={640}
+                height={480}
+                mirrored
+                onUserMedia={() => setCameraPermission(true)}
+                onUserMediaError={() => setCameraPermission(false)}
+              />
+              <canvas
+                ref={canvasRef}
+                className="w-full h-full object-contain transform -scale-x-100" // Mirror for camera
+              />
+              {cameraPermission === false && (
+                <div className="absolute inset-0 flex items-center justify-center text-white bg-gray-900">
+                  <p>Camera permission denied. Please allow camera access to use this feature.</p>
+                </div>
+              )}
+             </>
           )}
-          
+
+          {mode === 'upload' && (
+            <>
+              {!uploadedImage ? (
+                <div className="flex flex-col items-center justify-center text-gray-400 p-8 border-2 border-dashed border-gray-600 rounded-lg">
+                  <svg className="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                  <label className="cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded transition duration-300">
+                    <span>Select Photo</span>
+                    <input type='file' className="hidden" accept="image/*" onChange={handleImageUpload} />
+                  </label>
+                  <p className="mt-2 text-sm">Supported formats: JPG, PNG</p>
+                </div>
+              ) : (
+                <div className="relative w-full h-full flex items-center justify-center">
+                   <canvas
+                    ref={canvasRef}
+                    className="max-w-full max-h-full object-contain" // No mirror for upload
+                  />
+                  <button 
+                    onClick={() => { setUploadedImage(null); }}
+                    className="absolute bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700 z-40"
+                  >
+                    Upload New Photo
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+
           {debugInfo && (
              <div className="absolute bottom-20 left-4 text-red-500 bg-black/50 p-2 rounded z-30">
                 {debugInfo}
@@ -246,10 +335,10 @@ const VirtualTryOn = ({ product, onClose }) => {
           )}
         </div>
 
-        {/* Footer/Instructions */}
+        {/* Footer */}
         <div className="p-4 bg-gray-800 text-white text-center">
           <p className="text-sm opacity-80">
-            {product.category === 'Earrings' ? 'Move your head to see earrings from different angles.' : 'Position your face in the center.'}
+            {mode === 'camera' ? 'Position your face in the center.' : 'Ensure your face is clearly visible in the photo.'}
             { !jewelryImgRef.current && " (Loading Product Image...)" }
           </p>
         </div>
