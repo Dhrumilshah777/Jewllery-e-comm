@@ -326,16 +326,16 @@ const Home = () => {
                     <div className="absolute inset-0 bg-black opacity-40"></div>
                   </div>
                 )}
-                <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-4 space-y-6 font-italiana">
+                <div className="relative z-10 h-full flex flex-col items-start justify-center text-white text-left px-4 md:px-20 space-y-6 font-italiana">
                   <h1 className="text-6xl md:text-8xl font-bold tracking-tight hero-animate">{slide.title}</h1>
-                  <p className="text-xl max-w-2xl mx-auto hero-animate hero-delay-100">
+                  <p className="text-xl max-w-2xl hero-animate hero-delay-100">
                     {slide.subtitle}
                   </p>
                   <Link 
                     to="/products" 
                     className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 transition duration-300 hero-animate hero-delay-200"
                   >
-                    Shop Collection
+                    Shop Now
                   </Link>
                 </div>
               </div>
@@ -349,16 +349,16 @@ const Home = () => {
             >
               <div className="absolute inset-0 bg-black opacity-40"></div>
             </div>
-            <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-4 space-y-6">
-              <h1 className="text-6xl md:text-8xl font-bold tracking-tight">Exquisite Jewelry</h1>
-              <p className="text-xl max-w-2xl mx-auto">
-                Discover our new collection
+            <div className="relative z-10 h-full flex flex-col items-start justify-center text-white text-left px-4 md:px-20 space-y-6">
+              <h1 className="text-6xl md:text-8xl font-bold tracking-tight">Introducing The Lost Day Collection</h1>
+              <p className="text-xl max-w-2xl">
+                Ring, Occasion Pieces, Pandora & more collection
               </p>
               <Link 
                 to="/products" 
                 className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 transition duration-300"
               >
-                Shop Collection
+                Shop Now
               </Link>
             </div>
           </div>
