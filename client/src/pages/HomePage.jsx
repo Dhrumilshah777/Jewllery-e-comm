@@ -205,7 +205,7 @@ const Home = () => {
   };
 
   function slidesForWidth(w) {
-    if (w < 640) return 2;
+    if (w < 640) return 1.5;
     if (w < 768) return 2;
     if (w < 1024) return 3;
     return 4;
