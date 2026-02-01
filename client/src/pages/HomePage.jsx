@@ -175,6 +175,7 @@ const Home = () => {
     infinite: Math.min(latestProducts.length, 4) > slidesForWidth(viewportWidth),
     speed: 500,
     slidesToShow: slidesForWidth(viewportWidth),
+    centerMode: false,
     slidesToScroll: 1,
     autoplay: latestProducts.length > 1,
     autoplaySpeed: 3000,
@@ -205,7 +206,7 @@ const Home = () => {
   };
 
   function slidesForWidth(w) {
-    if (w < 640) return 1.5;
+    if (w < 640) return 1.2;
     if (w < 768) return 2;
     if (w < 1024) return 3;
     return 4;
