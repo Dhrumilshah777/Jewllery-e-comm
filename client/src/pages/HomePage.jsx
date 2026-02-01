@@ -371,7 +371,7 @@ const Home = () => {
         <div className="mb-8">
           <Slider key={`latest-${slidesForWidth(viewportWidth)}-${latestProducts.length}`} {...latestBeautySettings}>
             {latestProducts.map((product) => (
-              <div key={product._id} className="px-4">
+              <div key={product._id} className="px-2 md:px-4">
                 <div className="group">
                   {/* Image Container */}
                   <div className="relative overflow-hidden aspect-square bg-gray-100 mb-4">
