@@ -369,7 +369,7 @@ const Home = () => {
       {/* Latest Beauty Section */}
       <section className="py-16 px-0 md:px-6 mb-12">
         <h2 className="text-3xl font-normal text-center mb-12 uppercase tracking-widest font-sans">Latest Beauty</h2>
-        <div className="mb-8">
+        <div className="mb-8 pl-5 md:pl-0">
           <Slider key={`latest-${slidesForWidth(viewportWidth)}-${latestProducts.length}`} {...latestBeautySettings}>
             {latestProducts.map((product) => (
               <div key={product._id} className="px-2 md:px-4">
