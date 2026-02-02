@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Spinner from '../components/Spinner';
+import { FaHeart, FaRegHeart } from 'react-icons/fa';
+import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
+import { io } from 'socket.io-client';
 
 const Gallery = () => {
   const [loading, setLoading] = useState(true);
   const [images, setImages] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const { user } = useAuth();
 
   const categories = [
     'All',
@@ -19,6 +24,23 @@ const Gallery = () => {
   ];
 
   useEffect(() => {
+    // Connect to socket
+    const socketUrl = import.meta.env.PROD 
+      ? 'https://jewllery-e-comm-1.onrender.com' 
+      : 'http://localhost:5000';
+      
+    const socket = io(socketUrl);
+
+    socket.on('gallery:update', ({ id, wishlistedBy }) => {
+      setImages(prevImages => prevImages.map(img => 
+        img.id === id ? { ...img, wishlistedBy } : img
+      ));
+    });
+
+    return () => socket.disconnect();
+  }, []);
+
+  useEffect(() => {
     const fetchGalleryImages = async () => {
       try {
         const { data } = await axios.get('/api/gallery');
@@ -26,7 +48,8 @@ const Gallery = () => {
           id: item._id,
           url: item.imageUrl,
           name: item.title,
-          category: item.category
+          category: item.category,
+          wishlistedBy: item.wishlistedBy
         }));
         setImages(galleryImages);
       } catch (error) {
@@ -38,6 +61,21 @@ const Gallery = () => {
 
     fetchGalleryImages();
   }, []);
+
+  const handleToggleWishlist = async (e, image) => {
+    e.stopPropagation();
+    if (!user) {
+      toast.error('Please login to use wishlist');
+      return;
+    }
+
+    try {
+      const { data } = await axios.post(`/api/gallery/${image.id}/wishlist`);
+      toast.success(data.message);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Error updating wishlist');
+    }
+  };
 
   if (loading) {
     return <Spinner />;
@@ -85,7 +123,34 @@ const Gallery = () => {
               className="w-full h-auto block transition-transform duration-500 group-hover:scale-110"
             />
             <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-40 transition-opacity duration-300"></div>
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+            
+            {/* Wishlist Icon */}
+            <button
+              onClick={(e) => handleToggleWishlist(e, image)}
+              className={`absolute top-2 right-2 z-20 p-2 bg-white rounded-full shadow-md transition-all duration-200 ${
+                image.wishlistedBy && image.wishlistedBy !== user?._id 
+                  ? 'cursor-not-allowed opacity-75' 
+                  : 'hover:scale-110 cursor-pointer'
+              }`}
+              title={
+                image.wishlistedBy 
+                  ? (image.wishlistedBy === user?._id ? "Remove from wishlist" : "Wishlisted by another user") 
+                  : "Add to wishlist"
+              }
+              disabled={!!(image.wishlistedBy && image.wishlistedBy !== user?._id)}
+            >
+              {image.wishlistedBy ? (
+                image.wishlistedBy === user?._id ? (
+                  <FaHeart className="text-red-500 text-xl" />
+                ) : (
+                  <FaHeart className="text-gray-400 text-xl" />
+                )
+              ) : (
+                <FaRegHeart className="text-gray-600 text-xl hover:text-red-500" />
+              )}
+            </button>
+
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
               <span className="text-white text-lg font-medium transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
                 {image.name}
               </span>

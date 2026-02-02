@@ -53,8 +53,67 @@ const deleteGalleryItem = async (req, res) => {
   }
 };
 
+// @desc    Toggle wishlist status (Global Exclusivity)
+// @route   POST /api/gallery/:id/wishlist
+// @access  Private
+const toggleWishlist = async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user._id.toString();
+
+  try {
+    const item = await Gallery.findById(id);
+
+    if (!item) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+
+    // Case 1: Already wishlisted by someone else
+    if (item.wishlistedBy && item.wishlistedBy.toString() !== userId) {
+      return res.status(400).json({ message: 'Item already wishlisted by another user' });
+    }
+
+    // Case 2: Wishlisted by current user -> Unclaim
+    if (item.wishlistedBy && item.wishlistedBy.toString() === userId) {
+      item.wishlistedBy = null;
+      await item.save();
+      
+      // Emit update event
+      if (req.io) {
+        req.io.emit('gallery:update', { id, wishlistedBy: null });
+      }
+      
+      return res.json({ message: 'Removed from wishlist', wishlistedBy: null });
+    }
+
+    // Case 3: Not wishlisted -> Claim
+    // Use findOneAndUpdate to handle race condition
+    const updatedItem = await Gallery.findOneAndUpdate(
+      { _id: id, wishlistedBy: null },
+      { wishlistedBy: userId },
+      { new: true }
+    );
+
+    if (!updatedItem) {
+      // If update failed, it means someone else claimed it just now
+      return res.status(400).json({ message: 'Item already wishlisted by another user' });
+    }
+
+    // Emit update event
+    if (req.io) {
+      req.io.emit('gallery:update', { id, wishlistedBy: userId });
+    }
+
+    res.json({ message: 'Added to wishlist', wishlistedBy: userId });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
 module.exports = {
   getGalleryItems,
   createGalleryItem,
   deleteGalleryItem,
+  toggleWishlist,
 };

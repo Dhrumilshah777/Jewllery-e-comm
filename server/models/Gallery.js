@@ -14,6 +14,11 @@ const gallerySchema = mongoose.Schema({
     required: false,
     default: 'General'
   },
+  wishlistedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
+  }
 }, {
   timestamps: true,
 });
