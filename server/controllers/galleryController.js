@@ -7,12 +7,20 @@ const getGalleryItems = async (req, res) => {
   try {
     const { category } = req.query;
     let query = {};
-    
     if (category && category !== 'All') {
       query.category = category;
     }
-
-    const items = await Gallery.find(query).sort({ createdAt: -1 });
+    const docs = await Gallery.find(query)
+      .sort({ createdAt: -1 })
+      .populate('wishlistedBy', 'name email')
+      .lean();
+    const items = docs.map(doc => ({
+      ...doc,
+      wishlistedBy: doc.wishlistedBy ? doc.wishlistedBy._id : null,
+      wishlistedByUser: doc.wishlistedBy
+        ? { _id: doc.wishlistedBy._id, name: doc.wishlistedBy.name, email: doc.wishlistedBy.email }
+        : null
+    }));
     res.json(items);
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
@@ -82,7 +90,7 @@ const toggleWishlist = async (req, res) => {
         req.io.emit('gallery:update', { id, wishlistedBy: null });
       }
       
-      return res.json({ message: 'Removed from wishlist', wishlistedBy: null });
+      return res.json({ message: 'Removed from wishlist', wishlistedBy: null, wishlistedByUser: null });
     }
 
     // Case 3: Not wishlisted -> Claim
@@ -103,7 +111,7 @@ const toggleWishlist = async (req, res) => {
       req.io.emit('gallery:update', { id, wishlistedBy: userId });
     }
 
-    res.json({ message: 'Added to wishlist', wishlistedBy: userId });
+    res.json({ message: 'Added to wishlist', wishlistedBy: userId, wishlistedByUser: { _id: userId } });
 
   } catch (error) {
     console.error(error);
