@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'; // CHECK
 import { Link, useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import axios from 'axios';
@@ -11,35 +11,34 @@ import { useQuery } from '@tanstack/react-query';
 const Home = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
-  const [notification, setNotification] = useState(null);
   const { user } = useAuth();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const navigate = useNavigate();
 
   // Query functions
   const fetchSlides = async () => {
-    const { data } = await axios.get(`/api/slides?t=${new Date().getTime()}`);
+    const { data } = await axios.get('/api/slides');
     return data;
   };
 
   const fetchPopularCategories = async () => {
-    const { data } = await axios.get(`/api/popular-categories?t=${new Date().getTime()}`);
+    const { data } = await axios.get('/api/popular-categories');
     return data;
   };
 
   const fetchHomeBanner = async () => {
-    const { data } = await axios.get(`/api/home-banner?t=${new Date().getTime()}`);
+    const { data } = await axios.get('/api/home-banner');
     return data;
   };
 
   const fetchLatestProducts = async () => {
-    const { data } = await axios.get(`/api/products?isLatestBeauty=true&sort=latest&limit=8&t=${new Date().getTime()}`);
+    const { data } = await axios.get('/api/products?isLatestBeauty=true&sort=latest&limit=8');
     return data;
   };
 
   const fetchNewestProducts = async () => {
     // Fetch products explicitly marked as Newest Collection
-    const { data } = await axios.get(`/api/products?isNewest=true&sort=latest&limit=8&t=${new Date().getTime()}`);
+    const { data } = await axios.get('/api/products?isNewest=true&sort=latest&limit=8');
     return data;
   };
 
@@ -67,16 +66,12 @@ const Home = () => {
 
   const { data: latestProducts = [], isLoading: latestLoading } = useQuery({
     queryKey: ['latestProducts'],
-    queryFn: fetchLatestProducts,
-    staleTime: 0,
-    refetchOnWindowFocus: true
+    queryFn: fetchLatestProducts
   });
 
   const { data: newestProducts = [], isLoading: newestLoading } = useQuery({
     queryKey: ['newestProducts'],
-    queryFn: fetchNewestProducts,
-    staleTime: 0,
-    refetchOnWindowFocus: true
+    queryFn: fetchNewestProducts
   });
 
   const loading = slidesLoading || categoriesLoading || homeBannerLoading || latestLoading || newestLoading;
@@ -114,13 +109,7 @@ const Home = () => {
       return;
     }
 
-    const wasInWishlist = isInWishlist(product._id);
-    const success = await toggleWishlist(product);
-
-    if (success) {
-      setNotification(wasInWishlist ? "Removed from wishlist" : "Added to wishlist");
-      setTimeout(() => setNotification(null), 3000);
-    }
+    await toggleWishlist(product);
   };
 
   const openModal = (e, product) => {
@@ -175,7 +164,6 @@ const Home = () => {
     infinite: Math.min(latestProducts.length, 4) > slidesForWidth(viewportWidth),
     speed: 500,
     slidesToShow: slidesForWidth(viewportWidth),
-    centerMode: false,
     slidesToScroll: 1,
     autoplay: latestProducts.length > 1,
     autoplaySpeed: 3000,
@@ -206,7 +194,7 @@ const Home = () => {
   };
 
   function slidesForWidth(w) {
-    if (w < 640) return 1.2;
+    if (w < 640) return 2;
     if (w < 768) return 2;
     if (w < 1024) return 3;
     return 4;
@@ -265,68 +253,14 @@ const Home = () => {
       <section className="overflow-hidden shadow-2xl">
         {slides.length > 0 ? (
           <Slider {...settings}>
-            {slides.map((slide, index) => {
-              const url = slide.image || '';
-              const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
-              const isVimeo = url.includes('vimeo.com');
-              const isVideoFile = slide.type === 'video' || url.match(/\.(mp4|webm|ogg|mov)$/i) || url.includes('/video/upload/');
-              const isVideo = isYouTube || isVimeo || isVideoFile;
-              
-              const getYouTubeId = (url) => {
-                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-                const match = url.match(regExp);
-                return (match && match[2].length === 11) ? match[2] : null;
-              };
-
-              const getVimeoId = (url) => {
-                const match = url.match(/vimeo\.com\/(\d+)/);
-                return match ? match[1] : null;
-              };
-
-              return (
+            {slides.map((slide) => (
               <div key={slide._id} className="relative h-[400px] md:h-[550px] overflow-hidden">
-                {isYouTube ? (
-                  <div className="absolute inset-0 w-full h-full bg-black">
-                    <iframe
-                      className="absolute inset-0 w-full h-full pointer-events-none"
-                      src={`https://www.youtube.com/embed/${getYouTubeId(url)}?autoplay=1&mute=1&loop=1&playlist=${getYouTubeId(url)}&controls=0&showinfo=0&modestbranding=1`}
-                      allow="autoplay; encrypted-media"
-                      title={slide.title}
-                    ></iframe>
-                    <div className="absolute inset-0 bg-black opacity-30"></div>
-                  </div>
-                ) : isVimeo ? (
-                  <div className="absolute inset-0 w-full h-full bg-black">
-                    <iframe
-                      className="absolute inset-0 w-full h-full pointer-events-none"
-                      src={`https://player.vimeo.com/video/${getVimeoId(url)}?background=1&autoplay=1&loop=1&byline=0&title=0`}
-                      allow="autoplay; encrypted-media"
-                      title={slide.title}
-                    ></iframe>
-                    <div className="absolute inset-0 bg-black opacity-30"></div>
-                  </div>
-                ) : isVideoFile ? (
-                  <div className="absolute inset-0 w-full h-full">
-                    <video 
-                      src={url}
-                      autoPlay 
-                      loop 
-                      muted 
-                      playsInline
-                      className="absolute inset-0 w-full h-full object-cover"
-                    >
-                      Your browser does not support the video tag.
-                    </video>
-                    <div className="absolute inset-0 bg-black opacity-30"></div>
-                  </div>
-                ) : (
-                  <div 
-                    className="absolute inset-0 bg-cover bg-center hero-zoom"
-                    style={{ backgroundImage: `url(${slide.image})` }}
-                  >
-                    <div className="absolute inset-0 bg-black opacity-40"></div>
-                  </div>
-                )}
+                <div 
+                  className="absolute inset-0 bg-cover bg-center hero-zoom"
+                  style={{ backgroundImage: `url(${slide.image})` }}
+                >
+                  <div className="absolute inset-0 bg-black opacity-40"></div>
+                </div>
                 <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-4 space-y-6 font-italiana">
                   <h1 className="text-6xl md:text-8xl font-bold tracking-tight hero-animate">{slide.title}</h1>
                   <p className="text-xl max-w-2xl mx-auto hero-animate hero-delay-100">
@@ -336,11 +270,11 @@ const Home = () => {
                     to="/products" 
                     className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 transition duration-300 hero-animate hero-delay-200"
                   >
-                    Shop Now
+                    Shop Collection
                   </Link>
                 </div>
               </div>
-            )})}
+            ))}
           </Slider>
         ) : (
           <div className="relative h-[400px] md:h-[550px]">
@@ -351,15 +285,15 @@ const Home = () => {
               <div className="absolute inset-0 bg-black opacity-40"></div>
             </div>
             <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-4 space-y-6">
-              <h1 className="text-6xl md:text-8xl font-bold tracking-tight">Introducing The Lost Day Collection</h1>
+              <h1 className="text-6xl md:text-8xl font-bold tracking-tight">Exquisite Jewelry</h1>
               <p className="text-xl max-w-2xl mx-auto">
-                Ring, Occasion Pieces, Pandora & more collection
+                Discover our new collection
               </p>
               <Link 
                 to="/products" 
                 className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 transition duration-300"
               >
-                Shop Now
+                Shop Collection
               </Link>
             </div>
           </div>
@@ -367,15 +301,15 @@ const Home = () => {
       </section>
 
       {/* Latest Beauty Section */}
-      <section className="py-16 px-0 md:px-6 mb-12">
+      <section className="py-16 px-2 md:px-4 max-w-7xl mx-auto mb-12">
         <h2 className="text-3xl font-normal text-center mb-12 uppercase tracking-widest font-sans">Latest Beauty</h2>
-        <div className="mb-8 pl-5 md:pl-0">
+        <div className="mb-8">
           <Slider key={`latest-${slidesForWidth(viewportWidth)}-${latestProducts.length}`} {...latestBeautySettings}>
             {latestProducts.map((product) => (
-              <div key={product._id} className="px-2 md:px-4">
+              <div key={product._id} className="px-4">
                 <div className="group">
                   {/* Image Container */}
-                  <div className="relative overflow-hidden aspect-square bg-gray-100 mb-4">
+                  <div className="relative overflow-hidden aspect-[4/5] bg-gray-100 mb-4">
                     <Link to={`/products/${product._id}`} className="block w-full h-full relative">
                       <img 
                         src={product.imageUrl} 
@@ -412,11 +346,11 @@ const Home = () => {
                   </div>
                   
                   {/* Product Info */}
-                  <div className="space-y-1 flex flex-col items-start w-full">
-                    <h3 className="text-sm font-medium uppercase tracking-wider text-gray-900 text-left w-full truncate">
+                  <div className="space-y-1 flex flex-col items-center">
+                    <h3 className="text-sm font-medium uppercase tracking-wider text-gray-900 text-center">
                       <Link to={`/products/${product._id}`}>{product.name}</Link>
                     </h3>
-                    <div className="text-xs text-gray-500 text-left">
+                    <div className="text-xs text-gray-500 text-center">
                       Accessories / {product.category}
                     </div>
                   </div>
@@ -427,16 +361,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Featured Video Section */}
-      <section className="w-full mb-12">
-        <video 
-          controls 
-          className="w-full h-[600px] object-cover"
-          src="https://ik.imagekit.io/dqel2bwws/Video/13500266_1080_1920_60fps.mp4?updatedAt=1769689027910"
-        >
-          Your browser does not support the video tag.
-        </video>
-      </section>
+
 
       {/* Popular Categories Section */}
       <section className="py-12 bg-white">
@@ -519,12 +444,15 @@ const Home = () => {
                       </button>
                     </div>
                   </div>
-                  <div className="pt-4 space-y-1 flex flex-col items-start w-full">
-                    <h3 className="text-sm font-medium uppercase tracking-wider text-gray-900 text-left w-full truncate">
+                  <div className="pt-4 space-y-1 flex flex-col items-center">
+                    <h3 className="text-sm font-medium uppercase tracking-wider text-gray-900 text-center">
                       <Link to={`/products/${item._id}`}>{item.name}</Link>
                     </h3>
-                    <div className="text-xs text-gray-500 text-left">
+                    <div className="text-xs text-gray-500 text-center">
                       {item.category}
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900">
+                      ${item.price}
                     </div>
                   </div>
                 </div>
@@ -593,7 +521,7 @@ const Home = () => {
       {selectedProduct && (
         <div className="fixed inset-0 z-50 flex justify-start md:items-center md:justify-center md:p-4 bg-transparent backdrop-blur-md" onClick={closeModal}>
           <div 
-            className="bg-white w-[85%] h-full md:h-auto md:w-full md:max-w-4xl rounded-none shadow-2xl overflow-y-auto md:overflow-hidden relative animate-fade-in md:animate-popup flex flex-col md:flex-row"
+            className="bg-white w-[85%] h-full md:h-auto md:w-full md:max-w-4xl rounded-none shadow-2xl overflow-y-auto md:overflow-hidden relative animate-slide-left md:animate-popup flex flex-col md:flex-row"
             onClick={(e) => e.stopPropagation()}
           >
             <button 
@@ -654,12 +582,6 @@ const Home = () => {
               </div>
             </div>
           </div>
-        </div>
-      )}
-      
-      {notification && (
-        <div className="wishlist-notification">
-          {notification}
         </div>
       )}
     </div>
