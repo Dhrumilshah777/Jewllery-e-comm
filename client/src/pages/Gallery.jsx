@@ -25,11 +25,14 @@ const Gallery = () => {
 
   useEffect(() => {
     // Connect to socket
-    const socketUrl = import.meta.env.PROD 
-      ? 'https://jewllery-e-comm-1.onrender.com' 
-      : 'http://localhost:5000';
-      
-    const socket = io(socketUrl);
+    const resolvedBaseURL = axios.defaults.baseURL
+      ? axios.defaults.baseURL.replace(/\/$/, '')
+      : (import.meta.env.DEV ? 'http://localhost:5000' : undefined);
+    const socket = io(resolvedBaseURL, {
+      withCredentials: true,
+      transports: ['websocket'],
+      reconnectionAttempts: 5,
+    });
 
     socket.on('gallery:update', ({ id, wishlistedBy }) => {
       setImages(prevImages => prevImages.map(img => 
