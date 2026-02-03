@@ -41,6 +41,16 @@ const createGalleryItem = async (req, res) => {
     });
 
     const createdItem = await galleryItem.save();
+    if (req.io) {
+      req.io.emit('gallery:new', {
+        _id: createdItem._id,
+        title: createdItem.title,
+        imageUrl: createdItem.imageUrl,
+        category: createdItem.category,
+        createdAt: createdItem.createdAt,
+        wishlistedBy: createdItem.wishlistedBy,
+      });
+    }
     res.status(201).json(createdItem);
   } catch (error) {
     res.status(400).json({ message: 'Invalid gallery data' });

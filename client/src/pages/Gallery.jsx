@@ -39,6 +39,21 @@ const Gallery = () => {
         img.id === id ? { ...img, wishlistedBy } : img
       ));
     });
+    socket.on('gallery:new', (payload) => {
+      const newImage = {
+        id: payload._id,
+        url: payload.imageUrl,
+        name: payload.title,
+        category: payload.category,
+        wishlistedBy: payload.wishlistedBy,
+        createdAt: payload.createdAt
+      };
+      setImages(prev => {
+        const next = [newImage, ...prev];
+        next.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        return next;
+      });
+    });
 
     return () => socket.disconnect();
   }, []);
@@ -52,7 +67,8 @@ const Gallery = () => {
           url: item.imageUrl,
           name: item.title,
           category: item.category,
-          wishlistedBy: item.wishlistedBy
+          wishlistedBy: item.wishlistedBy,
+          createdAt: item.createdAt
         }));
         setImages(galleryImages);
       } catch (error) {
