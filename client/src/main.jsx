@@ -9,6 +9,7 @@ import { AuthProvider } from './context/AuthContext.jsx';
 import { WishlistProvider } from './context/WishlistContext.jsx';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Capacitor } from '@capacitor/core';
 
 import axios from 'axios';
 
@@ -24,7 +25,10 @@ const queryClient = new QueryClient({
 });
 
 // Set base URL for axios based on environment
-if (import.meta.env.PROD) {
+if (Capacitor.isNativePlatform()) {
+  // Use the live server URL for the Android app
+  axios.defaults.baseURL = 'https://jewllery-e-comm-1.onrender.com';
+} else if (import.meta.env.PROD) {
   axios.defaults.baseURL = 'https://jewllery-e-comm-1.onrender.com';
 }
 // For local development, we rely on the proxy in vite.config.js, so no baseURL needed

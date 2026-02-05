@@ -7,9 +7,18 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "cap:init": "cap init \"AO Jewelry\" \"com.aojewelry.app\" --web-dir dist",
+    "cap:add:android": "cap add android",
+    "cap:sync": "cap sync",
+    "cap:sync:android": "cap sync android",
+    "cap:open:android": "cap open android",
+    "build:mobile:android": "vite build && cap sync android"
   },
   "dependencies": {
+    "@capacitor/android": "^8.0.2",
+    "@capacitor/cli": "^8.0.2",
+    "@capacitor/core": "^8.0.2",
     "@react-oauth/google": "^0.13.4",
     "@tanstack/react-query": "^5.90.19",
     "axios": "^1.13.2",
@@ -36,6 +45,7 @@
     "globals": "^16.5.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.18",
+    "typescript": "^5.9.3",
     "vite": "^7.2.4"
   }
 }

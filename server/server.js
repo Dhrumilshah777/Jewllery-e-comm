@@ -26,7 +26,7 @@ const { Server } = require('socket.io');
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://jewllery-e-comm.vercel.app', process.env.FRONTEND_URL],
+    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://jewllery-e-comm.vercel.app', process.env.FRONTEND_URL, 'https://localhost', 'capacitor://localhost'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE']
   }
@@ -42,7 +42,7 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'https://jewllery-e-comm.vercel.app', process.env.FRONTEND_URL],
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'https://jewllery-e-comm.vercel.app', process.env.FRONTEND_URL, 'https://localhost', 'capacitor://localhost'],
   credentials: true
 }));
 app.use(cookieParser());
