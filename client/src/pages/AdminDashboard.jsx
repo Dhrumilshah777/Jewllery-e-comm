@@ -79,7 +79,7 @@ const AdminDashboard = () => {
     try {
       const { data } = await axios.get(`/api/products?t=${new Date().getTime()}`);
       setProducts(data);
-    } catch (error) {
+    } catch {
       toast.error('Error fetching products');
     }
   };
@@ -88,7 +88,7 @@ const AdminDashboard = () => {
     try {
       const { data } = await axios.get('/api/slides');
       setSlides(data);
-    } catch (error) {
+    } catch {
       console.error('Error fetching slides');
     }
   };
@@ -97,7 +97,7 @@ const AdminDashboard = () => {
     try {
       const { data } = await axios.get('/api/popular-categories');
       setPopularCategories(data);
-    } catch (error) {
+    } catch {
       console.error('Error fetching popular categories');
     }
   };
@@ -116,7 +116,7 @@ const AdminDashboard = () => {
           rightLink: data.rightLink,
         });
       }
-    } catch (error) {
+    } catch {
       console.error('Error fetching home banner');
     }
   };
@@ -125,7 +125,7 @@ const AdminDashboard = () => {
     try {
       const { data } = await axios.get('/api/gallery');
       setGalleryItems(data);
-    } catch (error) {
+    } catch {
       console.error('Error fetching gallery items');
     }
   };
