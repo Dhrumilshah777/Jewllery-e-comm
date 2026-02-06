@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
 import { useWishlist } from '../context/WishlistContext';
 
@@ -10,7 +9,7 @@ const Wishlist = () => {
   const [loading, setLoading] = useState(true);
   // Get context functions to keep state in sync if needed, 
   // though we are fetching populated items here.
-  const { isInWishlist, toggleWishlist } = useWishlist();
+  const { toggleWishlist } = useWishlist();
 
   useEffect(() => {
     const fetchWishlist = async () => {

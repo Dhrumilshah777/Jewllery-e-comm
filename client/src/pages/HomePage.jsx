@@ -8,6 +8,28 @@ import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
 import { useQuery } from '@tanstack/react-query';
 
+const HeroNextArrow = ({ onClick }) => {
+  return (
+    <div
+      className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 cursor-pointer"
+      onClick={onClick}
+    >
+      <i className="fa-thin fa-angle-right text-4xl md:text-5xl text-white hover:text-gray-200 transition-colors"></i>
+    </div>
+  );
+};
+
+const HeroPrevArrow = ({ onClick }) => {
+  return (
+    <div
+      className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 cursor-pointer"
+      onClick={onClick}
+    >
+      <i className="fa-thin fa-angle-left text-4xl md:text-5xl text-white hover:text-gray-200 transition-colors"></i>
+    </div>
+  );
+};
+
 const Home = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
@@ -120,28 +142,6 @@ const Home = () => {
 
   const closeModal = () => {
     setSelectedProduct(null);
-  };
-
-  const HeroNextArrow = ({ onClick }) => {
-    return (
-      <div
-        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 cursor-pointer"
-        onClick={onClick}
-      >
-        <i className="fa-thin fa-angle-right text-4xl md:text-5xl text-white hover:text-gray-200 transition-colors"></i>
-      </div>
-    );
-  };
-
-  const HeroPrevArrow = ({ onClick }) => {
-    return (
-      <div
-        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 cursor-pointer"
-        onClick={onClick}
-      >
-        <i className="fa-thin fa-angle-left text-4xl md:text-5xl text-white hover:text-gray-200 transition-colors"></i>
-      </div>
-    );
   };
 
   const settings = {
