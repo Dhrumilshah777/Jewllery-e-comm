@@ -7,7 +7,7 @@ import Spinner from '../components/Spinner';
 
 const AdminDashboard = () => {
   const queryClient = useQueryClient();
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
   const [slides, setSlides] = useState([]);
   const [popularCategories, setPopularCategories] = useState([]);
@@ -168,7 +168,7 @@ const AdminDashboard = () => {
       queryClient.invalidateQueries({ queryKey: ['latestProducts'] });
       queryClient.invalidateQueries({ queryKey: ['newestProducts'] });
       setActiveTab('manage');
-    } catch (error) {
+    } catch {
       toast.error('Error creating product');
     }
   };
@@ -186,7 +186,7 @@ const AdminDashboard = () => {
       queryClient.invalidateQueries({ queryKey: ['latestProducts'] });
       queryClient.invalidateQueries({ queryKey: ['newestProducts'] });
       setDeleteConfirmation(null);
-    } catch (error) {
+    } catch {
       toast.error('Error deleting product');
     }
   };
@@ -273,7 +273,7 @@ const AdminDashboard = () => {
       });
       fetchSlides();
       queryClient.invalidateQueries({ queryKey: ['slides'] });
-    } catch (error) {
+    } catch {
       toast.error('Error creating slide');
     }
   };
@@ -285,7 +285,7 @@ const AdminDashboard = () => {
         toast.success('Slide deleted successfully');
         fetchSlides();
         queryClient.invalidateQueries({ queryKey: ['slides'] });
-      } catch (error) {
+      } catch {
         toast.error('Error deleting slide');
       }
     }
@@ -307,7 +307,7 @@ const AdminDashboard = () => {
       setEditingSlide(null);
       fetchSlides();
       queryClient.invalidateQueries({ queryKey: ['slides'] });
-    } catch (error) {
+    } catch {
       toast.error('Error updating slide');
     }
   };
@@ -331,7 +331,7 @@ const AdminDashboard = () => {
       });
       fetchPopularCategories();
       queryClient.invalidateQueries({ queryKey: ['popularCategories'] });
-    } catch (error) {
+    } catch {
       toast.error('Error creating category');
     }
   };
@@ -343,7 +343,7 @@ const AdminDashboard = () => {
         toast.success('Category deleted successfully');
         fetchPopularCategories();
         queryClient.invalidateQueries({ queryKey: ['popularCategories'] });
-      } catch (error) {
+      } catch {
         toast.error('Error deleting category');
       }
     }
@@ -399,7 +399,7 @@ const AdminDashboard = () => {
       await fetchProducts();
       queryClient.invalidateQueries({ queryKey: ['latestProducts'] });
       queryClient.invalidateQueries({ queryKey: ['newestProducts'] });
-    } catch (error) {
+    } catch {
       toast.error('Error updating product');
     }
   };
@@ -455,7 +455,7 @@ const AdminDashboard = () => {
         await axios.delete(`/api/gallery/${id}`, { withCredentials: true });
         toast.success('Image deleted from gallery');
         fetchGalleryItems();
-      } catch (error) {
+      } catch {
         toast.error('Error deleting image');
       }
     }
@@ -1121,7 +1121,7 @@ const AdminDashboard = () => {
                   await axios.put('/api/home-banner', homeBannerForm, { withCredentials: true });
                   toast.success('Home banner updated');
                   queryClient.invalidateQueries({ queryKey: ['homeBanner'] });
-                } catch (error) {
+                } catch {
                   toast.error('Error updating banner');
                 }
               }}

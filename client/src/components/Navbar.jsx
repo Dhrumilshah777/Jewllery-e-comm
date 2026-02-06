@@ -67,7 +67,7 @@ const Navbar = () => {
     if (showSearch) {
       fetchSuggestedProducts();
     }
-  }, [showSearch]);
+  }, [showSearch, suggestedProducts.length]);
 
   // Prevent body scroll when search is open
   useEffect(() => {
