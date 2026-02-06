@@ -1,16 +1,13 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Spinner from '../components/Spinner';
 
 const AdminDashboard = () => {
   const queryClient = useQueryClient();
-  // const [loading, setLoading] = useState(true);
-  const [products, setProducts] = useState([]);
-  const [slides, setSlides] = useState([]);
-  const [popularCategories, setPopularCategories] = useState([]);
+  // State for forms and UI controls (not data)
   const [activeTab, setActiveTab] = useState('manage');
   const [formData, setFormData] = useState({
     name: '',
@@ -57,7 +54,6 @@ const AdminDashboard = () => {
   const [filterType, setFilterType] = useState('all'); // 'all', 'latest', 'newest', 'trendy'
   
   // Gallery State
-  const [galleryItems, setGalleryItems] = useState([]);
   const [galleryFormData, setGalleryFormData] = useState({
     title: '',
     imageUrl: '',
@@ -75,82 +71,75 @@ const AdminDashboard = () => {
     'Gift Ideas'
   ];
 
-  const fetchProducts = async () => {
-    try {
+  // Queries
+  const { data: products = [], isLoading: productsLoading } = useQuery({
+    queryKey: ['products'],
+    queryFn: async () => {
       const { data } = await axios.get(`/api/products?t=${new Date().getTime()}`);
-      setProducts(data);
-    } catch {
-      toast.error('Error fetching products');
-    }
-  };
+      return data;
+    },
+    refetchInterval: 5000, // Refresh every 5 seconds
+  });
 
-  const fetchSlides = async () => {
-    try {
+  const { data: slides = [] } = useQuery({
+    queryKey: ['slides'],
+    queryFn: async () => {
       const { data } = await axios.get('/api/slides');
-      setSlides(data);
-    } catch {
-      console.error('Error fetching slides');
-    }
-  };
+      return data;
+    },
+    refetchInterval: 5000,
+  });
 
-  const fetchPopularCategories = async () => {
-    try {
+  const { data: popularCategories = [] } = useQuery({
+    queryKey: ['popularCategories'],
+    queryFn: async () => {
       const { data } = await axios.get('/api/popular-categories');
-      setPopularCategories(data);
-    } catch {
-      console.error('Error fetching popular categories');
-    }
-  };
-  const fetchHomeBanner = async () => {
-    try {
+      return data;
+    },
+    refetchInterval: 5000,
+  });
+
+  const { data: homeBanner } = useQuery({
+    queryKey: ['homeBanner'],
+    queryFn: async () => {
       const { data } = await axios.get('/api/home-banner');
-      if (data) {
-        setHomeBannerForm({
-          leftImage: data.leftImage,
-          leftTitle: data.leftTitle,
-          leftSubtitle: data.leftSubtitle,
-          leftLink: data.leftLink,
-          rightImage: data.rightImage,
-          rightTitle: data.rightTitle,
-          rightSubtitle: data.rightSubtitle,
-          rightLink: data.rightLink,
-        });
-      }
-    } catch {
-      console.error('Error fetching home banner');
-    }
-  };
+      return data;
+    },
+    refetchInterval: 5000,
+  });
 
-  const fetchGalleryItems = async () => {
-    try {
+  const { data: galleryItems = [] } = useQuery({
+    queryKey: ['galleryItems'],
+    queryFn: async () => {
       const { data } = await axios.get('/api/gallery');
-      setGalleryItems(data);
-    } catch {
-      console.error('Error fetching gallery items');
-    }
-  };
+      return data;
+    },
+    refetchInterval: 5000,
+  });
 
+  // Effects
   useEffect(() => {
-    fetchProducts();
-    fetchSlides();
-    fetchPopularCategories();
-    fetchHomeBanner();
-    fetchGalleryItems();
-  }, []);
+    if (homeBanner) {
+      setHomeBannerForm({
+        leftImage: homeBanner.leftImage || '',
+        leftTitle: homeBanner.leftTitle || '',
+        leftSubtitle: homeBanner.leftSubtitle || '',
+        leftLink: homeBanner.leftLink || '/products?category=Rings',
+        rightImage: homeBanner.rightImage || '',
+        rightTitle: homeBanner.rightTitle || '',
+        rightSubtitle: homeBanner.rightSubtitle || '',
+        rightLink: homeBanner.rightLink || '/products?category=Bracelets',
+      });
+    }
+  }, [homeBanner]);
 
-  const handleChange = (e) => {
-    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    setFormData({ ...formData, [e.target.name]: value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post(
-        '/api/products', 
-        formData, 
-        { withCredentials: true }
-      );
+  // Mutations
+  const createProductMutation = useMutation({
+    mutationFn: (newProduct) => axios.post('/api/products', newProduct, { withCredentials: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['latestProducts'] });
+      queryClient.invalidateQueries({ queryKey: ['newestProducts'] });
       toast.success('Product created successfully');
       setFormData({
         name: '',
@@ -164,31 +153,168 @@ const AdminDashboard = () => {
         isNewest: false,
         subImages: ['']
       });
-      await fetchProducts();
-      queryClient.invalidateQueries({ queryKey: ['latestProducts'] });
-      queryClient.invalidateQueries({ queryKey: ['newestProducts'] });
       setActiveTab('manage');
-    } catch {
+    },
+    onError: () => {
       toast.error('Error creating product');
     }
+  });
+
+  const deleteProductMutation = useMutation({
+    mutationFn: (id) => axios.delete(`/api/products/${id}`, { withCredentials: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['latestProducts'] });
+      queryClient.invalidateQueries({ queryKey: ['newestProducts'] });
+      toast.success('Product deleted successfully');
+      setDeleteConfirmation(null);
+    },
+    onError: () => {
+      toast.error('Error deleting product');
+    }
+  });
+
+  const updateProductMutation = useMutation({
+    mutationFn: ({ id, data }) => axios.put(`/api/products/${id}`, data, { withCredentials: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['latestProducts'] });
+      queryClient.invalidateQueries({ queryKey: ['newestProducts'] });
+      toast.success('Product updated successfully');
+      setEditingProduct(null);
+    },
+    onError: () => {
+      toast.error('Error updating product');
+    }
+  });
+
+  const createSlideMutation = useMutation({
+    mutationFn: (data) => axios.post('/api/slides', data, { withCredentials: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['slides'] });
+      toast.success('Slide created successfully');
+      setSlideFormData({ title: '', subtitle: '', image: '', type: 'image' });
+    },
+    onError: () => {
+      toast.error('Error creating slide');
+    }
+  });
+
+  const deleteSlideMutation = useMutation({
+    mutationFn: (id) => axios.delete(`/api/slides/${id}`, { withCredentials: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['slides'] });
+      toast.success('Slide deleted successfully');
+    },
+    onError: () => {
+      toast.error('Error deleting slide');
+    }
+  });
+
+  const updateSlideMutation = useMutation({
+    mutationFn: ({ id, data }) => axios.put(`/api/slides/${id}`, data, { withCredentials: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['slides'] });
+      toast.success('Slide updated successfully');
+      setEditingSlide(null);
+    },
+    onError: () => {
+      toast.error('Error updating slide');
+    }
+  });
+
+  const createCategoryMutation = useMutation({
+    mutationFn: (data) => axios.post('/api/popular-categories', data, { withCredentials: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['popularCategories'] });
+      toast.success('Category created successfully');
+      setPopularCategoryFormData({ name: '', image: '' });
+    },
+    onError: () => {
+      toast.error('Error creating category');
+    }
+  });
+
+  const deleteCategoryMutation = useMutation({
+    mutationFn: (id) => axios.delete(`/api/popular-categories/${id}`, { withCredentials: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['popularCategories'] });
+      toast.success('Category deleted successfully');
+    },
+    onError: () => {
+      toast.error('Error deleting category');
+    }
+  });
+
+  const createGalleryItemMutation = useMutation({
+    mutationFn: (data) => axios.post('/api/gallery', data, { withCredentials: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['galleryItems'] });
+      toast.success('Image added to gallery');
+      setGalleryFormData({ title: '', imageUrl: '', category: 'General' });
+    },
+    onError: (error) => {
+      const message = error.response?.data?.message || error.message || 'Error adding to gallery';
+      toast.error(message);
+    }
+  });
+
+  const deleteGalleryItemMutation = useMutation({
+    mutationFn: (id) => axios.delete(`/api/gallery/${id}`, { withCredentials: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['galleryItems'] });
+      toast.success('Image deleted from gallery');
+    },
+    onError: () => {
+      toast.error('Error deleting image');
+    }
+  });
+
+  const updateHomeBannerMutation = useMutation({
+    mutationFn: (data) => axios.put('/api/home-banner', data, { withCredentials: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['homeBanner'] });
+      toast.success('Home banner updated');
+    },
+    onError: () => {
+      toast.error('Error updating banner');
+    }
+  });
+
+  const sendNotificationMutation = useMutation({
+    mutationFn: (data) => axios.post('/api/notifications/send', data, { withCredentials: true }),
+    onSuccess: () => {
+      toast.success('Notification sent successfully!');
+      setNotificationForm({
+        title: '',
+        message: '',
+        url: '',
+        icon: ''
+      });
+    },
+    onError: (error) => {
+      toast.error('Error sending notification');
+      console.error(error);
+    }
+  });
+
+  const handleChange = (e) => {
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    setFormData({ ...formData, [e.target.name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    createProductMutation.mutate(formData);
   };
 
   const handleDelete = (id) => {
     setDeleteConfirmation(id);
   };
 
-  const confirmDelete = async () => {
+  const confirmDelete = () => {
     if (!deleteConfirmation) return;
-    try {
-      await axios.delete(`/api/products/${deleteConfirmation}`, { withCredentials: true });
-      toast.success('Product deleted successfully');
-      await fetchProducts();
-      queryClient.invalidateQueries({ queryKey: ['latestProducts'] });
-      queryClient.invalidateQueries({ queryKey: ['newestProducts'] });
-      setDeleteConfirmation(null);
-    } catch {
-      toast.error('Error deleting product');
-    }
+    deleteProductMutation.mutate(deleteConfirmation);
   };
 
   const handleSlideChange = (e) => {
@@ -256,38 +382,14 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleSlideSubmit = async (e) => {
+  const handleSlideSubmit = (e) => {
     e.preventDefault();
-    try {
-      await axios.post(
-        '/api/slides', 
-        slideFormData, 
-        { withCredentials: true }
-      );
-      toast.success('Slide created successfully');
-      setSlideFormData({
-        title: '',
-        subtitle: '',
-        image: '',
-        type: 'image'
-      });
-      fetchSlides();
-      queryClient.invalidateQueries({ queryKey: ['slides'] });
-    } catch {
-      toast.error('Error creating slide');
-    }
+    createSlideMutation.mutate(slideFormData);
   };
 
-  const handleSlideDelete = async (id) => {
+  const handleSlideDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this slide?')) {
-      try {
-        await axios.delete(`/api/slides/${id}`, { withCredentials: true });
-        toast.success('Slide deleted successfully');
-        fetchSlides();
-        queryClient.invalidateQueries({ queryKey: ['slides'] });
-      } catch {
-        toast.error('Error deleting slide');
-      }
+      deleteSlideMutation.mutate(id);
     }
   };
 
@@ -297,55 +399,21 @@ const AdminDashboard = () => {
 
   const handleUpdateSlide = async (e) => {
     e.preventDefault();
-    try {
-      await axios.put(
-        `/api/slides/${editingSlide._id}`,
-        editingSlide,
-        { withCredentials: true }
-      );
-      toast.success('Slide updated successfully');
-      setEditingSlide(null);
-      fetchSlides();
-      queryClient.invalidateQueries({ queryKey: ['slides'] });
-    } catch {
-      toast.error('Error updating slide');
-    }
+    updateSlideMutation.mutate({ id: editingSlide._id, data: editingSlide });
   };
 
   const handlePopularCategoryChange = (e) => {
     setPopularCategoryFormData({ ...popularCategoryFormData, [e.target.name]: e.target.value });
   };
 
-  const handlePopularCategorySubmit = async (e) => {
+  const handlePopularCategorySubmit = (e) => {
     e.preventDefault();
-    try {
-      await axios.post(
-        '/api/popular-categories', 
-        { ...popularCategoryFormData, name: popularCategoryFormData.name.trim() }, 
-        { withCredentials: true }
-      );
-      toast.success('Category created successfully');
-      setPopularCategoryFormData({
-        name: '',
-        image: ''
-      });
-      fetchPopularCategories();
-      queryClient.invalidateQueries({ queryKey: ['popularCategories'] });
-    } catch {
-      toast.error('Error creating category');
-    }
+    createCategoryMutation.mutate({ ...popularCategoryFormData, name: popularCategoryFormData.name.trim() });
   };
 
   const handlePopularCategoryDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this category?')) {
-      try {
-        await axios.delete(`/api/popular-categories/${id}`, { withCredentials: true });
-        toast.success('Category deleted successfully');
-        fetchPopularCategories();
-        queryClient.invalidateQueries({ queryKey: ['popularCategories'] });
-      } catch {
-        toast.error('Error deleting category');
-      }
+      deleteCategoryMutation.mutate(id);
     }
   };
 
@@ -388,76 +456,22 @@ const AdminDashboard = () => {
 
   const handleUpdateProduct = async (e) => {
     e.preventDefault();
-    try {
-      await axios.put(
-        `/api/products/${editingProduct._id}`,
-        editingProduct,
-        { withCredentials: true }
-      );
-      toast.success('Product updated successfully');
-      setEditingProduct(null);
-      await fetchProducts();
-      queryClient.invalidateQueries({ queryKey: ['latestProducts'] });
-      queryClient.invalidateQueries({ queryKey: ['newestProducts'] });
-    } catch {
-      toast.error('Error updating product');
-    }
+    updateProductMutation.mutate({ id: editingProduct._id, data: editingProduct });
   };
 
-  const handleNotificationSubmit = async (e) => {
+  const handleNotificationSubmit = (e) => {
     e.preventDefault();
-    try {
-      await axios.post(
-        '/api/notifications/send',
-        notificationForm,
-        { withCredentials: true }
-      );
-      toast.success('Notification sent successfully!');
-      setNotificationForm({
-        title: '',
-        message: '',
-        url: '',
-        icon: ''
-      });
-    } catch (error) {
-      toast.error('Error sending notification');
-      console.error(error);
-    }
+    sendNotificationMutation.mutate(notificationForm);
   };
 
-  const handleGallerySubmit = async (e) => {
+  const handleGallerySubmit = (e) => {
     e.preventDefault();
-    try {
-      await axios.post(
-        '/api/gallery',
-        galleryFormData,
-        { withCredentials: true }
-      );
-      toast.success('Image added to gallery');
-      setGalleryFormData({
-        title: '',
-        imageUrl: '',
-        category: 'General'
-      });
-      fetchGalleryItems();
-    } catch (error) {
-      console.error('Error adding to gallery:', error);
-      const message = error.response && error.response.data && error.response.data.message
-        ? error.response.data.message
-        : error.message || 'Error adding image to gallery';
-      toast.error(message);
-    }
+    createGalleryItemMutation.mutate(galleryFormData);
   };
 
   const handleGalleryDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this image?')) {
-      try {
-        await axios.delete(`/api/gallery/${id}`, { withCredentials: true });
-        toast.success('Image deleted from gallery');
-        fetchGalleryItems();
-      } catch {
-        toast.error('Error deleting image');
-      }
+      deleteGalleryItemMutation.mutate(id);
     }
   };
 
@@ -1115,15 +1129,9 @@ const AdminDashboard = () => {
           <div className="bg-white shadow-md p-6">
             <h2 className="text-xl font-semibold mb-6">Edit Home Banner</h2>
             <form
-              onSubmit={async (e) => {
+              onSubmit={(e) => {
                 e.preventDefault();
-                try {
-                  await axios.put('/api/home-banner', homeBannerForm, { withCredentials: true });
-                  toast.success('Home banner updated');
-                  queryClient.invalidateQueries({ queryKey: ['homeBanner'] });
-                } catch {
-                  toast.error('Error updating banner');
-                }
+                updateHomeBannerMutation.mutate(homeBannerForm);
               }}
               className="grid grid-cols-1 md:grid-cols-2 gap-8"
             >
