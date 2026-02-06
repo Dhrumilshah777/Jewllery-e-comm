@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 
 const WishlistContext = createContext();
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useWishlist = () => {
   return useContext(WishlistContext);
 };
