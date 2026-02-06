@@ -64,12 +64,6 @@ const Home = () => {
     return data;
   };
 
-  const fetchWishlist = async () => {
-    if (!user) return new Set();
-    const { data } = await axios.get('/api/users/profile', { withCredentials: true });
-    return new Set(data.wishlist.filter(item => item !== null).map(item => item._id));
-  };
-
   // Queries
   const { data: slides = [], isLoading: slidesLoading } = useQuery({
     queryKey: ['slides'],
