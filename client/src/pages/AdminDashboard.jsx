@@ -136,7 +136,9 @@ const AdminDashboard = () => {
   // Mutations
   const createProductMutation = useMutation({
     mutationFn: (newProduct) => axios.post('/api/products', newProduct, { withCredentials: true }),
-    onSuccess: () => {
+    onSuccess: (response) => {
+      const newProduct = response.data;
+      queryClient.setQueryData(['products'], (oldData = []) => [...oldData, newProduct]);
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['latestProducts'] });
       queryClient.invalidateQueries({ queryKey: ['newestProducts'] });
@@ -162,7 +164,8 @@ const AdminDashboard = () => {
 
   const deleteProductMutation = useMutation({
     mutationFn: (id) => axios.delete(`/api/products/${id}`, { withCredentials: true }),
-    onSuccess: () => {
+    onSuccess: (_, id) => {
+      queryClient.setQueryData(['products'], (oldData = []) => oldData.filter(p => p._id !== id));
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['latestProducts'] });
       queryClient.invalidateQueries({ queryKey: ['newestProducts'] });
@@ -176,7 +179,9 @@ const AdminDashboard = () => {
 
   const updateProductMutation = useMutation({
     mutationFn: ({ id, data }) => axios.put(`/api/products/${id}`, data, { withCredentials: true }),
-    onSuccess: () => {
+    onSuccess: (response) => {
+      const updatedProduct = response.data;
+      queryClient.setQueryData(['products'], (oldData = []) => oldData.map(p => p._id === updatedProduct._id ? updatedProduct : p));
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['latestProducts'] });
       queryClient.invalidateQueries({ queryKey: ['newestProducts'] });
@@ -190,7 +195,9 @@ const AdminDashboard = () => {
 
   const createSlideMutation = useMutation({
     mutationFn: (data) => axios.post('/api/slides', data, { withCredentials: true }),
-    onSuccess: () => {
+    onSuccess: (response) => {
+      const newSlide = response.data;
+      queryClient.setQueryData(['slides'], (oldData = []) => [...oldData, newSlide]);
       queryClient.invalidateQueries({ queryKey: ['slides'] });
       toast.success('Slide created successfully');
       setSlideFormData({ title: '', subtitle: '', image: '', type: 'image' });
@@ -202,7 +209,8 @@ const AdminDashboard = () => {
 
   const deleteSlideMutation = useMutation({
     mutationFn: (id) => axios.delete(`/api/slides/${id}`, { withCredentials: true }),
-    onSuccess: () => {
+    onSuccess: (_, id) => {
+      queryClient.setQueryData(['slides'], (oldData = []) => oldData.filter(s => s._id !== id));
       queryClient.invalidateQueries({ queryKey: ['slides'] });
       toast.success('Slide deleted successfully');
     },
@@ -213,7 +221,9 @@ const AdminDashboard = () => {
 
   const updateSlideMutation = useMutation({
     mutationFn: ({ id, data }) => axios.put(`/api/slides/${id}`, data, { withCredentials: true }),
-    onSuccess: () => {
+    onSuccess: (response) => {
+      const updatedSlide = response.data;
+      queryClient.setQueryData(['slides'], (oldData = []) => oldData.map(s => s._id === updatedSlide._id ? updatedSlide : s));
       queryClient.invalidateQueries({ queryKey: ['slides'] });
       toast.success('Slide updated successfully');
       setEditingSlide(null);
@@ -225,7 +235,9 @@ const AdminDashboard = () => {
 
   const createCategoryMutation = useMutation({
     mutationFn: (data) => axios.post('/api/popular-categories', data, { withCredentials: true }),
-    onSuccess: () => {
+    onSuccess: (response) => {
+      const newCategory = response.data;
+      queryClient.setQueryData(['popularCategories'], (oldData = []) => [...oldData, newCategory]);
       queryClient.invalidateQueries({ queryKey: ['popularCategories'] });
       toast.success('Category created successfully');
       setPopularCategoryFormData({ name: '', image: '' });
@@ -237,7 +249,8 @@ const AdminDashboard = () => {
 
   const deleteCategoryMutation = useMutation({
     mutationFn: (id) => axios.delete(`/api/popular-categories/${id}`, { withCredentials: true }),
-    onSuccess: () => {
+    onSuccess: (_, id) => {
+      queryClient.setQueryData(['popularCategories'], (oldData = []) => oldData.filter(c => c._id !== id));
       queryClient.invalidateQueries({ queryKey: ['popularCategories'] });
       toast.success('Category deleted successfully');
     },
@@ -248,7 +261,9 @@ const AdminDashboard = () => {
 
   const createGalleryItemMutation = useMutation({
     mutationFn: (data) => axios.post('/api/gallery', data, { withCredentials: true }),
-    onSuccess: () => {
+    onSuccess: (response) => {
+      const newItem = response.data;
+      queryClient.setQueryData(['galleryItems'], (oldData = []) => [newItem, ...oldData]); // Prepend for gallery (usually newest first)
       queryClient.invalidateQueries({ queryKey: ['galleryItems'] });
       toast.success('Image added to gallery');
       setGalleryFormData({ title: '', imageUrl: '', category: 'General' });
@@ -261,7 +276,8 @@ const AdminDashboard = () => {
 
   const deleteGalleryItemMutation = useMutation({
     mutationFn: (id) => axios.delete(`/api/gallery/${id}`, { withCredentials: true }),
-    onSuccess: () => {
+    onSuccess: (_, id) => {
+      queryClient.setQueryData(['galleryItems'], (oldData = []) => oldData.filter(i => i._id !== id));
       queryClient.invalidateQueries({ queryKey: ['galleryItems'] });
       toast.success('Image deleted from gallery');
     },
@@ -272,7 +288,8 @@ const AdminDashboard = () => {
 
   const updateHomeBannerMutation = useMutation({
     mutationFn: (data) => axios.put('/api/home-banner', data, { withCredentials: true }),
-    onSuccess: () => {
+    onSuccess: (response) => {
+      queryClient.setQueryData(['homeBanner'], response.data);
       queryClient.invalidateQueries({ queryKey: ['homeBanner'] });
       toast.success('Home banner updated');
     },
