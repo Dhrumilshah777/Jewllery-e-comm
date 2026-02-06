@@ -1,5 +1,12 @@
 {
   "appId": "com.aojewelry.app",
   "appName": "AO Jewelry",
-  "webDir": "dist"
+  "webDir": "dist",
+  "plugins": {
+    "GoogleAuth": {
+      "scopes": ["profile", "email"],
+      "serverClientId": "1022592070302-bqfagoco7feblqv0ifcppi0q7k5g5tit.apps.googleusercontent.com",
+      "forceCodeForRefreshToken": true
+    }
+  }
 }

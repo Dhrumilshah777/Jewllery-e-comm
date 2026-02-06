@@ -41,6 +41,9 @@ const Products = () => {
         if (keyword) url += `keyword=${keyword}&`;
         if (category) url += `category=${category}&`;
         
+        // Add timestamp to prevent caching
+        url += `t=${Date.now()}`;
+
         const { data } = await axios.get(url);
         setProducts(data);
         setLoading(false);

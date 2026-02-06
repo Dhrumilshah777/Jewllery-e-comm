@@ -13,10 +13,19 @@ import AdminDashboard from './pages/AdminDashboard';
 import Gallery from './pages/Gallery';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotificationModal from './components/NotificationModal';
+import { useEffect } from 'react';
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
+import { Capacitor } from '@capacitor/core';
 
 function App() {
   const location = useLocation();
   const isHomePage = location.pathname === '/';
+
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      GoogleAuth.initialize();
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 pb-16 md:pb-0">

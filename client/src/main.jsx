@@ -13,13 +13,15 @@ import { Capacitor } from '@capacitor/core';
 
 import axios from 'axios';
 
+import ErrorBoundary from './components/ErrorBoundary';
+
 // Create a client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // Data is fresh for 5 minutes
+      staleTime: 0, // Data is always stale, fetch immediately
       cacheTime: 1000 * 60 * 30, // Cache persists for 30 minutes
-      refetchOnWindowFocus: false, // Don't refetch on window focus
+      refetchOnWindowFocus: true, // Refetch when window gains focus
     },
   },
 });
@@ -39,17 +41,19 @@ axios.defaults.withCredentials = true;
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <AuthProvider>
-            <WishlistProvider>
-              <App />
-            </WishlistProvider>
-          </AuthProvider>
-        </BrowserRouter>
-      </QueryClientProvider>
-    </GoogleOAuthProvider>
+    <ErrorBoundary>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <AuthProvider>
+              <WishlistProvider>
+                <App />
+              </WishlistProvider>
+            </AuthProvider>
+          </BrowserRouter>
+        </QueryClientProvider>
+      </GoogleOAuthProvider>
+    </ErrorBoundary>
   </React.StrictMode>,
 );
 

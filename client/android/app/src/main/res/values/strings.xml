@@ -4,4 +4,5 @@
     <string name="title_activity_main">AO Jewelry</string>
     <string name="package_name">com.aojewelry.app</string>
     <string name="custom_url_scheme">com.aojewelry.app</string>
+    <string name="server_client_id">1022592070302-bqfagoco7feblqv0ifcppi0q7k5g5tit.apps.googleusercontent.com</string>
 </resources>
