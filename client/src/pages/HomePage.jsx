@@ -90,7 +90,9 @@ const Home = () => {
     queryFn: fetchNewestProducts
   });
 
-  const loading = slidesLoading || categoriesLoading || homeBannerLoading || latestLoading || newestLoading;
+  // Only show full-page spinner for critical top-of-page content (Slides, Banner, Categories)
+  // Product sections (Latest/Newest) load lazily without blocking the UI
+  const loading = slidesLoading || categoriesLoading || homeBannerLoading;
 
   useEffect(() => {
     const onResize = () => setViewportWidth(window.innerWidth);
