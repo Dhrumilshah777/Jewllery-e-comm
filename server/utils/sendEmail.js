@@ -22,7 +22,15 @@ const sendEmail = async (options) => {
   };
 
   // Send email
-  await transporter.sendMail(mailOptions);
+  console.log(`[Email Service] Attempting to send email to ${options.email}`);
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`[Email Service] Email sent: ${info.response}`);
+    return info;
+  } catch (error) {
+    console.error(`[Email Service] Error sending email: ${error.message}`);
+    throw error;
+  }
 };
 
 module.exports = sendEmail;
