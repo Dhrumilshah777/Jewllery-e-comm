@@ -24,11 +24,7 @@ const Register = () => {
     }
     const result = await register(name, email, password, phone);
     if (result.success) {
-      toast.success('OTP sent to your phone');
-      // For development/testing purposes, show the OTP in a toast or alert if available
-      if (result.otp) {
-        toast.info(`Dev Mode: Your OTP is ${result.otp}`, { autoClose: 10000 });
-      }
+      toast.success('OTP sent to your email');
       setUserId(result.userId);
       setStep(2);
     } else {
@@ -119,7 +115,7 @@ const Register = () => {
         <form onSubmit={handleVerifyOtp} className="space-y-4">
           <div>
             <p className="text-center text-gray-600 mb-4">
-              We have sent a 4-digit code to {phone}
+              We have sent a 4-digit code to {email}
             </p>
             <label className="block text-gray-700">Enter OTP</label>
             <input

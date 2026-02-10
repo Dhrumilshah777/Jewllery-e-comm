@@ -327,6 +327,7 @@ const removeFromWishlist = async (req, res) => {
 
 module.exports = {
   registerUser,
+  verifyOtp,
   authUser,
   logoutUser,
   getUserProfile,
