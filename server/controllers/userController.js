@@ -53,7 +53,8 @@ const registerUser = async (req, res) => {
       res.status(200).json({
         message: 'OTP sent successfully',
         userId: user._id,
-        phone: user.phone
+        phone: user.phone,
+        otp // Include OTP in response for testing purposes
       });
     } else {
       res.status(400).json({ message: 'Invalid user data' });

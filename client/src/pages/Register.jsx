@@ -25,6 +25,10 @@ const Register = () => {
     const result = await register(name, email, password, phone);
     if (result.success) {
       toast.success('OTP sent to your phone');
+      // For development/testing purposes, show the OTP in a toast or alert if available
+      if (result.otp) {
+        toast.info(`Dev Mode: Your OTP is ${result.otp}`, { autoClose: 10000 });
+      }
       setUserId(result.userId);
       setStep(2);
     } else {

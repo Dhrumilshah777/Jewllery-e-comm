@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }) => {
       // Do NOT set user yet. User is not verified.
       // setUser(data);
       // localStorage.setItem('userInfo', JSON.stringify(data));
-      return { success: true, userId: data.userId, phone: data.phone };
+      return { success: true, userId: data.userId, phone: data.phone, otp: data.otp };
     } catch (error) {
       return {
         success: false,
