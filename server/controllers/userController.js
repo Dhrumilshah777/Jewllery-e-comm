@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const mongoose = require('mongoose');
 const { OAuth2Client } = require('google-auth-library');
+const sendEmail = require('../utils/sendEmail');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -45,17 +46,31 @@ const registerUser = async (req, res) => {
     });
 
     if (user) {
-      // In a real app, send SMS here. For now, log it.
-      console.log(`[MOCK SMS] OTP for ${phone} is: ${otp}`);
-      
-      // Do NOT set session yet. User is not verified.
-      
-      res.status(200).json({
-        message: 'OTP sent successfully',
-        userId: user._id,
-        phone: user.phone,
-        otp // Include OTP in response for testing purposes
-      });
+      // Send OTP via Email
+      const message = `Your verification code is: ${otp}\n\nThis code expires in 10 minutes.`;
+
+      try {
+        await sendEmail({
+          email: user.email,
+          subject: 'Account Verification Code',
+          message,
+        });
+
+        // Keep logging for dev purposes in case email fails or is slow
+        console.log(`[DEV LOG] OTP for ${email} is: ${otp}`);
+
+        res.status(200).json({
+          message: 'OTP sent to email successfully',
+          userId: user._id,
+          phone: user.phone,
+          email: user.email
+        });
+      } catch (error) {
+        console.error('Email send error:', error);
+        // If email fails, delete the user so they can try again
+        await User.findByIdAndDelete(user._id);
+        res.status(500).json({ message: 'Email could not be sent. Check server configuration.' });
+      }
     } else {
       res.status(400).json({ message: 'Invalid user data' });
     }
