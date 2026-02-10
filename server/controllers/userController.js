@@ -1,5 +1,7 @@
 const User = require('../models/User');
+const PendingUser = require('../models/PendingUser');
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 const { OAuth2Client } = require('google-auth-library');
 const sendEmail = require('../utils/sendEmail');
 
@@ -35,23 +37,32 @@ const registerUser = async (req, res) => {
     const otp = Math.floor(1000 + Math.random() * 9000).toString();
     const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    const user = await User.create({
-      name,
-      email,
-      password,
-      phone,
-      otp,
-      otpExpires,
-      isVerified: false
-    });
+    // Hash password before saving to PendingUser
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-    if (user) {
+    // Create or update pending user
+    // We use findOneAndUpdate with upsert to handle cases where user retries registration
+    const pendingUser = await PendingUser.findOneAndUpdate(
+      { email },
+      {
+        name,
+        email,
+        password: hashedPassword,
+        phone,
+        otp,
+        otpExpires
+      },
+      { new: true, upsert: true }
+    );
+
+    if (pendingUser) {
       // Send OTP via Email
       const message = `Your verification code is: ${otp}\n\nThis code expires in 10 minutes.`;
 
       try {
         await sendEmail({
-          email: user.email,
+          email: pendingUser.email,
           subject: 'Account Verification Code',
           message,
         });
@@ -61,14 +72,14 @@ const registerUser = async (req, res) => {
 
         res.status(200).json({
           message: 'OTP sent to email successfully',
-          userId: user._id,
-          phone: user.phone,
-          email: user.email
+          userId: pendingUser._id, // This is now the PendingUser ID
+          phone: pendingUser.phone,
+          email: pendingUser.email
         });
       } catch (error) {
         console.error('Email send error:', error);
-        // If email fails, delete the user so they can try again
-        await User.findByIdAndDelete(user._id);
+        // If email fails, delete the pending user so they can try again cleanly
+        await PendingUser.findByIdAndDelete(pendingUser._id);
         res.status(500).json({ message: 'Email could not be sent. Check server configuration.' });
       }
     } else {
@@ -87,32 +98,46 @@ const verifyOtp = async (req, res) => {
   const { userId, otp } = req.body;
 
   try {
-    const user = await User.findById(userId);
+    // Check in PendingUser first
+    const pendingUser = await PendingUser.findById(userId);
 
-    if (!user) {
-      res.status(404).json({ message: 'User not found' });
+    if (!pendingUser) {
+      // Fallback check in real User collection just in case logic was mixed, or for old flow support
+      // But strictly speaking, we should only check pendingUser for new flow.
+      res.status(404).json({ message: 'Registration session expired or invalid. Please register again.' });
       return;
     }
 
-    if (user.isVerified) {
-       res.status(400).json({ message: 'User already verified' });
-       return;
-    }
-
-    if (user.otp !== otp) {
+    if (pendingUser.otp !== otp) {
       res.status(400).json({ message: 'Invalid OTP' });
       return;
     }
 
-    if (user.otpExpires < Date.now()) {
+    if (pendingUser.otpExpires < Date.now()) {
       res.status(400).json({ message: 'OTP expired' });
       return;
     }
 
-    user.isVerified = true;
-    user.otp = undefined;
-    user.otpExpires = undefined;
-    await user.save();
+    // Move data to real User collection
+    // We use User.collection.insertOne to bypass pre-save hooks because password is ALREADY hashed
+    const newUser = {
+      name: pendingUser.name,
+      email: pendingUser.email,
+      password: pendingUser.password, // Already hashed
+      phone: pendingUser.phone,
+      isVerified: true,
+      role: 'user', // Default role
+      wishlist: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      __v: 0
+    };
+
+    const result = await User.collection.insertOne(newUser);
+    const user = await User.findById(result.insertedId);
+
+    // Delete pending user doc
+    await PendingUser.findByIdAndDelete(userId);
 
     await setSessionUserId(req, user);
     
