@@ -57,6 +57,34 @@ export const AuthProvider = ({ children }) => {
         { ...config, withCredentials: true }
       );
 
+      // Do NOT set user yet. User is not verified.
+      // setUser(data);
+      // localStorage.setItem('userInfo', JSON.stringify(data));
+      return { success: true, userId: data.userId, phone: data.phone };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+      };
+    }
+  };
+
+  const verifyOtp = async (userId, otp) => {
+    try {
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+
+      const { data } = await axios.post(
+        '/api/users/verify-otp',
+        { userId, otp },
+        { ...config, withCredentials: true }
+      );
+
       setUser(data);
       localStorage.setItem('userInfo', JSON.stringify(data));
       return { success: true };
@@ -109,7 +137,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, googleLogin, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, verifyOtp, googleLogin, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

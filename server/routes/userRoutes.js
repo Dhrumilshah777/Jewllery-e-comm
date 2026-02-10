@@ -7,11 +7,13 @@ const {
   getUserProfile,
   addToWishlist,
   removeFromWishlist,
-  googleLogin
+  googleLogin,
+  verifyOtp
 } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 
 router.post('/', registerUser);
+router.post('/verify-otp', verifyOtp);
 router.post('/auth', authUser);
 router.post('/google', googleLogin);
 router.post('/logout', logoutUser);

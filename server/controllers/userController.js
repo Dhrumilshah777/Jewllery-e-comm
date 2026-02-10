@@ -30,25 +30,84 @@ const registerUser = async (req, res) => {
       return;
     }
 
+    // Generate 4 digit OTP
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
     const user = await User.create({
       name,
       email,
       password,
       phone,
+      otp,
+      otpExpires,
+      isVerified: false
     });
 
     if (user) {
-      await setSessionUserId(req, user);
-      res.status(201).json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        role: user.role,
+      // In a real app, send SMS here. For now, log it.
+      console.log(`[MOCK SMS] OTP for ${phone} is: ${otp}`);
+      
+      // Do NOT set session yet. User is not verified.
+      
+      res.status(200).json({
+        message: 'OTP sent successfully',
+        userId: user._id,
+        phone: user.phone
       });
     } else {
       res.status(400).json({ message: 'Invalid user data' });
     }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+// @desc    Verify OTP and Activate User
+// @route   POST /api/users/verify-otp
+// @access  Public
+const verifyOtp = async (req, res) => {
+  const { userId, otp } = req.body;
+
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    if (user.isVerified) {
+       res.status(400).json({ message: 'User already verified' });
+       return;
+    }
+
+    if (user.otp !== otp) {
+      res.status(400).json({ message: 'Invalid OTP' });
+      return;
+    }
+
+    if (user.otpExpires < Date.now()) {
+      res.status(400).json({ message: 'OTP expired' });
+      return;
+    }
+
+    user.isVerified = true;
+    user.otp = undefined;
+    user.otpExpires = undefined;
+    await user.save();
+
+    await setSessionUserId(req, user);
+    
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+    });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server Error' });
