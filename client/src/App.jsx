@@ -13,6 +13,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import Gallery from './pages/Gallery';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotificationModal from './components/NotificationModal';
+import CookieConsent from './components/CookieConsent';
 import { useEffect } from 'react';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { Capacitor } from '@capacitor/core';
@@ -60,6 +61,7 @@ function App() {
         </Routes>
       </div>
       <NotificationModal />
+      <CookieConsent />
       <ToastContainer position="bottom-right" />
     </div>
   );
